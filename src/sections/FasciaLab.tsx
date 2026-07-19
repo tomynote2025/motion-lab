@@ -117,7 +117,7 @@ function SuperficialLab() {
 
           {/* 深筋膜(固定の土台) */}
           <rect x="20" y="288" width="430" height="26" rx="6" fill="#22402F" />
-          <text x="30" y="305" className="iap-label" fill="#7E8F84" fontSize="12">
+          <text x="30" y="305" className="iap-label" fill="#a4b8ab" fontSize="12">
             深筋膜(土台)
           </text>
 
@@ -150,7 +150,7 @@ function SuperficialLab() {
           {[70, 175, 285, 390].map((x, i) => (
             <circle key={`sat${i}`} cx={x + skinPx * 0.6} cy="132" r="18" fill="#4a3722" opacity="0.75" />
           ))}
-          <text x="30" y="120" className="iap-label" fill="#7E8F84" fontSize="12">
+          <text x="30" y="120" className="iap-label" fill="#a4b8ab" fontSize="12">
             皮下脂肪・皮膚支帯
           </text>
 
@@ -163,7 +163,7 @@ function SuperficialLab() {
             </text>
           </g>
 
-          <text x="235" y="28" textAnchor="middle" className="fascia-hint-svg" fill="#7E8F84">
+          <text x="235" y="28" textAnchor="middle" className="fascia-hint-svg" fill="#a4b8ab">
             ← 皮膚を左右にドラッグ →
           </text>
 
@@ -295,13 +295,13 @@ function DeepLab() {
     <div className="fascia-grid">
       <div className="iap-stage">
         <svg viewBox="0 0 470 360" className="iap-svg fascia-drag" role="img" aria-label="深筋膜の層構造モデル">
-          <text x="235" y="26" textAnchor="middle" className="fascia-hint-svg" fill="#7E8F84">
+          <text x="235" y="26" textAnchor="middle" className="fascia-hint-svg" fill="#a4b8ab">
             ← 表層を左右にドラッグ →
           </text>
 
           {/* 疎性結合組織(上) */}
           <rect x="20" y="40" width="430" height="26" rx="6" fill="#14281D" />
-          <text x="30" y="57" className="iap-label" fill="#7E8F84" fontSize="11">
+          <text x="30" y="57" className="iap-label" fill="#a4b8ab" fontSize="11">
             疎性結合組織
           </text>
 

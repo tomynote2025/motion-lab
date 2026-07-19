@@ -351,17 +351,17 @@ function ProcessedLab() {
           {[70, 100, 140, 180].map((g) => (
             <g key={g}>
               <line x1={x0} y1={yForG(g)} x2={x1} y2={yForG(g)} stroke="#2E4A3B" strokeWidth="1" strokeDasharray="3 4" />
-              <text x={x0 - 8} y={yForG(g) + 4} textAnchor="end" fontSize="10" fill="#7E8F84">
+              <text x={x0 - 8} y={yForG(g) + 4} textAnchor="end" fontSize="11" fill="#a4b8ab">
                 {g}
               </text>
             </g>
           ))}
           {[0, 1, 2, 3].map((h) => (
-            <text key={h} x={xForH(h)} y={yBot + 20} textAnchor="middle" fontSize="10" fill="#7E8F84">
+            <text key={h} x={xForH(h)} y={yBot + 20} textAnchor="middle" fontSize="11" fill="#a4b8ab">
               {h}h
             </text>
           ))}
-          <text x={x0 - 8} y="30" textAnchor="end" fontSize="10" fill="#7E8F84">
+          <text x={x0 - 8} y="30" textAnchor="end" fontSize="11" fill="#a4b8ab">
             mg/dL
           </text>
 

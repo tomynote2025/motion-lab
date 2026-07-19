@@ -187,7 +187,7 @@ export function IapLab() {
             </text>
 
             {/* 呼吸インジケータ */}
-            <text x="24" y="36" className="iap-breath" fill="#7E8F84">
+            <text x="24" y="36" className="iap-breath" fill="#a4b8ab">
               {breath > 0.5 ? '↓ 吸気(息を吸う)' : '↑ 呼気(息を吐く)'}
             </text>
           </svg>

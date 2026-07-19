@@ -5,8 +5,8 @@
   --panel: #ffffff;
   --line: #ddd8c8;
   --text: #1b1b17;
-  --muted: #6b6b60;
-  --faint: #8a8a7e;
+  --muted: #55554b;
+  --faint: #75756a;
   /* アクセント(深緑) */
   --green: #24523e;
   --green-deep: #1e3d2f;
@@ -21,7 +21,7 @@
   --stage-2: #1d3a2b;
   --stage-line: #2e4a3b;
   --stage-text: #efeadc;
-  --stage-muted: #93a89c;
+  --stage-muted: #a4b8ab;
   /* 書体 */
   --font-jp: 'Zen Kaku Gothic New', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
   --font-head: 'Zen Kaku Gothic New', sans-serif;
@@ -45,6 +45,24 @@ body {
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/* キーボード操作時のフォーカスを明確に */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 見出しの不自然な折り返しを防ぐ */
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
 }
 
 /* ---------- Nav ---------- */
@@ -321,7 +339,29 @@ body {
 .section-lead {
   max-width: 680px;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
+  line-height: 2;
+}
+
+/* 02 / 04 セクションは全幅の帯にして区切りを明確に(SHIRUSHIのJOURNAL帯と同じ手法) */
+#iap,
+#fascia {
+  background: var(--bg-2);
+  box-shadow: 0 0 0 100vmax var(--bg-2);
+  clip-path: inset(0 -100vmax);
+  padding-bottom: 90px;
+}
+
+#iap .iap-controls,
+#fascia .iap-controls,
+#fascia .fascia-note,
+#iap .iap-verdict,
+#fascia .iap-verdict {
+  background: var(--panel);
+}
+
+#fascia .fascia-note {
+  border: 1px solid var(--line);
 }
 
 /* ---------- Body Map ---------- */
@@ -398,7 +438,8 @@ body {
 
 .region-summary {
   color: var(--muted);
-  font-size: 14.5px;
+  font-size: 15px;
+  line-height: 2;
 }
 
 .region-signs {
@@ -420,7 +461,7 @@ body {
 }
 
 .region-signs li {
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--text);
   padding-left: 18px;
   position: relative;
@@ -495,8 +536,8 @@ body {
   border: 1px solid var(--line);
   color: var(--muted);
   border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 13px;
+  padding: 9px 18px;
+  font-size: 13.5px;
   font-weight: 700;
   font-family: var(--font-jp);
   cursor: pointer;
@@ -537,13 +578,13 @@ body {
 
 .iap-label {
   font-family: var(--font-jp);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .iap-breath {
   font-family: var(--font-jp);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -595,7 +636,7 @@ body {
   text-align: right;
   color: var(--muted);
   font-family: var(--font-en);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 input[type='range'] {
@@ -647,20 +688,24 @@ input[type='range']::-webkit-slider-thumb:hover {
 .iap-verdict {
   border-radius: 14px;
   background: var(--bg-2);
+  border-left: 4px solid var(--faint);
   padding: 16px 20px;
-  font-size: 13.5px;
+  font-size: 14.5px;
+  line-height: 1.9;
   font-weight: 700;
   color: var(--muted);
   min-height: 76px;
-  transition: color 0.3s;
+  transition: color 0.3s, border-color 0.3s;
 }
 
 .iap-verdict.good {
   color: var(--green);
+  border-left-color: var(--green);
 }
 
 .iap-verdict.bad {
   color: var(--coral);
+  border-left-color: var(--coral);
 }
 
 /* ---------- Neuro Lab ---------- */
@@ -734,7 +779,8 @@ input[type='range']::-webkit-slider-thumb:hover {
 
 .lab-desc p {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 14.5px;
+  line-height: 2;
   max-width: 760px;
 }
 
@@ -872,7 +918,8 @@ input[type='range']::-webkit-slider-thumb:hover {
 
 .vest-card p {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 13.5px;
+  line-height: 1.9;
 }
 
 .okn-wrap {
@@ -918,7 +965,8 @@ input[type='range']::-webkit-slider-thumb:hover {
 
 .neuro-caution {
   margin-top: 22px;
-  font-size: 12.5px;
+  font-size: 13.5px;
+  line-height: 1.9;
   color: var(--muted);
   border-left: 3px solid var(--amber);
   padding-left: 14px;
@@ -940,7 +988,7 @@ input[type='range']::-webkit-slider-thumb:hover {
 
 .fascia-hint-svg {
   font-family: var(--font-jp);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -949,9 +997,9 @@ input[type='range']::-webkit-slider-thumb:hover {
   border-radius: 14px;
   background: var(--bg-2);
   padding: 16px 20px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
-  line-height: 1.85;
+  line-height: 2;
 }
 
 .fascia-note b {
@@ -1142,7 +1190,7 @@ input[type='range']::-webkit-slider-thumb:hover {
 
 .profile-hint {
   margin-top: 16px;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -1223,10 +1271,10 @@ input[type='range']::-webkit-slider-thumb:hover {
 }
 
 .macro-role {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 2px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .nutri-bars {
