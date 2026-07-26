@@ -3,10 +3,12 @@ import { HomePage } from './pages/HomePage';
 import { BlogPage } from './pages/BlogPage';
 import { ArticlePage } from './pages/ArticlePage';
 import { LabPage } from './pages/LabPage';
+import { CustomCursor } from './components/CustomCursor';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <CustomCursor />
       <nav className="nav">
         <Link to="/" className="nav-logo">
           からだの<span>保健室</span>

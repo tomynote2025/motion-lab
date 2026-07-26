@@ -1304,6 +1304,69 @@ input[type='range']::-webkit-slider-thumb:hover {
   transition: width 0.25s ease;
 }
 
+/* ---------- カスタムカーソル ---------- */
+
+.cur-ring,
+.cur-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transform: translate(-100px, -100px);
+}
+
+.cur-ring {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--green);
+  background: transparent;
+  transition: width 0.25s, height 0.25s, background 0.25s, opacity 0.3s, border-color 0.25s;
+}
+
+.cur-ring.cur-hot {
+  width: 58px;
+  height: 58px;
+  background: rgba(36, 82, 62, 0.12);
+}
+
+.cur-ring.cur-press {
+  background: rgba(36, 82, 62, 0.24);
+}
+
+.cur-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--green);
+  transition: opacity 0.3s;
+}
+
+/* カーソル表示中は既定のポインタを隠す(マウス環境のみ・操作性は維持) */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor,
+  body.has-custom-cursor a,
+  body.has-custom-cursor button,
+  body.has-custom-cursor label,
+  body.has-custom-cursor select,
+  body.has-custom-cursor .chip {
+    cursor: none;
+  }
+}
+
+/* 入力欄・スライダー・3D操作面は既定カーソルを残す */
+body.has-custom-cursor input,
+body.has-custom-cursor textarea,
+body.has-custom-cursor canvas,
+body.has-custom-cursor .fascia-drag {
+  cursor: auto;
+}
+
+body.has-custom-cursor input[type='range'] {
+  cursor: pointer;
+}
+
 /* ---------- Blog: プロフィール ---------- */
 
 .page-top-pad {
