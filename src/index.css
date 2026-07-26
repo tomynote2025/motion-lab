@@ -1304,6 +1304,460 @@ input[type='range']::-webkit-slider-thumb:hover {
   transition: width 0.25s ease;
 }
 
+/* ---------- Blog: プロフィール ---------- */
+
+.page-top-pad {
+  padding-top: 64px;
+}
+
+.profile-hero .hero-kicker {
+  letter-spacing: 0.2em;
+}
+
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  max-width: 620px;
+}
+
+.profile-meta-item span {
+  display: block;
+  font-family: var(--font-en);
+  font-size: 10.5px;
+  letter-spacing: 0.25em;
+  color: var(--green);
+  margin-bottom: 3px;
+}
+
+.profile-meta-item b {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+/* ---------- Blog: 記事カード ---------- */
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.post-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 26px 28px 24px;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.28s;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 38px rgba(30, 61, 47, 0.12);
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.post-cat {
+  background: var(--green-deep);
+  color: #f3f0e7;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 11px;
+  border-radius: 5px;
+}
+
+.post-date {
+  font-family: var(--font-en);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  color: var(--faint);
+}
+
+.post-title {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+
+.post-excerpt {
+  font-size: 13.5px;
+  line-height: 1.95;
+  color: var(--muted);
+  flex: 1;
+}
+
+.post-more {
+  font-family: var(--font-en);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--green);
+  margin-top: 18px;
+}
+
+.list-more {
+  margin-top: 32px;
+  text-align: center;
+}
+
+/* ---------- Blog: 3Dマップ内の関連記事 ---------- */
+
+.region-articles {
+  margin-top: 20px;
+}
+
+.region-articles-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+
+.region-articles .article-link + .article-link {
+  margin-top: 10px;
+}
+
+.region-articles-empty {
+  font-size: 13.5px;
+  color: var(--faint);
+}
+
+/* ---------- Blog: 記事ページ ---------- */
+
+.article-page {
+  max-width: 760px;
+  padding-top: 104px;
+}
+
+.back-link {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: none;
+  margin-bottom: 26px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.article-head {
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 40px;
+}
+
+.article-head h1 {
+  font-family: var(--font-head);
+  font-size: clamp(28px, 4.4vw, 44px);
+  font-weight: 900;
+  line-height: 1.45;
+  letter-spacing: -0.015em;
+  margin: 6px 0 18px;
+}
+
+.article-excerpt {
+  font-size: 15.5px;
+  line-height: 2;
+  color: var(--muted);
+}
+
+.article-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 20px;
+}
+
+.chip-static {
+  cursor: default;
+  font-size: 12.5px;
+  padding: 6px 14px;
+}
+
+/* 本文タイポグラフィ */
+.article-body {
+  font-size: 16.5px;
+  line-height: 2.15;
+  color: #24241f;
+}
+
+.article-body > * + * {
+  margin-top: 1.5em;
+}
+
+.article-body h2 {
+  font-family: var(--font-head);
+  font-size: 25px;
+  font-weight: 900;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  margin-top: 2.4em;
+  padding-left: 16px;
+  border-left: 4px solid var(--green);
+}
+
+.article-body h3 {
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 700;
+  margin-top: 2em;
+}
+
+.article-body strong {
+  font-weight: 900;
+  background: linear-gradient(transparent 62%, rgba(143, 184, 160, 0.42) 62%);
+}
+
+.article-body a {
+  color: var(--green);
+  text-underline-offset: 3px;
+}
+
+.article-body ul,
+.article-body ol {
+  padding-left: 1.4em;
+}
+
+.article-body li + li {
+  margin-top: 0.6em;
+}
+
+.article-body li::marker {
+  color: var(--green);
+}
+
+.article-body blockquote {
+  border-left: 4px solid var(--green-soft);
+  background: var(--bg-2);
+  border-radius: 0 12px 12px 0;
+  padding: 18px 24px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.article-body blockquote > * + * {
+  margin-top: 1em;
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  display: block;
+  overflow-x: auto;
+}
+
+.article-body th,
+.article-body td {
+  border: 1px solid var(--line);
+  padding: 11px 14px;
+  text-align: left;
+}
+
+.article-body th {
+  background: var(--bg-2);
+  font-weight: 700;
+}
+
+.article-body pre {
+  background: var(--stage);
+  color: var(--stage-text);
+  padding: 18px 20px;
+  border-radius: 12px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.article-body code {
+  font-family: var(--font-en);
+  font-size: 0.92em;
+  background: var(--bg-2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.article-body pre code {
+  background: none;
+  padding: 0;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 2.6em 0;
+}
+
+.article-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.article-body em {
+  color: var(--faint);
+  font-size: 13.5px;
+  font-style: normal;
+  line-height: 1.9;
+}
+
+.article-source {
+  margin-top: 30px;
+  font-size: 13px;
+  color: var(--faint);
+}
+
+.article-source a {
+  color: var(--green);
+}
+
+.article-more {
+  margin-top: 56px;
+  padding-top: 30px;
+  border-top: 1px solid var(--line);
+}
+
+.article-more .article-link + .article-link {
+  margin-top: 10px;
+}
+
+.article-missing {
+  padding-top: 140px;
+  text-align: center;
+}
+
+.article-missing h2 {
+  font-family: var(--font-head);
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.article-missing .section-lead {
+  margin: 0 auto 26px;
+}
+
+/* ---------- Lab 誘導 / Lab ページ ---------- */
+
+.lab-promo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  background: var(--green-deep);
+  border-radius: 26px;
+  padding: 52px 48px;
+  color: #f3f0e7;
+}
+
+.lab-promo .section-index,
+.lab-promo .jp-sub {
+  color: var(--green-soft);
+}
+
+.lab-promo .section-index::before {
+  background: var(--green-soft);
+}
+
+.lab-promo h2 {
+  font-family: var(--font-head);
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  margin: 12px 0 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.lab-promo .section-lead {
+  color: #cfe0d5;
+  margin-bottom: 26px;
+}
+
+.lab-promo .cta-primary {
+  background: #f3f0e7;
+  color: var(--green-deep);
+}
+
+.lab-promo-item {
+  display: flex;
+  gap: 14px;
+  padding: 15px 0;
+  border-top: 1px solid rgba(243, 240, 231, 0.18);
+}
+
+.lab-promo-n {
+  font-family: var(--font-en);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--green-soft);
+  padding-top: 4px;
+}
+
+.lab-promo-item b {
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+.lab-promo-item p {
+  font-size: 13px;
+  line-height: 1.85;
+  color: #b7cbbf;
+  margin-top: 3px;
+}
+
+.lab-intro {
+  padding-bottom: 0;
+}
+
+.lab-intro h1 {
+  font-family: var(--font-head);
+  font-size: clamp(34px, 5.6vw, 60px);
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  margin: 12px 0 16px;
+}
+
+.lab-intro h1 em {
+  font-style: normal;
+  color: var(--green);
+}
+
+/* ---------- Nav (ルーター対応) ---------- */
+
+.nav-links a.active {
+  color: var(--green);
+}
+
+.footer-by {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f3f0e7;
+  margin-bottom: 14px;
+}
+
 /* ---------- Footer ---------- */
 
 .footer {
@@ -1496,5 +1950,36 @@ input[type='range']::-webkit-slider-thumb:hover {
 
   .footer {
     padding: 70px 16px 56px;
+  }
+
+  /* ブログ関連 */
+  .post-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .post-card {
+    padding: 22px 20px 20px;
+  }
+
+  .article-page {
+    padding-top: 92px;
+  }
+
+  .article-body {
+    font-size: 16px;
+  }
+
+  .article-body h2 {
+    font-size: 21px;
+  }
+
+  .lab-promo {
+    grid-template-columns: 1fr;
+    padding: 34px 22px;
+    gap: 24px;
+  }
+
+  .profile-meta {
+    gap: 14px 24px;
   }
 }

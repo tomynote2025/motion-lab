@@ -1,44 +1,44 @@
-import { Hero } from './sections/Hero';
-import { BodyMap } from './sections/BodyMap';
-import { IapLab } from './sections/IapLab';
-import { NeuroLab } from './sections/NeuroLab';
-import { FasciaLab } from './sections/FasciaLab';
-import { NutriLab } from './sections/NutriLab';
+import { BrowserRouter, Routes, Route, Link, NavLink } from 'react-router-dom';
+import { HomePage } from './pages/HomePage';
+import { BlogPage } from './pages/BlogPage';
+import { ArticlePage } from './pages/ArticlePage';
+import { LabPage } from './pages/LabPage';
 
 export default function App() {
   return (
-    <>
+    <BrowserRouter>
       <nav className="nav">
-        <a href="#top" className="nav-logo">
-          MOTION<span>LAB</span>
-        </a>
+        <Link to="/" className="nav-logo">
+          からだの<span>保健室</span>
+        </Link>
         <div className="nav-links">
-          <a href="#bodymap">Body Map</a>
-          <a href="#iap">IAP Lab</a>
-          <a href="#neuro">Neuro Lab</a>
-          <a href="#fascia">Fascia Lab</a>
-          <a href="#nutri">Nutri Lab</a>
+          <NavLink to="/" end>
+            ホーム
+          </NavLink>
+          <NavLink to="/blog">記事</NavLink>
+          <NavLink to="/lab">体験ラボ</NavLink>
         </div>
       </nav>
 
       <main id="top">
-        <Hero />
-        <BodyMap />
-        <IapLab />
-        <NeuroLab />
-        <FasciaLab />
-        <NutriLab />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<ArticlePage />} />
+          <Route path="/lab" element={<LabPage />} />
+          <Route path="*" element={<ArticlePage />} />
+        </Routes>
       </main>
 
       <footer className="footer">
-        <div className="footer-logo">MOTION LAB</div>
+        <div className="footer-logo">からだの保健室</div>
+        <p className="footer-by">tomy / 理学療法士・修士</p>
         <p>
-          本サイトの体験コンテンツは教育目的のデモであり、医学的な診断・治療に代わるものではありません。
+          本サイトの記事および体験コンテンツは一般的な情報提供・教育を目的としたものであり、医学的な診断・治療に代わるものではありません。
           <br />
           強い痛み・しびれ・めまいがある場合は、医療機関にご相談ください。
         </p>
-        <p className="footer-note">記事リンクは src/data/regions.ts で差し替えられます。</p>
       </footer>
-    </>
+    </BrowserRouter>
   );
 }

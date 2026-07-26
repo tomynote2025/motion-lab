@@ -1,22 +1,25 @@
 import { Suspense, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import { Link } from 'react-router-dom';
 import { SkeletonModel } from '../three/SkeletonModel';
 import { REGIONS } from '../data/regions';
+import { articlesByPart, formatDate } from '../lib/articles';
 
 export function BodyMap() {
   const [selected, setSelected] = useState<string | null>(null);
   const region = REGIONS.find((r) => r.id === selected) ?? null;
+  const related = region ? articlesByPart(region.id) : [];
 
   return (
     <section id="bodymap" className="section">
       <div className="section-head">
         <span className="section-index">01</span>
         <h2>
-          BODY MAP<span className="jp-sub">3D骨格診断マップ</span>
+          BODY MAP<span className="jp-sub">気になる部位から記事を探す</span>
         </h2>
         <p className="section-lead">
-          骨格モデルの光る点をタップすると、その部位で起きがちな不調のメカニズムと、深掘り記事へのリンクが表示されます。ドラッグで回転できます。
+          骨格モデルの光る点をタップすると、その部位で起きやすい不調のしくみと、関連する記事が表示されます。ドラッグで回転できます。
         </p>
       </div>
 
@@ -57,10 +60,22 @@ export function BodyMap() {
                   ))}
                 </ul>
               </div>
-              <a className="article-link" href={region.articleUrl} target="_blank" rel="noreferrer">
-                <span className="article-label">READ ARTICLE</span>
-                <span className="article-title">{region.articleTitle} →</span>
-              </a>
+
+              <div className="region-articles">
+                <div className="region-articles-title">この部位に関連する記事</div>
+                {related.length > 0 ? (
+                  related.map((a) => (
+                    <Link key={a.slug} className="article-link" to={`/blog/${a.slug}`}>
+                      <span className="article-label">
+                        {a.category} ・ {formatDate(a.date)}
+                      </span>
+                      <span className="article-title">{a.title} →</span>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="region-articles-empty">この部位の記事は準備中です。</p>
+                )}
+              </div>
             </article>
           ) : (
             <div className="region-empty">
