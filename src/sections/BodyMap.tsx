@@ -6,6 +6,8 @@ import { SkeletonModel } from '../three/SkeletonModel';
 import { REGIONS } from '../data/regions';
 import { articlesByPart, formatDate } from '../lib/articles';
 
+const SYSTEM_REGIONS = REGIONS.filter((r) => r.kind === 'system');
+
 export function BodyMap() {
   const [selected, setSelected] = useState<string | null>(null);
   const region = REGIONS.find((r) => r.id === selected) ?? null;
@@ -48,7 +50,7 @@ export function BodyMap() {
 
         <div className="bodymap-panel">
           {region ? (
-            <article key={region.id} className="region-card">
+            <article key={region.id} className={`region-card ${region.kind === 'system' ? 'is-system' : ''}`}>
               <div className="region-en">{region.en}</div>
               <h3>{region.label}</h3>
               <p className="region-summary">{region.summary}</p>
@@ -89,7 +91,7 @@ export function BodyMap() {
           )}
 
           <div className="region-chips" role="tablist" aria-label="部位を選択">
-            {REGIONS.map((r) => (
+            {REGIONS.filter((r) => r.kind !== 'system').map((r) => (
               <button
                 key={r.id}
                 className={`chip ${selected === r.id ? 'chip-active' : ''}`}
@@ -99,6 +101,23 @@ export function BodyMap() {
               </button>
             ))}
           </div>
+
+          {SYSTEM_REGIONS.length > 0 && (
+            <div className="system-chips">
+              <span className="system-chips-label">全身にかかわるテーマ</span>
+              <div className="region-chips">
+                {SYSTEM_REGIONS.map((r) => (
+                  <button
+                    key={r.id}
+                    className={`chip chip-system ${selected === r.id ? 'chip-active' : ''}`}
+                    onClick={() => setSelected(r.id === selected ? null : r.id)}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

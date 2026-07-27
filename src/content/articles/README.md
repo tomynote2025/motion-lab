@@ -40,12 +40,18 @@ source: https://note.com/xxxx/n/xxxx
 | `excerpt` | | 一覧ページに出る要約。省略すると本文冒頭が使われません（書くことを推奨） |
 | `source` | | note等の元記事URL。記事末尾にリンクが出ます |
 
-### `parts` に使えるID（10部位）
+### `parts` に使えるID
 
+**骨格の部位（青い点）**
 `neck`（首）/ `shoulder`（肩）/ `elbow`（肘）/ `wrist`（手首）/ `thoracic`（胸椎）/
 `core`（体幹・腹圧）/ `lumbar`（腰）/ `hip`（股関節）/ `knee`（膝）/ `ankle`（足首）
 
+**全身にかかわるテーマ（琥珀色の光）**
+`nutrition`（栄養・消化）
+
 複数指定できます → `parts: [lumbar, core, hip]`
+
+> 栄養の記事には `nutrition` を入れてください。3Dモデルのお腹の位置にある琥珀色の光、または「全身にかかわるテーマ」のボタンから辿れるようになります。
 
 ## 本文の書き方（Markdown）
 

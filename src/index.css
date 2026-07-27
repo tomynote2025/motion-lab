@@ -1481,6 +1481,47 @@ body.has-custom-cursor input[type='range'] {
 
 /* ---------- Blog: 3Dマップ内の関連記事 ---------- */
 
+/* 全身にかかわるテーマ(栄養など) */
+.system-chips {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+
+.system-chips-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+  margin-bottom: 8px;
+}
+
+.chip-system {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.chip-system:hover {
+  border-color: var(--amber);
+  color: var(--text);
+}
+
+.chip-system.chip-active {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #1a1204;
+}
+
+.region-card.is-system .region-en,
+.region-card.is-system .signs-title {
+  color: var(--amber);
+}
+
+.region-card.is-system .region-signs li::before {
+  color: var(--amber);
+}
+
 .region-articles {
   margin-top: 20px;
 }

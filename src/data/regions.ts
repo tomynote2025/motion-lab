@@ -4,6 +4,11 @@ export type Region = {
   en: string;
   /** 3D骨格モデル上のホットスポット座標 */
   position: [number, number, number];
+  /**
+   * skeletal = 骨格の部位(青い点) / system = 全身にかかわる系統(琥珀色の光)
+   * 省略した場合は skeletal 扱い
+   */
+  kind?: 'skeletal' | 'system';
   summary: string;
   signs: string[];
   articleTitle: string;
@@ -110,6 +115,18 @@ export const REGIONS: Region[] = [
     signs: ['階段の下りで痛む', '正座ができない', '膝が内側に入ると言われる'],
     articleTitle: '膝の痛みは膝のせいじゃない — 上下から考える',
     articleUrl: 'https://example.com/insights/knee',
+  },
+  {
+    id: 'nutrition',
+    label: '栄養・消化',
+    en: 'NUTRITION',
+    position: [0, 0.5, 0.46],
+    kind: 'system',
+    summary:
+      '食べたものは分子になり、骨・筋・ホルモン・神経の材料になります。どんなに動きを整えても、材料が足りなければ体は作り替わりません。',
+    signs: ['午後に強い眠気がくる', '疲れが抜けにくい', '甘いものがやめられない'],
+    articleTitle: 'PFCバランスの基本',
+    articleUrl: '',
   },
   {
     id: 'ankle',
