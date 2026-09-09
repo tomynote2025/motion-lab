@@ -1,24 +1,23 @@
 import { Suspense, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { Link } from 'react-router-dom';
 import { SkeletonModel } from '../three/SkeletonModel';
 import { REGIONS } from '../data/regions';
-import { articlesByPart, formatDate } from '../lib/articles';
+import { linksByPart, blogUrl, formatDate, BLOG_BASE } from '../data/blogLinks';
 
 const SYSTEM_REGIONS = REGIONS.filter((r) => r.kind === 'system');
 
 export function BodyMap() {
   const [selected, setSelected] = useState<string | null>(null);
   const region = REGIONS.find((r) => r.id === selected) ?? null;
-  const related = region ? articlesByPart(region.id) : [];
+  const related = region ? linksByPart(region.id) : [];
 
   return (
     <section id="bodymap" className="section">
       <div className="section-head">
         <span className="section-index">01</span>
         <h2>
-          BODY MAP<span className="jp-sub">気になる部位から記事を探す</span>
+          BODY MAP<span className="jp-sub">気になる部位から読む</span>
         </h2>
         <p className="section-lead">
           骨格モデルの光る点をタップすると、その部位で起きやすい不調のしくみと、関連する記事が表示されます。ドラッグで回転できます。
@@ -50,7 +49,10 @@ export function BodyMap() {
 
         <div className="bodymap-panel">
           {region ? (
-            <article key={region.id} className={`region-card ${region.kind === 'system' ? 'is-system' : ''}`}>
+            <article
+              key={region.id}
+              className={`region-card ${region.kind === 'system' ? 'is-system' : ''}`}
+            >
               <div className="region-en">{region.en}</div>
               <h3>{region.label}</h3>
               <p className="region-summary">{region.summary}</p>
@@ -67,15 +69,27 @@ export function BodyMap() {
                 <div className="region-articles-title">この部位に関連する記事</div>
                 {related.length > 0 ? (
                   related.map((a) => (
-                    <Link key={a.slug} className="article-link" to={`/blog/${a.slug}`}>
+                    <a
+                      key={a.slug}
+                      className="article-link"
+                      href={blogUrl(a.slug)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       <span className="article-label">
                         {a.category} ・ {formatDate(a.date)}
                       </span>
                       <span className="article-title">{a.title} →</span>
-                    </Link>
+                    </a>
                   ))
                 ) : (
-                  <p className="region-articles-empty">この部位の記事は準備中です。</p>
+                  <p className="region-articles-empty">
+                    この部位の記事は準備中です。
+                    <br />
+                    <a href={`${BLOG_BASE}/blog`} target="_blank" rel="noreferrer">
+                      ブログの記事一覧を見る →
+                    </a>
+                  </p>
                 )}
               </div>
             </article>

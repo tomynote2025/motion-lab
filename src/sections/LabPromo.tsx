@@ -12,7 +12,7 @@ export function LabPromo() {
     <section id="lab-promo" className="section">
       <div className="lab-promo">
         <div className="lab-promo-head">
-          <span className="section-index">03</span>
+          <span className="section-index">02</span>
           <h2>
             INTERACTIVE LAB<span className="jp-sub">体験して学ぶ</span>
           </h2>

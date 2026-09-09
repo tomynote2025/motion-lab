@@ -1,6 +1,8 @@
+import { BLOG_BASE } from '../data/blogLinks';
+
 /**
- * トップページのヒーロー(自己紹介)
- * 文言を書き換えるだけでプロフィールを更新できます。
+ * トップページのヒーロー
+ * 文言を書き換えるだけで内容を更新できます。
  */
 export function Profile() {
   return (
@@ -8,20 +10,20 @@ export function Profile() {
       <div className="hero-blob hero-blob-a" />
       <div className="hero-blob hero-blob-b" />
       <div className="hero-inner">
-        <p className="hero-kicker">からだの保健室</p>
+        <p className="hero-kicker">からだの実験室</p>
         <h1>
-          からだのことを、
+          からだのしくみを、
           <br />
-          <em>わかる</em>ことばで。
+          <em>さわって</em>確かめる。
         </h1>
         <p className="hero-lead">
-          理学療法士のtomyです。痛みや不調の「なぜ」を、解剖学と神経科学の視点からできるだけやさしく解きほぐしていきます。読むだけでなく、3Dモデルやシミュレーターで“体感”しながら学べる保健室です。
+          読むだけでは掴みにくい「腹圧」「筋膜の滑り」「眼と平衡感覚」を、実際に動かしながら理解できる体験サイトです。3D骨格モデルから、気になる部位の記事にも辿れます。
         </p>
 
         <div className="profile-meta">
           <div className="profile-meta-item">
-            <span>PROFILE</span>
-            <b>tomy / 理学療法士・修士</b>
+            <span>BY</span>
+            <b>tomy / 冨田 悦樹</b>
           </div>
           <div className="profile-meta-item">
             <span>FIELD</span>
@@ -31,17 +33,17 @@ export function Profile() {
 
         <div className="hero-cta">
           <a href="#bodymap" className="cta-primary">
-            気になる部位から探す ↓
+            3D骨格から探す ↓
           </a>
-          <a href="#articles" className="cta-ghost">
-            記事を読む
+          <a href={BLOG_BASE} target="_blank" rel="noreferrer" className="cta-ghost">
+            ブログを読む ↗
           </a>
         </div>
       </div>
       <div className="marquee" aria-hidden="true">
         <div className="marquee-inner">
-          {'からだの保健室 — 姿勢 — 腰痛 — 体幹 — 神経 — 栄養 — '.repeat(4)}
-          {'からだの保健室 — 姿勢 — 腰痛 — 体幹 — 神経 — 栄養 — '.repeat(4)}
+          {'MOVE — BREATHE — BALANCE — SENSE — STABILIZE — '.repeat(4)}
+          {'MOVE — BREATHE — BALANCE — SENSE — STABILIZE — '.repeat(4)}
         </div>
       </div>
     </header>
