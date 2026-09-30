@@ -7,7 +7,7 @@ export function NeuroLab() {
   return (
     <section id="neuro" className="section">
       <div className="section-head">
-        <span className="section-index">03</span>
+        <span className="section-index">02 / NEUROLOGY</span>
         <h2>
           NEURO LAB<span className="jp-sub">機能神経学ラボ</span>
         </h2>

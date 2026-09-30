@@ -6,37 +6,37 @@ import { BLOG_BASE } from '../data/blogLinks';
  */
 export function Profile() {
   return (
-    <header className="hero profile-hero">
+    <header className="hero profile-hero lab-home-hero">
       <div className="hero-blob hero-blob-a" />
       <div className="hero-blob hero-blob-b" />
       <div className="hero-inner">
-        <p className="hero-kicker">からだの実験室</p>
+        <p className="hero-kicker">INTERACTIVE BODY SCIENCE</p>
         <h1>
-          からだのしくみを、
+          からだは、
           <br />
-          <em>さわって</em>確かめる。
+          <em>触れる科学。</em>
         </h1>
         <p className="hero-lead">
-          読むだけでは掴みにくい「腹圧」「筋膜の滑り」「眼と平衡感覚」を、実際に動かしながら理解できる体験サイトです。3D骨格モデルから、気になる部位の記事にも辿れます。
+          骨格・筋膜・腹圧・神経・栄養。読むだけでは見えにくい身体のしくみを、自分の手で動かしながら理解するための体験型ラボです。
         </p>
 
         <div className="profile-meta">
           <div className="profile-meta-item">
             <span>BY</span>
-            <b>tomy / 冨田 悦樹</b>
+            <b>富田 樹 / Etsuki Tomita</b>
           </div>
           <div className="profile-meta-item">
             <span>FIELD</span>
-            <b>姿勢・腰痛・体幹・機能神経学・栄養</b>
+            <b>理学療法士 / 理学療法学修士</b>
           </div>
         </div>
 
         <div className="hero-cta">
           <a href="#bodymap" className="cta-primary">
-            3D骨格から探す ↓
+            BODY MAPを体験 ↓
           </a>
           <a href={BLOG_BASE} target="_blank" rel="noreferrer" className="cta-ghost">
-            ブログを読む ↗
+            健康記事を読む ↗
           </a>
         </div>
       </div>
