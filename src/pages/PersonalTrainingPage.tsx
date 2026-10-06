@@ -16,6 +16,13 @@ const FLOW = [
   ['04', 'セッション当日', '内容を確認したうえで、評価とトレーニングを行います。'],
 ];
 
+const RECOMMENDED = [
+  '痛みや不安があるけれど、無理なく運動を始めたい',
+  '痛みを繰り返しにくい身体づくりを目指したい',
+  'リハビリ終了後も、自分に合った運動を継続したい',
+  '姿勢や身体の使い方を知り、動きの質を高めたい',
+];
+
 export function PersonalTrainingPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -59,11 +66,42 @@ export function PersonalTrainingPage() {
           <span className="section-index">PRICE</span>
           <h2>料金</h2>
         </div>
+        <div className="personal-price-label">
+          <span>VISITING PLAN</span>
+          <p>中目黒・恵比寿・六本木・代官山</p>
+        </div>
         <div className="personal-price-grid">
           <article><span>STANDARD</span><b>60<small> min</small></b><strong>¥12,000</strong></article>
           <article><span>EXTENDED</span><b>90<small> min</small></b><strong>¥16,500</strong></article>
         </div>
-        <p className="personal-price-note">表示価格は出張費込みです。レンタルジム利用料については、お申し込み時にご案内します。</p>
+        <p className="personal-price-note">表示価格に出張費とレンタルジム利用料を含みます。</p>
+        <div className="personal-gym-price">
+          <div>
+            <span>SHINAGAWA PERSONAL GYM</span>
+            <h3>北品川ジムプラン</h3>
+            <p>北品川駅から徒歩3分のパーソナルジムで実施します。</p>
+          </div>
+          <div className="personal-gym-price-value">
+            <strong>別料金</strong>
+            <a href={`${BLOG_BASE}/contact`} target="_blank" rel="noreferrer">料金を問い合わせる ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <section className="personal-recommended-section">
+        <div className="personal-section-heading">
+          <span className="section-index">RECOMMENDED FOR</span>
+          <h2>こんな方におすすめ</h2>
+        </div>
+        <div className="personal-recommended-list">
+          {RECOMMENDED.map((item, index) => (
+            <article key={item}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <p>{item}</p>
+            </article>
+          ))}
+        </div>
+        <small>医師から運動制限を受けている方は、事前に主治医へご相談ください。</small>
       </section>
 
       <section className="personal-page-section personal-services-section">

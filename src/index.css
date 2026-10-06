@@ -3260,6 +3260,22 @@ body.has-custom-cursor input[type='range'] {
   border-top: 1px solid rgba(243, 240, 231, 0.15);
 }
 
+.personal-price-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 0;
+  border-top: 1px solid rgba(243, 240, 231, 0.15);
+  color: rgba(243, 240, 231, 0.72);
+}
+
+.personal-price-label span {
+  font-family: var(--font-en);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--green-soft);
+}
+
 .personal-price-grid article {
   display: grid;
   gap: 26px;
@@ -3299,6 +3315,102 @@ body.has-custom-cursor input[type='range'] {
   color: rgba(243, 240, 231, 0.58);
   font-size: 12px;
   line-height: 1.8;
+}
+
+.personal-gym-price {
+  display: flex;
+  justify-content: space-between;
+  gap: 45px;
+  align-items: end;
+  margin-top: 55px;
+  padding: 42px 50px;
+  border: 1px solid rgba(243, 240, 231, 0.2);
+  background: rgba(243, 240, 231, 0.035);
+}
+
+.personal-gym-price > div:first-child {
+  max-width: 620px;
+}
+
+.personal-gym-price span {
+  font-family: var(--font-en);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--green-soft);
+}
+
+.personal-gym-price h3 {
+  margin-top: 18px;
+  font-size: clamp(28px, 3vw, 42px);
+}
+
+.personal-gym-price p {
+  margin-top: 15px;
+  color: rgba(243, 240, 231, 0.58);
+  line-height: 1.8;
+}
+
+.personal-gym-price-value {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.personal-gym-price-value strong {
+  display: block;
+  font-size: 26px;
+  color: var(--green-soft);
+}
+
+.personal-gym-price-value a {
+  display: inline-block;
+  margin-top: 14px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(243, 240, 231, 0.4);
+  color: var(--stage-text);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.personal-recommended-section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 120px 28px 65px;
+}
+
+.personal-recommended-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.personal-recommended-list article {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 20px;
+  align-items: start;
+  min-height: 180px;
+  padding: 36px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.personal-recommended-list span {
+  font-family: var(--font-en);
+  color: var(--green);
+}
+
+.personal-recommended-list p {
+  font-size: clamp(18px, 2vw, 25px);
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.personal-recommended-section > small {
+  display: block;
+  margin-top: 20px;
+  color: var(--faint);
+  font-size: 10px;
 }
 
 .personal-services-section {
@@ -3823,6 +3935,7 @@ body.has-custom-cursor input[type='range'] {
 
   .personal-info-section,
   .personal-price-section,
+  .personal-recommended-section,
   .personal-flow-section {
     padding: 75px 18px;
   }
@@ -3853,6 +3966,31 @@ body.has-custom-cursor input[type='range'] {
 
   .personal-price-grid article:first-child {
     border-right: 0;
+  }
+
+  .personal-price-label,
+  .personal-gym-price {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .personal-gym-price {
+    gap: 30px;
+    margin-top: 40px;
+    padding: 30px 22px;
+  }
+
+  .personal-gym-price-value {
+    text-align: left;
+  }
+
+  .personal-recommended-list {
+    grid-template-columns: 1fr;
+  }
+
+  .personal-recommended-list article {
+    min-height: auto;
+    padding: 28px 22px;
   }
 
   .personal-flow-list article,
