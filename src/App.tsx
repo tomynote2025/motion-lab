@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link, NavLink } from 'react-router-dom';
 import { HomePage } from './pages/HomePage';
 import { LabPage } from './pages/LabPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { PersonalTrainingPage } from './pages/PersonalTrainingPage';
 import { CustomCursor } from './components/CustomCursor';
 import { BLOG_BASE } from './data/blogLinks';
 
@@ -20,9 +21,7 @@ export default function App() {
           </NavLink>
           <NavLink to="/lab">LAB MENU</NavLink>
           <NavLink to="/profile">PROFILE</NavLink>
-          <a href={BLOG_BASE} target="_blank" rel="noreferrer" className="nav-blog">
-            健康記事を読む ↗
-          </a>
+          <NavLink to="/personal-training" className="nav-training">出張パーソナル</NavLink>
         </div>
       </nav>
 
@@ -31,6 +30,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/personal-training" element={<PersonalTrainingPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </main>
@@ -44,6 +44,7 @@ export default function App() {
           <div className="footer-actions">
             <Link to="/lab">体験一覧</Link>
             <Link to="/profile">プロフィール</Link>
+            <Link to="/personal-training">出張パーソナル</Link>
             <a href={BLOG_BASE} target="_blank" rel="noreferrer">健康記事を読む ↗</a>
             <a href={`${BLOG_BASE}/contact`} target="_blank" rel="noreferrer">CONTACT ↗</a>
           </div>
