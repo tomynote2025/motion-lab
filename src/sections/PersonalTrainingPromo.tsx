@@ -19,8 +19,8 @@ export function PersonalTrainingPromo() {
 
         <div className="personal-promo-copy">
           <p>
-            ご自宅などへ伺い、一人ひとりの目的や身体の状態に合わせて行う出張パーソナルトレーニングです。
-            詳しい内容・対応地域・料金は専用ページで順次ご案内します。
+            レンタルジム等で、一人ひとりの目的や身体の状態に合わせて行う出張パーソナルトレーニングです。
+            中目黒・恵比寿・六本木・代官山と、北品川のパーソナルジムで対応します。
           </p>
           <Link to="/personal-training" className="personal-promo-link">
             出張パーソナルの案内を見る <span>→</span>
