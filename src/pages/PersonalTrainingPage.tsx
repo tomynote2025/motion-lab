@@ -51,7 +51,7 @@ export function PersonalTrainingPage() {
           <article>
             <span>VISITING AREA</span>
             <h3>中目黒・恵比寿<br />六本木・代官山</h3>
-            <p>ご希望のエリアにあるレンタルジム等を手配して実施します。</p>
+            <p>ご自宅への訪問、またはご希望のエリアにあるレンタルジム等で実施します。</p>
           </article>
           <article>
             <span>PERSONAL GYM</span>
@@ -68,13 +68,13 @@ export function PersonalTrainingPage() {
         </div>
         <div className="personal-price-label">
           <span>VISITING PLAN</span>
-          <p>中目黒・恵比寿・六本木・代官山</p>
+          <p>ご自宅 / レンタルジム｜中目黒・恵比寿・六本木・代官山</p>
         </div>
         <div className="personal-price-grid">
           <article><span>STANDARD</span><b>60<small> min</small></b><strong>¥12,000</strong></article>
           <article><span>EXTENDED</span><b>90<small> min</small></b><strong>¥16,500</strong></article>
         </div>
-        <p className="personal-price-note">表示価格に出張費とレンタルジム利用料を含みます。</p>
+        <p className="personal-price-note">表示価格は出張費込みです。レンタルジムを利用する場合は、ジム利用料も含みます。ご自宅での実施も同一料金です。</p>
         <div className="personal-gym-price">
           <div>
             <span>SHINAGAWA PERSONAL GYM</span>
