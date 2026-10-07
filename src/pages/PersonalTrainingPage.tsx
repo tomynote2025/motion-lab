@@ -4,9 +4,9 @@ import { BLOG_BASE } from '../data/blogLinks';
 
 const SERVICES = [
   ['01', '姿勢・動作チェック', '立ち方、歩き方、身体の使い方を確認し、現在の特徴を一緒に整理します。'],
-  ['02', '筋膜コンディショニング', '身体の状態に合わせ、筋膜の滑走と動きやすさを意識した調整を行います。'],
-  ['03', 'アスリートパフォーマンス', '競技特性と目標に合わせ、動作の質、パワー、安定性の向上を目指します。'],
-  ['04', '慢性的な不調への運動サポート', '慢性的な痛みや動きにくさに配慮しながら、無理のない運動を組み立てます。'],
+  ['02', '整体・筋膜コンディショニング', '身体の状態に合わせ、筋膜の滑走や関節の動きやすさを意識した手技を中心に行います。'],
+  ['03', '動きの再確認', '調整前後の立ち方や動き方を一緒に確認し、身体の変化を整理します。'],
+  ['04', '必要に応じた運動サポート', '無理にトレーニングを行わず、必要な方にはセルフケアや運動を少しずつご提案します。'],
 ];
 
 const FLOW = [
@@ -25,6 +25,7 @@ const RECOMMENDED = [
 
 const GUIDE_LINKS = [
   ['/personal-training/first', 'FIRST VISIT', '初めての方へ', '準備するものや、ご自宅で受ける際のポイントをご案内します。'],
+  ['/personal-training/body-care', 'BODY CARE', '整体・身体調整', '手技を中心に、身体を評価して動きやすさを整えるサービスです。'],
   ['#price', 'PRICE', '料金', 'コース料金と料金に含まれる内容を確認できます。'],
   ['#flow', 'FLOW', 'ご利用の流れ', '申し込みから当日までの手順を確認できます。'],
   ['/profile', 'TRAINER', '担当者紹介', '経歴・資格・大切にしている考えをご紹介します。'],
@@ -41,11 +42,11 @@ export function PersonalTrainingPage() {
   return (
     <div className="personal-page page-top-pad">
       <header className="personal-page-hero">
-        <span className="section-index">VISITING PERSONAL TRAINING</span>
-        <h1>あなたの場所で、<br /><em>からだと向き合う。</em></h1>
+        <span className="section-index">VISITING BODY CARE</span>
+        <h1>あなたの場所で、<br /><em>からだを整える。</em></h1>
         <p>
-          理学療法士の視点を活かし、目的と身体の状態に合わせて行う
-          完全予約制のパーソナルトレーニングです。
+          理学療法士の視点を活かした整体・身体調整を中心に、
+          必要に応じてセルフケアや運動までつなげる完全予約制のサービスです。
         </p>
         <Link to="/personal-training/apply" className="cta-primary">申し込みフォームへ →</Link>
       </header>
@@ -130,7 +131,7 @@ export function PersonalTrainingPage() {
       <section className="personal-page-section personal-services-section">
         <div className="personal-page-heading">
           <span className="section-index">SERVICE</span>
-          <h2>身体を見て、<br />必要なことを選ぶ。</h2>
+          <h2>鍛える前に、<br />身体を見て整える。</h2>
         </div>
         <div className="personal-feature-list">
           {SERVICES.map(([number, title, description]) => (

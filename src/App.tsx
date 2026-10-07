@@ -6,6 +6,7 @@ import { PersonalTrainingPage } from './pages/PersonalTrainingPage';
 import { PersonalTrainingApplyPage } from './pages/PersonalTrainingApplyPage';
 import {
   PersonalTrainingAreasPage,
+  PersonalTrainingBodyCarePage,
   PersonalTrainingFaqPage,
   PersonalTrainingFirstPage,
   PersonalTrainingVoicesPage,
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="/personal-training/faq" element={<PersonalTrainingFaqPage />} />
           <Route path="/personal-training/voices" element={<PersonalTrainingVoicesPage />} />
           <Route path="/personal-training/areas" element={<PersonalTrainingAreasPage />} />
+          <Route path="/personal-training/body-care" element={<PersonalTrainingBodyCarePage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </main>

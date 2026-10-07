@@ -82,6 +82,56 @@ export function PersonalTrainingFirstPage() {
   );
 }
 
+const BODY_CARE_FLOW = [
+  ['01', '状態を聞く', '困っている動作、日常生活で気になること、その日の体調を確認します。'],
+  ['02', '姿勢と動きを見る', '立つ・歩く・腕を上げるなど、目的に関係する動きを無理のない範囲で確認します。'],
+  ['03', '手技で整える', '筋膜や関節の動きに着目し、身体の状態に合わせた整体・コンディショニングを行います。'],
+  ['04', 'もう一度動いてみる', '調整前後の感覚や動き方を確認し、必要に応じてセルフケアや簡単な運動をご提案します。'],
+];
+
+export function PersonalTrainingBodyCarePage() {
+  return (
+    <InfoPage
+      label="BODY CARE / CONDITIONING"
+      title={<>整体・<br />身体調整。</>}
+      lead="トレーニングをすること自体が目的ではありません。まず身体を丁寧に見て、手技を中心に動きやすい状態を目指します。"
+    >
+      <section className="personal-info-block personal-body-care-intro">
+        <span className="section-index">MY STRENGTH</span>
+        <h2>強みは、鍛えるより<br />「見て、触れて、整える」こと。</h2>
+        <p>姿勢や動作を評価し、身体のどこに負担が集まっているのかを一緒に整理します。そのうえで、筋膜や関節の動きに着目した手技を中心に、現在の状態に合う方法を選びます。</p>
+      </section>
+
+      <section className="personal-info-block">
+        <span className="section-index">FOR YOU</span>
+        <h2>このような方へ</h2>
+        <ul className="personal-check-list">
+          <li>運動より先に、身体の状態を見てほしい</li>
+          <li>慢性的なこわばりや動きにくさが気になる</li>
+          <li>どこをセルフケアすればよいかわからない</li>
+          <li>運動を始めたいが、身体への不安がある</li>
+        </ul>
+      </section>
+
+      <section className="personal-info-block">
+        <span className="section-index">SESSION</span>
+        <h2>セッションの考え方</h2>
+        <div className="personal-info-card-grid">
+          {BODY_CARE_FLOW.map(([number, title, description]) => (
+            <article key={number}><span>{number}</span><h3>{title}</h3><p>{description}</p></article>
+          ))}
+        </div>
+      </section>
+
+      <section className="personal-info-block personal-body-care-note">
+        <span className="section-index">IMPORTANT</span>
+        <h2>整体だけでも、<br />お申し込みいただけます。</h2>
+        <p>運動や筋力トレーニングを必ず行うわけではありません。ご希望と身体の状態に応じて、整体・身体調整を中心に進めます。本サービスは医療行為ではなく、医学的な診断・治療の代わりとなるものではありません。</p>
+      </section>
+    </InfoPage>
+  );
+}
+
 const FAQS = [
   ['女性一人の自宅でも依頼できますか？', 'はい、ご依頼いただけます。ご不安な点や入室時の条件、ご家族等の立ち会い希望があれば、日程調整時にお知らせください。'],
   ['自宅にはどのくらいの広さが必要ですか？', '横になり、手足を無理なく動かせるスペースが目安です。難しい場合は、近隣のレンタルジムをご案内します。'],

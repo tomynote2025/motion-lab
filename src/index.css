@@ -3570,6 +3570,23 @@ body.has-custom-cursor input[type='range'] {
   line-height: 2;
 }
 
+.personal-body-care-intro {
+  margin-top: 35px;
+  padding: 65px;
+  border: 0;
+  background: var(--green);
+  color: var(--bg);
+}
+
+.personal-body-care-intro .section-index,
+.personal-body-care-intro > p {
+  color: rgba(243, 240, 231, 0.72);
+}
+
+.personal-body-care-note {
+  border-bottom: 0;
+}
+
 .personal-check-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4513,6 +4530,15 @@ body.has-custom-cursor input[type='range'] {
 
   .personal-info-block {
     padding: 55px 0;
+  }
+
+  .personal-body-care-intro {
+    margin-top: 25px;
+    padding: 38px 24px;
+  }
+
+  .personal-body-care-intro h2 {
+    font-size: 30px;
   }
 
   .personal-faq-list summary {
