@@ -187,7 +187,7 @@ export function PersonalTrainingAreasPage() {
           <article>
             <span>HOME VISIT</span>
             <h2>ご自宅への出張</h2>
-            <p>中目黒・恵比寿・六本木・代官山を中心に対応します。女性お一人のご自宅でもご依頼いただけます。</p>
+            <p>中目黒・恵比寿・六本木・代官山を中心に、ご自宅へ訪問します。</p>
             <b>60分 ¥12,000 / 90分 ¥16,500</b>
           </article>
           <article>
