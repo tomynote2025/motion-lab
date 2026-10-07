@@ -29,7 +29,6 @@ export default function App() {
           </NavLink>
           <NavLink to="/lab">LAB MENU</NavLink>
           <NavLink to="/profile">PROFILE</NavLink>
-          <NavLink to="/personal-training" className="nav-training">出張パーソナル</NavLink>
         </div>
       </nav>
 
@@ -58,9 +57,6 @@ export default function App() {
           <div className="footer-actions">
             <Link to="/lab">体験一覧</Link>
             <Link to="/profile">プロフィール</Link>
-            <Link to="/personal-training">出張パーソナル</Link>
-            <Link to="/personal-training/first">初めての方へ</Link>
-            <Link to="/personal-training/faq">よくある質問</Link>
             <a href={BLOG_BASE} target="_blank" rel="noreferrer">健康記事を読む ↗</a>
             <a href={`${BLOG_BASE}/contact`} target="_blank" rel="noreferrer">CONTACT ↗</a>
           </div>
