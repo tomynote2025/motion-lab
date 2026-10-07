@@ -76,9 +76,9 @@ export function PersonalTrainingPage() {
         </div>
         <div className="personal-area-grid">
           <article>
-            <span>VISITING AREA</span>
-            <h3>中目黒・恵比寿<br />六本木・代官山</h3>
-            <p>ご自宅への訪問、またはご希望のエリアにあるレンタルジム等で実施します。</p>
+            <span>STANDARD AREA</span>
+            <h3>目黒区・渋谷区・港区<br /><small>中目黒・恵比寿・代官山・六本木周辺</small></h3>
+            <p>ご自宅への訪問、または周辺のレンタルジムで実施します。</p>
           </article>
           <article>
             <span>PERSONAL GYM</span>
@@ -95,7 +95,7 @@ export function PersonalTrainingPage() {
         </div>
         <div className="personal-price-label">
           <span>VISITING PLAN</span>
-          <p>ご自宅 / レンタルジム｜中目黒・恵比寿・六本木・代官山</p>
+          <p>ご自宅 / レンタルジム｜目黒区・渋谷区・港区の指定エリア</p>
         </div>
         <div className="personal-price-grid">
           <article><span>STANDARD</span><b>60<small> min</small></b><strong>¥12,000</strong></article>

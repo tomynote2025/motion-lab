@@ -181,32 +181,32 @@ export function PersonalTrainingVoicesPage() {
 
 export function PersonalTrainingAreasPage() {
   return (
-    <InfoPage label="AREA GUIDE" title={<>対応エリア。</>} lead="ご自宅、レンタルジム、北品川のパーソナルジムから選べます。">
+    <InfoPage label="AREA GUIDE" title={<>対応エリア。</>} lead="目黒区・渋谷区・港区の指定エリアを中心に、ご自宅またはレンタルジムへ伺います。">
       <section className="personal-info-block">
         <div className="personal-area-detail-grid">
           <article>
             <span>HOME VISIT</span>
             <h2>ご自宅への出張</h2>
-            <p>中目黒・恵比寿・六本木・代官山を中心に、ご自宅へ訪問します。</p>
+            <p>目黒区・渋谷区・港区のうち、中目黒・恵比寿・代官山・六本木周辺を基本対応エリアとして、ご自宅へ訪問します。</p>
             <b>60分 ¥12,000 / 90分 ¥16,500</b>
           </article>
           <article>
             <span>RENTAL GYM</span>
             <h2>レンタルジム</h2>
-            <p>中目黒・恵比寿・六本木・代官山周辺で手配します。出張費・レンタルジム利用料込みです。</p>
+            <p>中目黒（目黒区）・恵比寿、代官山（渋谷区）・六本木（港区）周辺で手配します。出張費・レンタルジム利用料込みです。</p>
             <b>60分 ¥12,000 / 90分 ¥16,500</b>
           </article>
           <article>
             <span>KITASHINAGAWA</span>
-            <h2>北品川ジム</h2>
+            <h2>北品川（品川区）</h2>
             <p>北品川駅から徒歩3分のパーソナルジムで実施します。場所の詳細は日程確定後にご案内します。</p>
             <b>別料金 / お問い合わせ</b>
           </article>
           <article>
             <span>OTHER AREA</span>
             <h2>その他のエリア</h2>
-            <p>移動時間や施設の状況により対応できる場合があります。申し込みフォームから希望場所をご相談ください。</p>
-            <b>要相談</b>
+            <p>東京都内を中心に、移動時間や施設の状況によって対応できる場合があります。追加料金が必要な場合は、日程確定前にご案内します。</p>
+            <b>まずは希望場所をご相談ください</b>
           </article>
         </div>
       </section>
