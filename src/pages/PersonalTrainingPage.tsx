@@ -23,6 +23,16 @@ const RECOMMENDED = [
   '姿勢や身体の使い方を知り、動きの質を高めたい',
 ];
 
+const GUIDE_LINKS = [
+  ['/personal-training/first', 'FIRST VISIT', '初めての方へ', '準備するものや、ご自宅で受ける際のポイントをご案内します。'],
+  ['#price', 'PRICE', '料金', 'コース料金と料金に含まれる内容を確認できます。'],
+  ['#flow', 'FLOW', 'ご利用の流れ', '申し込みから当日までの手順を確認できます。'],
+  ['/profile', 'TRAINER', '担当者紹介', '経歴・資格・大切にしている考えをご紹介します。'],
+  ['/personal-training/voices', 'STORIES', 'お客様の声', '掲載準備中のページです。'],
+  ['/personal-training/areas', 'AREA', '対応エリア', 'ご自宅、レンタルジム、北品川の違いをご案内します。'],
+  ['/personal-training/faq', 'FAQ', 'よくある質問', '服装、女性お一人でのご依頼、支払いなどをまとめています。'],
+] as const;
+
 export function PersonalTrainingPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -37,10 +47,23 @@ export function PersonalTrainingPage() {
           理学療法士の視点を活かし、目的と身体の状態に合わせて行う
           完全予約制のパーソナルトレーニングです。
         </p>
-        <a href={`${BLOG_BASE}/contact`} target="_blank" rel="noreferrer" className="cta-primary">
-          申し込みフォームへ ↗
-        </a>
+        <Link to="/personal-training/apply" className="cta-primary">申し込みフォームへ →</Link>
       </header>
+
+      <section className="personal-guide-section">
+        <div className="personal-section-heading">
+          <span className="section-index">INFORMATION</span>
+          <h2>ご利用案内</h2>
+        </div>
+        <div className="personal-guide-grid">
+          {GUIDE_LINKS.map(([href, label, title, description]) => {
+            const content = <><span>{label}</span><h3>{title}</h3><p>{description}</p><b>詳しく見る →</b></>;
+            return href.startsWith('#')
+              ? <a href={href} key={href}>{content}</a>
+              : <Link to={href} key={href}>{content}</Link>;
+          })}
+        </div>
+      </section>
 
       <section className="personal-info-section">
         <div className="personal-section-heading">
@@ -61,7 +84,7 @@ export function PersonalTrainingPage() {
         </div>
       </section>
 
-      <section className="personal-price-section">
+      <section className="personal-price-section" id="price">
         <div className="personal-section-heading">
           <span className="section-index">PRICE</span>
           <h2>料金</h2>
@@ -120,7 +143,7 @@ export function PersonalTrainingPage() {
         </div>
       </section>
 
-      <section className="personal-flow-section">
+      <section className="personal-flow-section" id="flow">
         <div className="personal-section-heading">
           <span className="section-index">HOW TO BOOK</span>
           <h2>ご利用の流れ</h2>
@@ -141,7 +164,7 @@ export function PersonalTrainingPage() {
         <h2>まずはご希望を<br />お聞かせください。</h2>
         <p>希望エリアと日時を確認し、折り返しご連絡します。</p>
         <div className="personal-page-actions">
-          <a href={`${BLOG_BASE}/contact`} target="_blank" rel="noreferrer" className="cta-primary">申し込みフォームへ ↗</a>
+          <Link to="/personal-training/apply" className="cta-primary">申し込みフォームへ →</Link>
           <Link to="/profile" className="cta-ghost">プロフィールを見る →</Link>
         </div>
         <small>本サービスは医学的な診断・治療の代わりとなるものではありません。強い痛みやしびれ等がある場合は、事前に医療機関へご相談ください。</small>

@@ -3,6 +3,13 @@ import { HomePage } from './pages/HomePage';
 import { LabPage } from './pages/LabPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { PersonalTrainingPage } from './pages/PersonalTrainingPage';
+import { PersonalTrainingApplyPage } from './pages/PersonalTrainingApplyPage';
+import {
+  PersonalTrainingAreasPage,
+  PersonalTrainingFaqPage,
+  PersonalTrainingFirstPage,
+  PersonalTrainingVoicesPage,
+} from './pages/PersonalTrainingInfoPages';
 import { CustomCursor } from './components/CustomCursor';
 import { BLOG_BASE } from './data/blogLinks';
 
@@ -31,6 +38,11 @@ export default function App() {
           <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/personal-training" element={<PersonalTrainingPage />} />
+          <Route path="/personal-training/apply" element={<PersonalTrainingApplyPage />} />
+          <Route path="/personal-training/first" element={<PersonalTrainingFirstPage />} />
+          <Route path="/personal-training/faq" element={<PersonalTrainingFaqPage />} />
+          <Route path="/personal-training/voices" element={<PersonalTrainingVoicesPage />} />
+          <Route path="/personal-training/areas" element={<PersonalTrainingAreasPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </main>
@@ -45,6 +57,8 @@ export default function App() {
             <Link to="/lab">体験一覧</Link>
             <Link to="/profile">プロフィール</Link>
             <Link to="/personal-training">出張パーソナル</Link>
+            <Link to="/personal-training/first">初めての方へ</Link>
+            <Link to="/personal-training/faq">よくある質問</Link>
             <a href={BLOG_BASE} target="_blank" rel="noreferrer">健康記事を読む ↗</a>
             <a href={`${BLOG_BASE}/contact`} target="_blank" rel="noreferrer">CONTACT ↗</a>
           </div>
