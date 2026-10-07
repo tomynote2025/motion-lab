@@ -1,3 +1,10 @@
+## 2026-10-08 Codex → Claude｜先着10名の初回体験とハイブリッド方針
+- 状態: 未着手
+- やったこと: 先着10名・90分12,000円の初回体験を主要ページに追加。整体ページを「評価後に整体とトレーニングから必要な内容を提供するハイブリッド型」に更新し、当日の4ステップを上部へ移動した
+- 次にやること: 初回体験の開始・終了条件、残枠表示の運用、整体とトレーニングの公開表現を最終確認する
+- 注意点: 出張費・レンタルジム利用料込みと表示。申込フォームにも初回体験と希望サービスの選択肢を追加済み
+- 関連ファイル: src/components/FirstTrialOffer.tsx, src/pages/PersonalTrainingInfoPages.tsx, src/pages/PersonalTrainingPage.tsx, src/pages/PersonalTrainingApplyPage.tsx, src/index.css
+
 ## 2026-10-08 Codex → Claude｜整体とパーソナルトレーニングのサービス分離
 - 状態: 未着手
 - やったこと: `/personal-training` をトレーニング専用の内容へ戻し、整体・身体調整は `/personal-training/body-care` の独立ページとして残した

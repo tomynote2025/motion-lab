@@ -14,11 +14,12 @@ function PersonalTrainingApplyForm() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const subject = '【出張パーソナル】お申し込み';
+    const subject = '【出張整体・パーソナル】お申し込み';
     const body = [
       `お名前：${data.get('name') ?? ''}`,
       `メールアドレス：${data.get('email') ?? ''}`,
       `電話番号：${data.get('phone') ?? ''}`,
+      `希望サービス：${data.get('service') ?? ''}`,
       `希望の実施方法：${data.get('location') ?? ''}`,
       `希望コース：${data.get('course') ?? ''}`,
       `第1希望：${data.get('firstChoice') ?? ''}`,
@@ -51,6 +52,16 @@ function PersonalTrainingApplyForm() {
 
       <div className="personal-form-grid">
         <label>
+          <span>希望サービス <b>*</b></span>
+          <select name="service" required defaultValue="">
+            <option value="" disabled>選択してください</option>
+            <option>身体を評価して提案してほしい</option>
+            <option>整体・身体調整を中心に希望</option>
+            <option>パーソナルトレーニングを中心に希望</option>
+            <option>整体とトレーニングの両方を希望</option>
+          </select>
+        </label>
+        <label>
           <span>希望の実施方法 <b>*</b></span>
           <select name="location" required defaultValue="">
             <option value="" disabled>選択してください</option>
@@ -67,6 +78,7 @@ function PersonalTrainingApplyForm() {
           <span>希望コース <b>*</b></span>
           <select name="course" required defaultValue="">
             <option value="" disabled>選択してください</option>
+            <option>先着10名 初回体験 90分 / 12,000円</option>
             <option>60分 / 12,000円</option>
             <option>90分 / 16,500円</option>
             <option>北品川ジムプラン</option>
@@ -116,7 +128,7 @@ export function PersonalTrainingApplyPage() {
     <div className="personal-apply-page page-top-pad">
       <header className="personal-apply-hero">
         <span className="section-index">APPLICATION</span>
-        <h1>出張パーソナル<br /><em>お申し込み。</em></h1>
+        <h1>出張サービス<br /><em>お申し込み。</em></h1>
         <p>希望内容を送信いただいた後、日程と実施場所を調整します。</p>
       </header>
 

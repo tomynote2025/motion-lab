@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BLOG_BASE } from '../data/blogLinks';
+import { FirstTrialOffer } from '../components/FirstTrialOffer';
 
 const SERVICES = [
   ['01', '姿勢・動作チェック', '立ち方、歩き方、身体の使い方を確認し、現在の特徴を一緒に整理します。'],
@@ -50,6 +51,8 @@ export function PersonalTrainingPage() {
         </p>
         <Link to="/personal-training/apply" className="cta-primary">申し込みフォームへ →</Link>
       </header>
+
+      <FirstTrialOffer />
 
       <section className="personal-guide-section">
         <div className="personal-section-heading">

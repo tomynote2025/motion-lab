@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { FirstTrialOffer } from '../components/FirstTrialOffer';
 
 type InfoPageProps = {
   label: string;
@@ -46,6 +47,8 @@ export function PersonalTrainingFirstPage() {
       title={<>初めての方へ。</>}
       lead="初回の申し込みから当日まで、必要なことをわかりやすくまとめました。"
     >
+      <FirstTrialOffer />
+
       <section className="personal-info-block">
         <span className="section-index">WELCOME</span>
         <h2>運動に自信がなくても、<br />大丈夫です。</h2>
@@ -83,10 +86,10 @@ export function PersonalTrainingFirstPage() {
 }
 
 const BODY_CARE_FLOW = [
-  ['01', '状態を聞く', '困っている動作、日常生活で気になること、その日の体調を確認します。'],
-  ['02', '姿勢と動きを見る', '立つ・歩く・腕を上げるなど、目的に関係する動きを無理のない範囲で確認します。'],
-  ['03', '手技で整える', '筋膜や関節の動きに着目し、身体の状態に合わせた整体・コンディショニングを行います。'],
-  ['04', 'もう一度動いてみる', '調整前後の感覚や動き方を確認し、必要に応じてセルフケアや簡単な運動をご提案します。'],
+  ['01', 'カウンセリング', '困っている動作、日常生活で気になること、その日の体調や目標を確認します。'],
+  ['02', '姿勢・動作の評価', '立つ・歩く・腕を上げるなど、目的に関係する動きを無理のない範囲で確認します。'],
+  ['03', '必要な内容を提供', '評価をもとに、整体・身体調整、トレーニング、または両方を組み合わせて行います。'],
+  ['04', '再評価・セルフケア', '前後の感覚や動き方を確認し、必要に応じて自宅で行えるケアや運動をご提案します。'],
 ];
 
 export function PersonalTrainingBodyCarePage() {
@@ -94,12 +97,24 @@ export function PersonalTrainingBodyCarePage() {
     <InfoPage
       label="BODY CARE / CONDITIONING"
       title={<>整体・<br />身体調整。</>}
-      lead="トレーニングをすること自体が目的ではありません。まず身体を丁寧に見て、手技を中心に動きやすい状態を目指します。"
+      lead="整体とトレーニングを分けず、身体の状態を評価したうえで、その日に必要なものを組み合わせて提供します。"
     >
+      <FirstTrialOffer />
+
       <section className="personal-info-block personal-body-care-intro">
-        <span className="section-index">MY STRENGTH</span>
-        <h2>強みは、鍛えるより<br />「見て、触れて、整える」こと。</h2>
-        <p>姿勢や動作を評価し、身体のどこに負担が集まっているのかを一緒に整理します。そのうえで、筋膜や関節の動きに着目した手技を中心に、現在の状態に合う方法を選びます。</p>
+        <span className="section-index">HYBRID APPROACH</span>
+        <h2>整体とトレーニングの<br />ハイブリッド。</h2>
+        <p>最初に姿勢や動作を評価し、身体のどこに負担が集まっているかを整理します。整体が必要なのか、運動が必要なのか、その両方が必要なのかを判断し、一人ひとりに合う内容を組み立てます。</p>
+      </section>
+
+      <section className="personal-info-block">
+        <span className="section-index">TODAY'S SESSION</span>
+        <h2>当日の流れ</h2>
+        <div className="personal-info-card-grid">
+          {BODY_CARE_FLOW.map(([number, title, description]) => (
+            <article key={number}><span>{number}</span><h3>{title}</h3><p>{description}</p></article>
+          ))}
+        </div>
       </section>
 
       <section className="personal-info-block">
@@ -113,20 +128,10 @@ export function PersonalTrainingBodyCarePage() {
         </ul>
       </section>
 
-      <section className="personal-info-block">
-        <span className="section-index">SESSION</span>
-        <h2>セッションの考え方</h2>
-        <div className="personal-info-card-grid">
-          {BODY_CARE_FLOW.map(([number, title, description]) => (
-            <article key={number}><span>{number}</span><h3>{title}</h3><p>{description}</p></article>
-          ))}
-        </div>
-      </section>
-
       <section className="personal-info-block personal-body-care-note">
         <span className="section-index">IMPORTANT</span>
-        <h2>整体だけでも、<br />お申し込みいただけます。</h2>
-        <p>運動や筋力トレーニングを必ず行うわけではありません。ご希望と身体の状態に応じて、整体・身体調整を中心に進めます。本サービスは医療行為ではなく、医学的な診断・治療の代わりとなるものではありません。</p>
+        <h2>内容を決めていなくても、<br />お申し込みいただけます。</h2>
+        <p>「整体とトレーニングのどちらが必要かわからない」という方も、評価をもとにご提案します。整体だけ、トレーニングだけのご希望にも対応します。本サービスは医療行為ではなく、医学的な診断・治療の代わりとなるものではありません。</p>
       </section>
     </InfoPage>
   );
