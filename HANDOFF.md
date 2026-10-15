@@ -1,3 +1,10 @@
+## 2026-10-16 Codex → ユーザー｜Labブランド・氏名資格表記と改行の整理
+- 状態: 完了
+- やったこと: ヘッダー／フッター／ページタイトルを「Be:come｜からだの実験室」へ統一し、旧 `tomy`・旧氏名・整体師表記を削除。氏名を「富田 樹」、肩書きを「理学療法士（理学療法学修士）／パーソナルトレーナー／ピラティスインストラクター」に更新した。LAB一覧の「感覚に変える。」やプロフィール肩書きの不自然な途中改行を防止し、申込先メールも `be.come.tomy@gmail.com` に統一した
+- 次にやること: GitHub Desktopでmainをpushし、Vercelの自動デプロイ完了後に本番表示を確認する
+- 注意点: `npm run lint` は既存のThree.js系Hook警告のみ、`npm run build` は成功。プロフィールページ本文には以前からの入力待ちプレースホルダーが残っている
+- 関連ファイル: index.html, src/App.tsx, src/index.css, src/sections/Profile.tsx, src/pages/ProfilePage.tsx, src/pages/PersonalTrainingApplyPage.tsx
+
 ## 2026-10-08 Codex → Claude｜出張サービス導線をBODY LABからブログ本体へ移行
 - 状態: 完了
 - やったこと: BODY LABトップの出張パーソナル告知、ヘッダーナビ、フッター導線を削除し、Labを体験コンテンツ中心に戻した

@@ -27,7 +27,11 @@ export function Profile() {
           </div>
           <div className="profile-meta-item">
             <span>FIELD</span>
-            <b>理学療法士 / 理学療法学修士</b>
+            <b>理学療法士（理学療法学修士）</b>
+          </div>
+          <div className="profile-meta-item">
+            <span>ACTIVITY</span>
+            <b>パーソナルトレーナー / ピラティスインストラクター</b>
           </div>
         </div>
 

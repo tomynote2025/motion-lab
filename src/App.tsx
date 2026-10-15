@@ -20,7 +20,7 @@ export default function App() {
       <CustomCursor />
       <nav className="nav">
         <Link to="/" className="nav-logo">
-          BODY<span> LAB</span>
+          Be<span>:come</span>
           <small>からだの実験室</small>
         </Link>
         <div className="nav-links">
@@ -51,8 +51,13 @@ export default function App() {
       <footer className="footer">
         <div className="footer-grid">
           <div>
-            <div className="footer-logo">BODY LAB</div>
-            <p className="footer-by">富田 樹 — 理学療法士 / パーソナルトレーナー</p>
+            <div className="footer-logo">Be:come <small>からだの実験室</small></div>
+            <div className="footer-by">
+              <strong>富田 樹</strong>
+              <span>理学療法士（理学療法学修士）</span>
+              <span>パーソナルトレーナー</span>
+              <span>ピラティスインストラクター</span>
+            </div>
           </div>
           <div className="footer-actions">
             <Link to="/lab">体験一覧</Link>
@@ -66,7 +71,7 @@ export default function App() {
           <br />
           強い痛み・しびれ・めまいがある場合は、医療機関にご相談ください。
         </p>
-        <p className="footer-copy">© {new Date().getFullYear()} Etsuki Tomita / Body Lab</p>
+        <p className="footer-copy">© {new Date().getFullYear()} Etsuki Tomita / Be:come</p>
       </footer>
     </BrowserRouter>
   );

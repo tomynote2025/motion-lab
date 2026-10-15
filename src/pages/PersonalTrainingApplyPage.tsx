@@ -1,7 +1,7 @@
 import { useEffect, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 
-const APPLICATION_EMAIL = 'tomy.note.2025@gmail.com';
+const APPLICATION_EMAIL = 'be.come.tomy@gmail.com';
 
 const AVAILABILITY = [
   ['WED / FRI', '水曜日・金曜日', '19:00〜22:00'],

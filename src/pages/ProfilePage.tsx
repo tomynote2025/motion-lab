@@ -36,7 +36,7 @@ export function ProfilePage() {
         <div className="profile-page-copy">
           <p className="section-index">PROFILE / ABOUT ME</p>
           <h1>富田 樹<small>Etsuki Tomita</small></h1>
-          <p className="profile-page-role">理学療法士 / 理学療法学修士 / パーソナルトレーナー</p>
+          <p className="profile-page-role"><span>理学療法士（理学療法学修士）</span><span>パーソナルトレーナー</span><span>ピラティスインストラクター</span></p>
           <p className="profile-page-intro">身体のしくみを、専門用語だけで終わらせず、一般の方にも触れて理解できる形で届けることを目指しています。詳しい自己紹介文は後から追加できます。</p>
           <div className="profile-page-actions">
             <a href={BLOG_BASE} target="_blank" rel="noreferrer" className="cta-primary">健康記事を読む ↗</a>
