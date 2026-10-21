@@ -126,7 +126,8 @@ export function IapLab() {
   const stress = Math.max(0, load * 0.95 - support);
   // 崩れる方向(IapAnatomy3D と同じ考え方): 正=丸まる(屈曲), 負=反る(伸展)
   const collapseBias = (1 - (dia + pf) / 2) - (1 - tva);
-  const mmhg = Math.round(6 + pressure * 84);
+  // 実測値(mmHg)と誤解されないよう、圧の高まりは言葉の目安で示す
+  const pressureWord = pressure < 0.35 ? '低い' : pressure < 0.65 ? '中くらい' : '高い';
   const stability = Math.round(support * 100);
 
   const changeValue = (setter: (value: number) => void, value: number) => {
@@ -217,14 +218,14 @@ export function IapLab() {
                   strokeDashoffset={gaugeCirc * (1 - pressure)}
                   transform="rotate(-90 60 60)"
                 />
-                <text x="60" y="56" textAnchor="middle" className="gauge-num" fill="#1B1B17">
-                  {mmhg}
+                <text x="60" y="62" textAnchor="middle" className="gauge-word" fill="#1B1B17">
+                  {pressureWord}
                 </text>
-                <text x="60" y="76" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
-                  mmHg
+                <text x="60" y="80" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
+                  目安
                 </text>
               </svg>
-              <span>腹腔内圧</span>
+              <span>腹圧の高まり</span>
             </div>
             <div className="gauge">
               <svg viewBox="0 0 120 120">
@@ -300,7 +301,7 @@ export function IapLab() {
             </div>
           )}
           <p className="iap-disclaimer">
-            ※ 数値は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません。背骨の崩れ方（丸まる／反る）は説明のための一例で、どこが働きにくいとどちらに崩れる、と決まっているものではありません。実際の崩れ方は人によって異なります。
+            ※ 表示は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません（健康な成人の安静時の腹腔内圧は、おおむね 7 mmHg 未満とされます）。背骨の崩れ方（丸まる／反る）は説明のための一例で、どこが働きにくいとどちらに崩れる、と決まっているものではありません。実際の崩れ方は人によって異なります。
             <br />
             3Dモデル: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International（腹圧の説明用に一部を抜き出し、改変して使用。腹壁は外腹斜筋のデータで表示）
           </p>

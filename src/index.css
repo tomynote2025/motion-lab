@@ -849,6 +849,12 @@ h4 {
   font-size: 11px;
 }
 
+.gauge-word {
+  font-family: var(--font-jp);
+  font-size: 18px;
+  font-weight: 700;
+}
+
 .slider-row {
   display: grid;
   grid-template-columns: 76px 1fr 56px;
