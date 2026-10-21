@@ -25,12 +25,17 @@ const DEMO: { at: number; preset: PresetId; hold: boolean; caption: string; tone
   { at: 14, preset: 'balance', hold: false, caption: 'ひとつを強く固めるより、3つを一緒に働かせることが大切です。スライダーでも試してみてください。', tone: '' },
 ];
 const DEMO_END = 17;
+/** 自分の体重(上半身の重さ)による、常にかかっている負荷 */
+const BASE_LOAD = 0.55;
 
 export function IapLab() {
   const [dia, setDia] = useState(0.82); // 横隔膜の下降
   const [tva, setTva] = useState(0.8); // 腹壁の全周性拡張
   const [pf, setPf] = useState(0.8); // 骨盤底の追従
-  const [frame, setFrame] = useState({ breath: 0, load: 0 });
+  const [frame, setFrame] = useState({ breath: 0, load: 0, sDia: 0.82, sTva: 0.8, sPf: 0.8 });
+  // 3Dモデルは目標値へなめらかに近づける(状態を切り替えたとき、背骨が少しずつ崩れる/戻る)
+  const targetRef = useRef({ dia: 0.82, tva: 0.8, pf: 0.8 });
+  targetRef.current = { dia, tva, pf };
   const [preset, setPreset] = useState<PresetId | 'custom'>('balance');
   const [demoStep, setDemoStep] = useState(-1);
   const holdRef = useRef(false);
@@ -49,6 +54,7 @@ export function IapLab() {
   useEffect(() => {
     let t = 0;
     let load = 0;
+    const sm = { ...targetRef.current };
     let last = performance.now();
     const loop = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
@@ -79,7 +85,11 @@ export function IapLab() {
 
       const breath = (Math.sin(t * 1.4) + 1) / 2; // 0=呼気, 1=吸気
       load += ((holdRef.current ? 1 : 0) - load) * Math.min(dt * 4, 1);
-      setFrame({ breath, load });
+      const k = Math.min(dt * 3, 1);
+      sm.dia += (targetRef.current.dia - sm.dia) * k;
+      sm.tva += (targetRef.current.tva - sm.tva) * k;
+      sm.pf += (targetRef.current.pf - sm.pf) * k;
+      setFrame({ breath, load, sDia: sm.dia, sTva: sm.tva, sPf: sm.pf });
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
@@ -100,7 +110,10 @@ export function IapLab() {
   };
   const demoRunning = demoStep >= 0;
 
-  const { breath, load } = frame;
+  const { breath, load: pressLoad, sDia, sTva, sPf } = frame;
+  // 立っているだけでも上半身の重さがかかっているので、常に一定の負荷(BASE_LOAD)をかけておく。
+  // これで状態を切り替えただけでも背骨の崩れ方が変わり、長押しでさらに大きな負荷になる。
+  const load = BASE_LOAD + (1 - BASE_LOAD) * pressLoad;
 
   // --- 教育用の呼吸・支持モデル ---
   const drop = breath * (12 + 36 * dia);
@@ -165,7 +178,7 @@ export function IapLab() {
               <pointLight position={[6, 3, -4]} color="#C0562F" intensity={20} />
               <Suspense fallback={null}>
                 <group rotation={[0, -0.95, 0]}>
-                  <IapAnatomy3D dia={dia} tva={tva} pf={pf} load={load} breath={breath} />
+                  <IapAnatomy3D dia={sDia} tva={sTva} pf={sPf} load={load} pressLoad={pressLoad} breath={breath} />
                 </group>
               </Suspense>
               <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />

@@ -72,13 +72,17 @@ export function IapAnatomy3D({
   tva,
   pf,
   load,
+  pressLoad = 0,
   breath = 0.5,
   showLabels = true,
 }: {
   dia: number;
   tva: number;
   pf: number;
+  /** 背骨にかかる負荷 0〜1(体重分を含む) */
   load: number;
+  /** 長押しで加えた負荷 0〜1(上からの矢印の表示用) */
+  pressLoad?: number;
   /** 呼吸 0=呼気, 1=吸気。吸気で横隔膜と骨盤底が下がり、腹壁が広がる */
   breath?: number;
   showLabels?: boolean;
@@ -123,7 +127,8 @@ export function IapAnatomy3D({
   const flexWeak = clamp(1 - (dia + pf) / 2, 0, 1);
   const extWeak = clamp(1 - tva, 0, 1);
   const bias = Math.tanh(6 * (flexWeak - extWeak)); // +1=屈曲, -1=伸展
-  const flex = stress * bias * (bias > 0 ? 0.13 : 0.12); // 1節あたり(rad)。屈曲は最大約37°、伸展は最大約34°
+  // 小さな負荷でも崩れ始めが見えるよう、stress を少し持ち上げてから角度にする
+  const flex = Math.pow(stress, 0.7) * bias * (bias > 0 ? 0.13 : 0.12); // 1節あたり(rad)。屈曲は最大約37°、伸展は最大約34°
   const collapseLabel = bias >= 0 ? '支えきれず背骨が丸まって崩れる' : '支えきれず腰が反って崩れる';
   const LUMBAR_CHAIN: { name: string; pivot: Vec3 }[] = [
     { name: 'L5', pivot: [0, -0.36, 0.36] },
@@ -155,9 +160,9 @@ export function IapAnatomy3D({
       <Arrow from={[0, 0.72 + diaRise, 0.6]} dir={[0, 1, 0.25]} length={diaLeak * 0.6} color={ACTIVE} radius={0.045} />
 
       {/* 負荷: 上からの押しつぶす力 */}
-      {load > 0.05 && (
+      {pressLoad > 0.05 && (
         <>
-          <Arrow from={[0, 1.98, 0.25]} dir={[0, -1, 0]} length={0.2 + load * 0.22} color="#efeadc" radius={0.03} />
+          <Arrow from={[0, 1.98, 0.25]} dir={[0, -1, 0]} length={0.2 + pressLoad * 0.22} color="#efeadc" radius={0.03} />
           {showLabels && <Label at={[0.36, 1.86, 0.25]} color="#efeadc">負荷</Label>}
         </>
       )}
@@ -256,8 +261,8 @@ export function IapAnatomy3D({
         <>
           <Label at={[0, -0.32, 1.12]} color={WALL_COLOR}>壁｜腹壁</Label>
           <Label at={[-0.62, -0.86 - floorSag, 0.3]} color={FLOOR_COLOR}>床｜骨盤底</Label>
-          <Label at={[0.42, -0.05, 0.05]} color={stress > 0.35 ? ACTIVE : BONE_COLOR}>
-            {stress > 0.35 ? collapseLabel : load > 0.3 ? '背骨がまっすぐ保たれる' : '背骨'}
+          <Label at={[0.42, -0.05, 0.05]} color={stress > 0.2 ? ACTIVE : BONE_COLOR}>
+            {stress > 0.2 ? collapseLabel : '背骨がまっすぐ保たれる'}
           </Label>
         </>
       )}
