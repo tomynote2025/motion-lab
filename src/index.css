@@ -746,7 +746,7 @@ h4 {
 
 .iap-breath-tag {
   position: absolute;
-  top: 18px;
+  bottom: 40px;
   left: 20px;
   display: flex;
   flex-direction: column;

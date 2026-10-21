@@ -1,6 +1,6 @@
 ## 2026-10-21 Claude → ユーザー｜IAP LAB を実際の解剖データの3Dに置き換え
 - 状態: 未着手
-- やったこと: IAP LAB の平面図を、BodyParts3D（DBCLS）の解剖データから Blender で作った 3D 胴体モデルに置き換えた。天井=横隔膜・壁=腹壁・床=骨盤底の中に「圧の風船」を入れ、呼吸で動き、長押しで 40kg を担ぐと、協調していない部分から圧が逃げる矢印が出て腰椎がオレンジに光る。3つの状態は今までどおり1つの図で切り替え。「▶ まず見る（約17秒）」の自動デモと、ドラッグで回転を追加
+- やったこと: IAP LAB の平面図を、BodyParts3D（DBCLS）の解剖データから Blender で作った 3D 胴体モデルに置き換えた。天井=横隔膜・壁=腹壁・床=骨盤底の中に「圧の風船」を入れ、呼吸で動き、長押しで負荷をかけると、協調していない部分から圧が逃げる矢印が出て、腹圧が足りないと腰椎が1節ずつ前へ曲がり胸郭ごと崩れる（10-22 ユーザー指示で 40kg のバーベル表現は削除）。3つの状態は今までどおり1つの図で切り替え。「▶ まず見る（約17秒）」の自動デモと、ドラッグで回転を追加
 - 次にやること: ローカルで動きを確認 → GitHub Desktop で push（Vercel が自動で本番反映）
 - 注意点: モデルは `public/models/iap-torso.glb`（約2.4MB）。出典表記が必須（ラボ内の注記と `public/models/iap-torso.ATTRIBUTION.txt` に記載済み）。元OBJに旧ライセンス CC BY-SA 2.1 JP の記載があるため、改変モデルも同条件で扱う。腹横筋は BodyParts3D に無く、腹壁は外腹斜筋で代用。作り直しは `scripts/iap-model/`（Blender のスクリプト）
 - 関連ファイル: src/sections/IapLab.tsx, src/three/IapAnatomy3D.tsx, src/index.css, public/models/, scripts/iap-model/

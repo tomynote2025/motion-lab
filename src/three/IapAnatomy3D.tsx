@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { Html, useGLTF } from '@react-three/drei';
 
@@ -106,7 +106,6 @@ export function IapAnatomy3D({
   const diaRise = diaLeak * 0.1;
 
   const bone = useMemo(() => new THREE.MeshStandardMaterial({ color: BONE_COLOR, roughness: 0.55, metalness: 0.05 }), []);
-  const disc = useMemo(() => new THREE.MeshStandardMaterial({ color: '#b9c4b8', roughness: 0.6 }), []);
   const lumbarMat = useMemo(() => {
     const m = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.05, emissive: new THREE.Color(ACTIVE) });
     return m;
@@ -117,125 +116,144 @@ export function IapAnatomy3D({
   // 腹腔(圧の風船)の大きさ: 横隔膜の下〜骨盤底の上、腰椎の前〜腹壁の内側
   const CAV: Vec3 = [0, -0.08, 0.6];
 
-  return (
-    <group position={[0, -0.25, -0.45]}>
-      <group>
-        {/* 骨 */}
-        {['ribs', 'cartilage', 'sternum', 'thoracic', 'pelvis'].map((n) => g[n] && <mesh key={n} geometry={g[n]} material={bone} />)}
-        {g.discs && <mesh geometry={g.discs} material={disc} />}
-        {/* 腰椎: 支えが足りないとオレンジに光り、少し前へたわむ */}
-        {['L1', 'L2', 'L3', 'L4', 'L5'].map((n, i) =>
-          g[n] ? <mesh key={n} geometry={g[n]} material={lumbarMat} position={[0, 0, Math.sin(((i + 0.5) / 5) * Math.PI) * stress * 0.06]} /> : null,
-        )}
+  // 腹圧で支えきれないと、腰椎が1節ずつ前へ曲がり、その上の胸郭ごと崩れ落ちる
+  const flex = stress * 0.13; // 1節あたりの屈曲(rad)。5節で最大約37°
+  const LUMBAR_CHAIN: { name: string; pivot: Vec3 }[] = [
+    { name: 'L5', pivot: [0, -0.36, 0.36] },
+    { name: 'L4', pivot: [0, -0.23, 0.36] },
+    { name: 'L3', pivot: [0, -0.11, 0.36] },
+    { name: 'L2', pivot: [0, -0.01, 0.36] },
+    { name: 'L1', pivot: [0, 0.09, 0.36] },
+  ];
 
-        {/* 圧の風船 */}
-        <mesh
-          position={[CAV[0], CAV[1] - (floorSag + floorDrop) * 0.4 + (diaRise - diaDrop) * 0.4, CAV[2] + (wallBulge - 1) * 0.12]}
-          scale={[0.4 * (1 + wallBreath * 0.5), 0.62 + (floorSag + diaRise) * 0.45 + (floorDrop - diaDrop) * 0.4, 0.27 * wallBulge]}
-          renderOrder={1}
-        >
-          <sphereGeometry args={[1, 40, 28]} />
+  /** 腰椎より上(胸郭・横隔膜・負荷の矢印)。背骨と一緒に動く */
+  const upper = (
+    <>
+      {['ribs', 'cartilage', 'sternum', 'thoracic'].map((n) => g[n] && <mesh key={n} geometry={g[n]} material={bone} />)}
+
+      {/* 天井: 横隔膜 */}
+      {g.diaphragm && (
+        <mesh geometry={g.diaphragm} position={[0, diaRise - diaDrop, 0]} renderOrder={2}>
           <meshStandardMaterial
-            color={ACTIVE}
-            emissive={ACTIVE}
-            emissiveIntensity={0.5 + pressure * 0.7}
+            color={DIA_COLOR}
             transparent
-            opacity={0.3 + pressure * 0.45}
-            roughness={0.35}
-            depthWrite={false}
+            opacity={0.3 + dia * 0.6}
+            wireframe={dia < 0.45}
+            side={THREE.DoubleSide}
+            roughness={0.5}
+            depthWrite={dia >= 0.45}
           />
         </mesh>
+      )}
+      <Arrow from={[0, 0.72 + diaRise, 0.6]} dir={[0, 1, 0.25]} length={diaLeak * 0.6} color={ACTIVE} radius={0.045} />
 
-        {/* 天井: 横隔膜 */}
-        {g.diaphragm && (
-          <mesh geometry={g.diaphragm} position={[0, diaRise - diaDrop, 0]} renderOrder={2}>
-            <meshStandardMaterial
-              color={DIA_COLOR}
-              transparent
-              opacity={0.3 + dia * 0.6}
-              wireframe={dia < 0.45}
-              side={THREE.DoubleSide}
-              roughness={0.5}
-              depthWrite={dia >= 0.45}
-            />
-          </mesh>
-        )}
+      {/* 負荷: 上からの押しつぶす力 */}
+      {load > 0.05 && (
+        <>
+          <Arrow from={[0, 1.98, 0.25]} dir={[0, -1, 0]} length={0.2 + load * 0.22} color="#efeadc" radius={0.03} />
+          {showLabels && <Label at={[0.36, 1.86, 0.25]} color="#efeadc">負荷</Label>}
+        </>
+      )}
+      {showLabels && <Label at={[-0.72, 0.62 + diaRise, 0.4]} color={DIA_COLOR}>天井｜横隔膜</Label>}
+    </>
+  );
 
-        {/* 床: 骨盤底 */}
-        {g.pelvic_floor && (
-          <mesh geometry={g.pelvic_floor} position={[0, -floorSag - floorDrop, 0]} renderOrder={2}>
-            <meshStandardMaterial
-              color={FLOOR_COLOR}
-              transparent
-              opacity={0.35 + pf * 0.6}
-              wireframe={pf < 0.45}
-              side={THREE.DoubleSide}
-              roughness={0.5}
-            />
-          </mesh>
-        )}
-
-        {/* 壁: 腹壁(背骨側を支点に前へふくらませる) */}
-        {g.oblique && (
-          <group position={[0, 0, 0.45]} scale={[1 + (wallBulge - 1) * 0.3, 1, wallBulge]}>
-            <mesh geometry={g.oblique} position={[0, 0, -0.45]} renderOrder={3}>
-              <meshStandardMaterial
-                color={WALL_COLOR}
-                transparent
-                opacity={0.08 + tva * 0.2}
-                wireframe={tva < 0.45}
-                side={THREE.DoubleSide}
-                roughness={0.5}
-                depthWrite={false}
-              />
-            </mesh>
-          </group>
-        )}
-
-        {/* まとまった圧が内側から押す矢印 */}
-        {support > 0.5 &&
-          ([
-            [0, 0, 1],
-            [1, 0, 0],
-            [-1, 0, 0],
-            [0, 1, 0],
-            [0, -1, 0],
-          ] as Vec3[]).map((d, i) => (
-            <Arrow key={i} from={CAV} dir={d} length={d[1] !== 0 ? 0.42 : d[2] !== 0 ? 0.2 : 0.3} color="#ffd8d3" radius={0.02} />
-          ))}
-
-        {/* 圧が逃げる矢印 */}
-        <Arrow from={[0, 0.72 + diaRise, 0.6]} dir={[0, 1, 0.25]} length={diaLeak * 0.6} color={ACTIVE} radius={0.045} />
-        <Arrow from={[0, -0.1, 0.86 * wallBulge]} dir={[0, 0, 1]} length={wallLeak * 0.55} color={ACTIVE} radius={0.045} />
-        <Arrow from={[0.3, -0.25, 0.78 * wallBulge]} dir={[0.5, 0, 1]} length={wallLeak * 0.4} color={ACTIVE} radius={0.045} />
-        <Arrow from={[0, -0.95 - floorSag, 0.25]} dir={[0, -1, 0]} length={floorLeak * 0.6} color={ACTIVE} radius={0.045} />
-
-        {/* 負荷: 背中に担いだバーベル */}
-        {load > 0 && (
-          <group position={[0, 1.42, -0.08]}>
-            <mesh rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.028, 0.028, 1.8, 12]} />
-              <meshStandardMaterial color="#9aa69e" metalness={0.6} roughness={0.35} />
-            </mesh>
-            {[-0.74, 0.74].map((x) => (
-              <mesh key={x} position={[x, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-                <cylinderGeometry args={[0.22, 0.22, 0.08, 28]} />
-                <meshStandardMaterial color="#2e3a33" metalness={0.3} roughness={0.5} />
-              </mesh>
-            ))}
-            <Arrow from={[0, 0.55, 0]} dir={[0, -1, 0]} length={0.38} color="#efeadc" radius={0.026} />
-          </group>
-        )}
-
-        {showLabels && (
-          <>
-            <Label at={[-0.72, 0.62 + diaRise, 0.4]} color={DIA_COLOR}>天井｜横隔膜</Label>
-            <Label at={[0, -0.32, 1.12]} color={WALL_COLOR}>壁｜腹壁</Label>
-            <Label at={[-0.62, -0.86 - floorSag, 0.3]} color={FLOOR_COLOR}>床｜骨盤底</Label>
-            <Label at={[0.42, -0.05, 0.05]} color={stress > 0.35 ? ACTIVE : BONE_COLOR}>{stress > 0.35 ? '腰に負担' : '背骨'}</Label>
-          </>
-        )}
+  const renderLumbar = (i: number): ReactNode => {
+    const seg = LUMBAR_CHAIN[i];
+    const back: Vec3 = [-seg.pivot[0], -seg.pivot[1], -seg.pivot[2]];
+    return (
+      <group position={seg.pivot} rotation={[flex, 0, 0]}>
+        <group position={back}>
+          {g[seg.name] && <mesh geometry={g[seg.name]} material={lumbarMat} />}
+          {i < LUMBAR_CHAIN.length - 1 ? renderLumbar(i + 1) : upper}
+        </group>
       </group>
+    );
+  };
+
+  return (
+    <group position={[0, -0.25, -0.45]}>
+      {/* 骨盤(固定) */}
+      {g.pelvis && <mesh geometry={g.pelvis} material={bone} />}
+
+      {/* 腰椎〜胸郭(腹圧が足りないと前へ崩れる) */}
+      {renderLumbar(0)}
+
+      {/* 圧の風船 */}
+      <mesh
+        position={[CAV[0], CAV[1] - (floorSag + floorDrop) * 0.4 + (diaRise - diaDrop) * 0.4, CAV[2] + (wallBulge - 1) * 0.12]}
+        scale={[0.4 * (1 + wallBreath * 0.5), 0.62 + (floorSag + diaRise) * 0.45 + (floorDrop - diaDrop) * 0.4, 0.27 * wallBulge]}
+        renderOrder={1}
+      >
+        <sphereGeometry args={[1, 40, 28]} />
+        <meshStandardMaterial
+          color={ACTIVE}
+          emissive={ACTIVE}
+          emissiveIntensity={0.5 + pressure * 0.7}
+          transparent
+          opacity={0.3 + pressure * 0.45}
+          roughness={0.35}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* 床: 骨盤底 */}
+      {g.pelvic_floor && (
+        <mesh geometry={g.pelvic_floor} position={[0, -floorSag - floorDrop, 0]} renderOrder={2}>
+          <meshStandardMaterial
+            color={FLOOR_COLOR}
+            transparent
+            opacity={0.35 + pf * 0.6}
+            wireframe={pf < 0.45}
+            side={THREE.DoubleSide}
+            roughness={0.5}
+          />
+        </mesh>
+      )}
+
+      {/* 壁: 腹壁(背骨側を支点に前へふくらませる) */}
+      {g.oblique && (
+        <group position={[0, 0, 0.45]} scale={[1 + (wallBulge - 1) * 0.3, 1, wallBulge]}>
+          <mesh geometry={g.oblique} position={[0, 0, -0.45]} renderOrder={3}>
+            <meshStandardMaterial
+              color={WALL_COLOR}
+              transparent
+              opacity={0.08 + tva * 0.2}
+              wireframe={tva < 0.45}
+              side={THREE.DoubleSide}
+              roughness={0.5}
+              depthWrite={false}
+            />
+          </mesh>
+        </group>
+      )}
+
+      {/* まとまった圧が内側から押す矢印 */}
+      {support > 0.5 &&
+        ([
+          [0, 0, 1],
+          [1, 0, 0],
+          [-1, 0, 0],
+          [0, 1, 0],
+          [0, -1, 0],
+        ] as Vec3[]).map((d, i) => (
+          <Arrow key={i} from={CAV} dir={d} length={d[1] !== 0 ? 0.42 : d[2] !== 0 ? 0.2 : 0.3} color="#ffd8d3" radius={0.02} />
+        ))}
+
+      {/* 圧が逃げる矢印(壁・床) */}
+      <Arrow from={[0, -0.1, 0.86 * wallBulge]} dir={[0, 0, 1]} length={wallLeak * 0.55} color={ACTIVE} radius={0.045} />
+      <Arrow from={[0.3, -0.25, 0.78 * wallBulge]} dir={[0.5, 0, 1]} length={wallLeak * 0.4} color={ACTIVE} radius={0.045} />
+      <Arrow from={[0, -0.95 - floorSag, 0.25]} dir={[0, -1, 0]} length={floorLeak * 0.6} color={ACTIVE} radius={0.045} />
+
+      {showLabels && (
+        <>
+          <Label at={[0, -0.32, 1.12]} color={WALL_COLOR}>壁｜腹壁</Label>
+          <Label at={[-0.62, -0.86 - floorSag, 0.3]} color={FLOOR_COLOR}>床｜骨盤底</Label>
+          <Label at={[0.42, -0.05, 0.05]} color={stress > 0.35 ? ACTIVE : BONE_COLOR}>
+            {stress > 0.35 ? '支えきれず背骨が崩れる' : load > 0.3 ? '背骨がまっすぐ保たれる' : '背骨'}
+          </Label>
+        </>
+      )}
     </group>
   );
 }

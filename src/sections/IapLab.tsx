@@ -19,9 +19,9 @@ const PRESETS: Record<PresetId, [number, number, number]> = {
 // 「▶ まず見る」の流れ(秒)
 const DEMO: { at: number; preset: PresetId; hold: boolean; caption: string; tone: 'good' | 'bad' | '' }[] = [
   { at: 0, preset: 'balance', hold: false, caption: '息を吸うと、天井(横隔膜)と床(骨盤底)が下がり、壁(腹壁)が広がります。', tone: '' },
-  { at: 3.2, preset: 'balance', hold: true, caption: '3つがそろうと、圧の風船が内側から背骨を支えます。40kg を担いでも腰はたわみません。', tone: 'good' },
-  { at: 6.8, preset: 'brace', hold: true, caption: 'お腹だけ固めると、天井と床が受け止めず、圧が上と下へ逃げます。そのぶん腰に負担が集まります。', tone: 'bad' },
-  { at: 10.4, preset: 'leak', hold: true, caption: '壁と床が働かないと、圧が前と下へ逃げます。やはり腰が代わりに頑張ることになります。', tone: 'bad' },
+  { at: 3.2, preset: 'balance', hold: true, caption: '3つがそろうと、圧の風船が内側から背骨を支えます。上から負荷がかかっても、背骨はまっすぐ保たれます。', tone: 'good' },
+  { at: 6.8, preset: 'brace', hold: true, caption: 'お腹だけ固めると、天井と床が受け止めず、圧が上と下へ逃げます。腹圧が足りず、背骨が支えきれずに崩れます。', tone: 'bad' },
+  { at: 10.4, preset: 'leak', hold: true, caption: '壁と床が働かないと、圧が前と下へ逃げます。やはり腹圧が高まらず、背骨が崩れます。', tone: 'bad' },
   { at: 14, preset: 'balance', hold: false, caption: 'ひとつを強く固めるより、3つを一緒に働かせることが大切です。スライダーでも試してみてください。', tone: '' },
 ];
 const DEMO_END = 17;
@@ -265,13 +265,13 @@ export function IapLab() {
             onPointerUp={() => (holdRef.current = false)}
             onPointerLeave={() => (holdRef.current = false)}
           >
-            STEP 03　長押しで負荷を加える（40kg）
+            STEP 03　長押しで負荷を加える
           </button>
 
           {!demo && (
             <div className={`iap-verdict ${stress > 0.25 ? 'bad' : pressure > 0.55 ? 'good' : ''}`}>
               {stress > 0.25
-                ? '⚠ 負荷に対して支持が不足しています。圧が逃げる矢印と、腰椎がオレンジに光る様子を確認してください。'
+                ? '⚠ 負荷に対して腹圧が足りず、背骨が支えきれずに崩れています。圧が逃げる矢印を確認してください。'
                 : support > 0.55 && coordination > 0.72
                   ? '◎ 吸気で3つが一緒に下降・拡張し、呼気で一緒に戻っています。負荷時も呼吸を残しながら支持できる状態です。'
                   : coordination < 0.55
