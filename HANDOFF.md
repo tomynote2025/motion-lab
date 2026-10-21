@@ -1,3 +1,10 @@
+## 2026-10-21 Claude → ユーザー｜IAP LAB を実際の解剖データの3Dに置き換え
+- 状態: 未着手
+- やったこと: IAP LAB の平面図を、BodyParts3D（DBCLS）の解剖データから Blender で作った 3D 胴体モデルに置き換えた。天井=横隔膜・壁=腹壁・床=骨盤底の中に「圧の風船」を入れ、呼吸で動き、長押しで 40kg を担ぐと、協調していない部分から圧が逃げる矢印が出て腰椎がオレンジに光る。3つの状態は今までどおり1つの図で切り替え。「▶ まず見る（約17秒）」の自動デモと、ドラッグで回転を追加
+- 次にやること: ローカルで動きを確認 → GitHub Desktop で push（Vercel が自動で本番反映）
+- 注意点: モデルは `public/models/iap-torso.glb`（約2.4MB）。出典表記が必須（ラボ内の注記と `public/models/iap-torso.ATTRIBUTION.txt` に記載済み）。元OBJに旧ライセンス CC BY-SA 2.1 JP の記載があるため、改変モデルも同条件で扱う。腹横筋は BodyParts3D に無く、腹壁は外腹斜筋で代用。作り直しは `scripts/iap-model/`（Blender のスクリプト）
+- 関連ファイル: src/sections/IapLab.tsx, src/three/IapAnatomy3D.tsx, src/index.css, public/models/, scripts/iap-model/
+
 ## 2026-10-16 Codex → ユーザー｜Labブランド・氏名資格表記と改行の整理
 - 状態: 完了
 - やったこと: ヘッダー／フッター／ページタイトルを「Be:come｜からだの実験室」へ統一し、旧 `tomy`・旧氏名・整体師表記を削除。氏名を「富田 樹」、肩書きを「理学療法士（理学療法学修士）／パーソナルトレーナー／ピラティスインストラクター」に更新した。LAB一覧の「感覚に変える。」やプロフィール肩書きの不自然な途中改行を防止し、申込先メールも `be.come.tomy@gmail.com` に統一した

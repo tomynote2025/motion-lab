@@ -1,0 +1,11 @@
+iap-torso.glb（IAP LAB の 3D 解剖モデル）
+
+出典: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International
+https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html
+
+元データ: isa_BP3D_4.0_obj_99（OBJ, 99% reduction）
+改変: 腹腔内圧の説明に使う部位（肋骨・肋軟骨・胸骨・胸椎・腰椎・椎間板・寛骨・仙骨・横隔膜・骨盤底筋群・外腹斜筋）
+だけを抜き出し、Blender で結合・軽量化・座標変換した（scripts/iap-model/build_iap.py）。
+
+注: 元の OBJ ファイルには旧ライセンス（CC BY-SA 2.1 Japan）の記載が残っているため、
+この改変モデルも同じ条件（表示・継承）で利用できるものとして扱う。

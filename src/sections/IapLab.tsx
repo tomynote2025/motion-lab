@@ -1,17 +1,50 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import { IapAnatomy3D } from '../three/IapAnatomy3D';
 
 /**
  * 腹腔内圧(IAP)シミュレーター
- * 横隔膜・腹横筋・骨盤底筋の協調で「圧の円柱」がどう変わるかを体験する。
+ * 横隔膜(天井)・腹壁(壁)・骨盤底(床)の協調で、胴体の中の「圧の風船」がどう変わるかを、
+ * 実際の解剖データ(BodyParts3D)から作った 3D モデルで体験する。
  */
+
+type PresetId = 'balance' | 'brace' | 'leak';
+const PRESETS: Record<PresetId, [number, number, number]> = {
+  balance: [0.82, 0.8, 0.8],
+  brace: [0.18, 0.95, 0.28],
+  leak: [0.82, 0.28, 0.18],
+};
+
+// 「▶ まず見る」の流れ(秒)
+const DEMO: { at: number; preset: PresetId; hold: boolean; caption: string; tone: 'good' | 'bad' | '' }[] = [
+  { at: 0, preset: 'balance', hold: false, caption: '息を吸うと、天井(横隔膜)と床(骨盤底)が下がり、壁(腹壁)が広がります。', tone: '' },
+  { at: 3.2, preset: 'balance', hold: true, caption: '3つがそろうと、圧の風船が内側から背骨を支えます。40kg を担いでも腰はたわみません。', tone: 'good' },
+  { at: 6.8, preset: 'brace', hold: true, caption: 'お腹だけ固めると、天井と床が受け止めず、圧が上と下へ逃げます。そのぶん腰に負担が集まります。', tone: 'bad' },
+  { at: 10.4, preset: 'leak', hold: true, caption: '壁と床が働かないと、圧が前と下へ逃げます。やはり腰が代わりに頑張ることになります。', tone: 'bad' },
+  { at: 14, preset: 'balance', hold: false, caption: 'ひとつを強く固めるより、3つを一緒に働かせることが大切です。スライダーでも試してみてください。', tone: '' },
+];
+const DEMO_END = 17;
+
 export function IapLab() {
   const [dia, setDia] = useState(0.82); // 横隔膜の下降
   const [tva, setTva] = useState(0.8); // 腹壁の全周性拡張
   const [pf, setPf] = useState(0.8); // 骨盤底の追従
   const [frame, setFrame] = useState({ breath: 0, load: 0 });
-  const [preset, setPreset] = useState('balance');
+  const [preset, setPreset] = useState<PresetId | 'custom'>('balance');
+  const [demoStep, setDemoStep] = useState(-1);
   const holdRef = useRef(false);
   const rafRef = useRef(0);
+  const demoStart = useRef(0);
+  const demoStepRef = useRef(-1);
+  const demoActiveRef = useRef(false);
+
+  const applyPreset = (id: PresetId) => {
+    setPreset(id);
+    setDia(PRESETS[id][0]);
+    setTva(PRESETS[id][1]);
+    setPf(PRESETS[id][2]);
+  };
 
   useEffect(() => {
     let t = 0;
@@ -21,6 +54,29 @@ export function IapLab() {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       t += dt;
+
+      // デモ進行
+      if (demoActiveRef.current) {
+        const el = (now - demoStart.current) / 1000;
+        if (el >= DEMO_END) {
+          demoActiveRef.current = false;
+          demoStepRef.current = -1;
+          holdRef.current = false;
+          setDemoStep(-1);
+        } else {
+          let step = 0;
+          DEMO.forEach((d, i) => {
+            if (el >= d.at) step = i;
+          });
+          if (step !== demoStepRef.current) {
+            demoStepRef.current = step;
+            setDemoStep(step);
+            applyPreset(DEMO[step].preset);
+            holdRef.current = DEMO[step].hold;
+          }
+        }
+      }
+
       const breath = (Math.sin(t * 1.4) + 1) / 2; // 0=呼気, 1=吸気
       load += ((holdRef.current ? 1 : 0) - load) * Math.min(dt * 4, 1);
       setFrame({ breath, load });
@@ -30,60 +86,42 @@ export function IapLab() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
+  const startDemo = () => {
+    demoStart.current = performance.now();
+    demoStepRef.current = -1; // 次のフレームで step 0 を適用させる
+    demoActiveRef.current = true;
+    setDemoStep(0);
+  };
+  const stopDemo = () => {
+    demoActiveRef.current = false;
+    demoStepRef.current = -1;
+    holdRef.current = false;
+    setDemoStep(-1);
+  };
+  const demoRunning = demoStep >= 0;
+
   const { breath, load } = frame;
 
   // --- 教育用の呼吸・支持モデル ---
-  // 通常呼吸: 吸気で横隔膜と骨盤底が下降し、腹壁は全周へ拡張。呼気で一緒に戻る。
-  // 負荷時: 呼吸運動を残しながら、横隔膜・腹壁・骨盤底の持続的な支持活動を加える。
-  const drop = breath * (12 + 36 * dia); // 横隔膜の下降量 px
-  const coordination = Math.max(
-    0,
-    1 - (Math.abs(dia - tva) + Math.abs(dia - pf) + Math.abs(tva - pf)) / 2.1,
-  );
+  const drop = breath * (12 + 36 * dia);
+  const coordination = Math.max(0, 1 - (Math.abs(dia - tva) + Math.abs(dia - pf) + Math.abs(tva - pf)) / 2.1);
   const movementQuality = (dia + tva + pf) / 3;
   const breathPressure = (drop / 48) * (0.3 + 0.7 * ((tva + pf) / 2));
   const posturalPressure = load * coordination * movementQuality * 0.62;
   const pressure = Math.min(breathPressure * (1 - load * 0.25) + posturalPressure, 1);
   const support = Math.min((0.35 + pressure * 0.65) * coordination * movementQuality, 1);
-  const wallExpansion = (drop / 48) * (8 + 30 * tva); // 吸気時の腹壁の全周性拡張
-  const floorDescent = (drop / 48) * (6 + 22 * pf) * (1 - load * pf * 0.42); // 吸気で下降、負荷時は支持活動を加える
-  const stress = Math.max(0, load * 0.95 - support); // 負荷に対する不足分
-  const bend = stress * 30; // 脊柱のたわみ
+  const stress = Math.max(0, load * 0.95 - support);
   const mmhg = Math.round(6 + pressure * 84);
   const stability = Math.round(support * 100);
 
-  const applyPreset = (id: string, values: [number, number, number]) => {
-    setPreset(id);
-    setDia(values[0]);
-    setTva(values[1]);
-    setPf(values[2]);
-  };
-
   const changeValue = (setter: (value: number) => void, value: number) => {
+    if (demoRunning) stopDemo();
     setPreset('custom');
     setter(value);
   };
 
-  // --- SVGジオメトリ ---
-  const diaY = 158 + drop;
-  const domeH = 52 - drop * 0.45;
-  const spineSegs = Array.from({ length: 7 }, (_, i) => {
-    const y = 122 + i * 42;
-    const dx = Math.sin((i / 6) * Math.PI) * bend;
-    return { y, dx };
-  });
-  const wallX = 150 - wallExpansion;
-  const floorY = 432 + floorDescent;
-
-  const cavityPath = `
-    M 152 ${diaY + 4}
-    C 200 ${diaY - domeH + 10}, 272 ${diaY - domeH + 10}, 318 ${diaY + 4}
-    L 318 424
-    C 276 ${floorY}, 200 ${floorY}, 160 420
-    C ${wallX + 6} 340, ${wallX + 6} 250, 152 ${diaY + 4}
-    Z`;
-
   const gaugeCirc = 2 * Math.PI * 52;
+  const demo = demoRunning ? DEMO[demoStep] : null;
 
   return (
     <section id="iap" className="section">
@@ -93,7 +131,7 @@ export function IapLab() {
           IAP LAB<span className="jp-sub">腹腔内圧シミュレーター</span>
         </h2>
         <p className="section-lead">
-          腹圧は「お腹を固める力」だけではありません。横隔膜・腹壁・骨盤底が呼吸に合わせて協調し、体幹を全方向から支えることで、脊柱と関節にかかる負担を分散します。まず3つの状態を比べてから、スライダーで違いを確かめてください。
+          腹圧は「お腹を固める力」だけではありません。横隔膜・腹壁・骨盤底が呼吸に合わせて協調し、体幹を全方向から支えることで、脊柱と関節にかかる負担を分散します。まず「▶ まず見る」で流れを確かめてから、3つの状態を切り替えて比べてください。
         </p>
       </div>
 
@@ -109,134 +147,41 @@ export function IapLab() {
       <div className="iap-compare">
         <div className="iap-compare-head"><span>STEP 01</span><b>状態を選んで、違いを比較する</b></div>
         <div className="iap-presets">
-          <button className={preset === 'balance' ? 'active' : ''} onClick={() => applyPreset('balance', [0.82, 0.8, 0.8])}><span>◎</span><b>呼吸と支持が協調</b><small>3つが同じリズムで動く</small></button>
-          <button className={preset === 'brace' ? 'active' : ''} onClick={() => applyPreset('brace', [0.18, 0.95, 0.28])}><span>△</span><b>お腹だけ固める</b><small>横隔膜と骨盤底が追従しない</small></button>
-          <button className={preset === 'leak' ? 'active' : ''} onClick={() => applyPreset('leak', [0.82, 0.28, 0.18])}><span>△</span><b>協調が崩れる</b><small>壁と床が圧を受け止めない</small></button>
+          <button className={preset === 'balance' ? 'active' : ''} onClick={() => { stopDemo(); applyPreset('balance'); }}><span>◎</span><b>呼吸と支持が協調</b><small>3つが同じリズムで動く</small></button>
+          <button className={preset === 'brace' ? 'active' : ''} onClick={() => { stopDemo(); applyPreset('brace'); }}><span>△</span><b>お腹だけ固める</b><small>横隔膜と骨盤底が追従しない</small></button>
+          <button className={preset === 'leak' ? 'active' : ''} onClick={() => { stopDemo(); applyPreset('leak'); }}><span>△</span><b>協調が崩れる</b><small>壁と床が圧を受け止めない</small></button>
         </div>
       </div>
 
       <div className="iap-grid">
-        <div className="iap-stage">
-          <svg viewBox="0 0 470 540" className="iap-svg" role="img" aria-label="腹腔内圧の断面モデル">
-            <defs>
-              <radialGradient id="pressureGrad" cx="50%" cy="55%" r="65%">
-                <stop offset="0%" stopColor="#C0562F" stopOpacity="0.9" />
-                <stop offset="70%" stopColor="#C0562F" stopOpacity="0.35" />
-                <stop offset="100%" stopColor="#C0562F" stopOpacity="0.08" />
-              </radialGradient>
-            </defs>
-
-            {/* 重り */}
-            <g
-              style={{
-                opacity: load,
-                transform: `translateY(${(1 - load) * -18}px)`,
-                transition: 'opacity .1s linear',
-              }}
-            >
-              <rect x="185" y={46 + stress * 16} width="140" height="30" rx="6" fill="#efeadc" />
-              <text x="255" y={67 + stress * 16} textAnchor="middle" fontSize="15" fontWeight="700" fill="#14271c">
-                40kg
-              </text>
-              <path
-                d={`M 255 ${80 + stress * 16} L 255 100`}
-                stroke="#efeadc"
-                strokeWidth="3"
-                markerEnd="none"
-              />
-            </g>
-
-            {/* 腹腔(圧の可視化) */}
-            <path d={cavityPath} fill="url(#pressureGrad)" opacity={0.15 + pressure * 0.8} />
-            <path d={cavityPath} fill="none" stroke="#C0562F" strokeOpacity={0.25 + pressure * 0.5} strokeWidth="1.5" />
-
-            {/* 圧の矢印 */}
-            {[0, 90, 180, 270].map((deg) => (
-              <g key={deg} transform={`rotate(${deg} 235 300)`} opacity={0.25 + pressure * 0.75}>
-                <line
-                  x1="235"
-                  y1={300 - 28 - pressure * 20}
-                  x2="235"
-                  y2={300 - 46 - pressure * 46}
-                  stroke="#ffd8d3"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                />
-                <path
-                  d={`M 228 ${300 - 42 - pressure * 46} L 235 ${300 - 54 - pressure * 46} L 242 ${300 - 42 - pressure * 46}`}
-                  fill="none"
-                  stroke="#ffd8d3"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </g>
-            ))}
-
-            {/* 脊柱 */}
-            {spineSegs.map((s, i) => (
-              <rect
-                key={i}
-                x={330 + s.dx}
-                y={s.y}
-                width="26"
-                height="30"
-                rx="7"
-                fill={stress > 0.25 ? '#C0562F' : '#ddd6c4'}
-                style={{ transition: 'fill .2s' }}
-              />
-            ))}
-
-            {/* 横隔膜 */}
-            <path
-              d={`M 148 ${diaY} C 200 ${diaY - domeH}, 272 ${diaY - domeH}, 322 ${diaY}`}
-              fill="none"
-              stroke="#5E8BA8"
-              strokeWidth="9"
-              strokeLinecap="round"
-            />
-            {/* 腹横筋(前壁) */}
-            <path
-              d={`M 150 ${diaY + 8} C ${wallX} 260, ${wallX} 340, 158 418`}
-              fill="none"
-              stroke="#86B98C"
-              strokeWidth="9"
-              strokeLinecap="round"
-            />
-            {/* 骨盤底筋 */}
-            <path
-              d={`M 158 424 C 200 ${floorY + 10}, 278 ${floorY + 10}, 320 428`}
-              fill="none"
-              stroke="#C9982F"
-              strokeWidth="9"
-              strokeLinecap="round"
-            />
-
-            {/* ラベル */}
-            <text x="118" y={diaY - domeH - 8} className="iap-label" fill="#5E8BA8">
-              横隔膜
-            </text>
-            <text x={wallX - 46} y="300" className="iap-label" fill="#86B98C">
-              腹壁
-            </text>
-            <text x="180" y={floorY + 34} className="iap-label" fill="#C9982F">
-              骨盤底筋
-            </text>
-            <text x="392" y="110" className="iap-label" fill="#ddd6c4">
-              脊柱
-            </text>
-
-            {/* 呼吸インジケータ */}
-            <text x="24" y="36" className="iap-breath" fill="#a4b8ab">
-              {breath > 0.5 ? '↓ 吸気(息を吸う)' : '↑ 呼気(息を吐く)'}
-            </text>
-            <text x="24" y="57" className="iap-phase-note" fill="#a4b8ab">
-              {breath > 0.5 ? '横隔膜・骨盤底は下降 / 腹壁は全周へ広がる' : '横隔膜・骨盤底は上昇 / 腹壁は内側へ戻る'}
-            </text>
-          </svg>
+        <div className="iap-stage iap-stage-3d">
+          <div className="iap-canvas" aria-label="腹腔内圧の3D解剖モデル">
+            <Canvas camera={{ position: [0, 0.2, 5.3], fov: 36 }} dpr={[1, 2]}>
+              <ambientLight intensity={0.65} />
+              <directionalLight position={[4, 6, 6]} intensity={1.2} />
+              <pointLight position={[-6, -2, 5]} color="#5E8BA8" intensity={30} />
+              <pointLight position={[6, 3, -4]} color="#C0562F" intensity={20} />
+              <Suspense fallback={null}>
+                <group rotation={[0, -0.95, 0]}>
+                  <IapAnatomy3D dia={dia} tva={tva} pf={pf} load={load} breath={breath} />
+                </group>
+              </Suspense>
+              <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
+            </Canvas>
+          </div>
+          <div className="iap-breath-tag">
+            <b>{breath > 0.5 ? '↓ 吸気(息を吸う)' : '↑ 呼気(息を吐く)'}</b>
+            <span>{breath > 0.5 ? '横隔膜・骨盤底は下降 / 腹壁は広がる' : '横隔膜・骨盤底は上昇 / 腹壁は戻る'}</span>
+          </div>
+          <div className="iap-drag-hint">DRAG TO ROTATE</div>
         </div>
 
         <div className="iap-controls">
+          <button className={`fascia-demo-btn ${demoRunning ? 'playing' : ''}`} onClick={demoRunning ? stopDemo : startDemo}>
+            {demoRunning ? '■ 止める' : '▶ まず見る（約17秒）'}
+          </button>
+          {demo && <div className={`iap-verdict ${demo.tone}`}>{demo.caption}</div>}
+
           <div className="iap-control-head"><span>STEP 02</span><b>数値を動かして観察する</b></div>
           <div className="iap-gauges">
             <div className="gauge">
@@ -313,23 +258,32 @@ export function IapLab() {
 
           <button
             className="load-btn"
-            onPointerDown={() => (holdRef.current = true)}
+            onPointerDown={() => {
+              if (demoRunning) stopDemo();
+              holdRef.current = true;
+            }}
             onPointerUp={() => (holdRef.current = false)}
             onPointerLeave={() => (holdRef.current = false)}
           >
             STEP 03　長押しで負荷を加える（40kg）
           </button>
 
-          <div className={`iap-verdict ${stress > 0.25 ? 'bad' : pressure > 0.55 ? 'good' : ''}`}>
-            {stress > 0.25
-              ? '⚠ 負荷に対して支持が不足しています。脊柱が代わりにたわむ様子を確認してください。'
-              : support > 0.55 && coordination > 0.72
-                ? '◎ 吸気で3つが一緒に下降・拡張し、呼気で一緒に戻っています。負荷時も呼吸を残しながら支持できる状態です。'
-                : coordination < 0.55
-                  ? '△ 動くタイミングが揃っていません。ひとつを強く固めるのではなく、3つの数値を近づけてみましょう。'
-                  : '吸気では横隔膜と骨盤底が下降し、腹壁が全周へ広がります。呼気では3つが一緒に元の位置へ戻ります。'}
-          </div>
-          <p className="iap-disclaimer">※ 数値は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません。</p>
+          {!demo && (
+            <div className={`iap-verdict ${stress > 0.25 ? 'bad' : pressure > 0.55 ? 'good' : ''}`}>
+              {stress > 0.25
+                ? '⚠ 負荷に対して支持が不足しています。圧が逃げる矢印と、腰椎がオレンジに光る様子を確認してください。'
+                : support > 0.55 && coordination > 0.72
+                  ? '◎ 吸気で3つが一緒に下降・拡張し、呼気で一緒に戻っています。負荷時も呼吸を残しながら支持できる状態です。'
+                  : coordination < 0.55
+                    ? '△ 動くタイミングが揃っていません。ひとつを強く固めるのではなく、3つの数値を近づけてみましょう。'
+                    : '吸気では横隔膜と骨盤底が下降し、腹壁が広がります。呼気では3つが一緒に元の位置へ戻ります。'}
+            </div>
+          )}
+          <p className="iap-disclaimer">
+            ※ 数値は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません。
+            <br />
+            3Dモデル: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International（腹圧の説明用に一部を抜き出し、改変して使用。腹壁は外腹斜筋のデータで表示）
+          </p>
         </div>
       </div>
     </section>

@@ -730,6 +730,65 @@ h4 {
   display: block;
 }
 
+.iap-stage-3d {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #1f3f30 0%, var(--stage) 72%);
+}
+
+.iap-canvas {
+  flex: 1;
+  min-height: 600px;
+}
+
+.iap-breath-tag {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-jp);
+  color: #a4b8ab;
+  pointer-events: none;
+}
+
+.iap-breath-tag b {
+  font-size: 14px;
+}
+
+.iap-breath-tag span {
+  font-size: 11px;
+}
+
+.iap-drag-hint {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-en);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: rgba(239, 234, 220, 0.45);
+  pointer-events: none;
+}
+
+.iap3d-label {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: var(--font-jp);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border: 1px solid;
+  border-radius: 999px;
+  background: rgba(20, 39, 28, 0.78);
+}
+
 .iap-label {
   font-family: var(--font-jp);
   font-size: 15px;
@@ -2884,6 +2943,14 @@ body.has-custom-cursor input[type='range'] {
   .iap-stage,
   .nutri-stage {
     padding: 8px;
+  }
+
+  .iap-stage-3d {
+    padding: 0;
+  }
+
+  .iap-canvas {
+    min-height: 440px;
   }
 
   .bodymap-canvas {
