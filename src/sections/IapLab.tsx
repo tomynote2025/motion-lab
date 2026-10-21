@@ -20,8 +20,8 @@ const PRESETS: Record<PresetId, [number, number, number]> = {
 const DEMO: { at: number; preset: PresetId; hold: boolean; caption: string; tone: 'good' | 'bad' | '' }[] = [
   { at: 0, preset: 'balance', hold: false, caption: '息を吸うと、天井(横隔膜)と床(骨盤底)が下がり、壁(腹壁)が広がります。', tone: '' },
   { at: 3.2, preset: 'balance', hold: true, caption: '3つがそろうと、圧の風船が内側から背骨を支えます。上から負荷がかかっても、背骨はまっすぐ保たれます。', tone: 'good' },
-  { at: 6.8, preset: 'brace', hold: true, caption: 'お腹だけ固めると、天井と床が受け止めず、圧が上と下へ逃げます。腹圧が足りず、背骨が丸まる方向へ崩れます。', tone: 'bad' },
-  { at: 10.4, preset: 'leak', hold: true, caption: '壁(腹壁)が働かないと、圧が前と下へ逃げます。お腹の前側で支えられず、今度は腰が反る方向へ崩れます。', tone: 'bad' },
+  { at: 6.8, preset: 'brace', hold: true, caption: 'お腹だけ固めると、天井と床が受け止めず、圧が上と下へ逃げます。腹圧が足りないとき、この例では背骨が丸まる方向へ崩れています。', tone: 'bad' },
+  { at: 10.4, preset: 'leak', hold: true, caption: '壁(腹壁)が働かないと、圧が前と下へ逃げます。この例では、腰が反る方向へ崩れています。崩れ方は一例で、人によって異なります。', tone: 'bad' },
   { at: 14, preset: 'balance', hold: false, caption: 'ひとつを強く固めるより、3つを一緒に働かせることが大切です。スライダーでも試してみてください。', tone: '' },
 ];
 const DEMO_END = 17;
@@ -166,6 +166,9 @@ export function IapLab() {
           <button className={preset === 'brace' ? 'active' : ''} onClick={() => { stopDemo(); applyPreset('brace'); }}><span>△</span><b>お腹だけ固める</b><small>横隔膜と骨盤底が追従しない</small></button>
           <button className={preset === 'leak' ? 'active' : ''} onClick={() => { stopDemo(); applyPreset('leak'); }}><span>△</span><b>協調が崩れる</b><small>壁と床が圧を受け止めない</small></button>
         </div>
+        <p className="iap-compare-note">
+          ※ 背骨の崩れ方は一例です。腹壁が弱いと必ず腰が反る、お腹だけ固めると必ず背骨が丸まる、と決まっているわけではありません。どの方向に崩れるかは、姿勢のくせ・関節や筋の状態・動作の内容などによって人それぞれ異なります。ここでは「腹圧で支えきれないと、背骨にしわ寄せがくる」ことを分かりやすくするため、2つの方向に分けて表しています。
+        </p>
       </div>
 
       <div className="iap-grid">
@@ -287,8 +290,8 @@ export function IapLab() {
             <div className={`iap-verdict ${stress > 0.25 ? 'bad' : pressure > 0.55 ? 'good' : ''}`}>
               {stress > 0.25
                 ? collapseBias >= 0
-                  ? '⚠ 負荷に対して腹圧が足りず、背骨が丸まる方向へ崩れています。天井と床から圧が逃げる矢印を確認してください。'
-                  : '⚠ 負荷に対して腹圧が足りず、腰が反る方向へ崩れています。お腹の前側(壁)から圧が逃げる矢印を確認してください。'
+                  ? '⚠ 負荷に対して腹圧が足りず、背骨が支えきれていません（この例では丸まる方向に崩れています）。天井と床から圧が逃げる矢印を確認してください。'
+                  : '⚠ 負荷に対して腹圧が足りず、背骨が支えきれていません（この例では腰が反る方向に崩れています）。お腹の前側(壁)から圧が逃げる矢印を確認してください。'
                 : support > 0.55 && coordination > 0.72
                   ? '◎ 吸気で3つが一緒に下降・拡張し、呼気で一緒に戻っています。負荷時も呼吸を残しながら支持できる状態です。'
                   : coordination < 0.55
@@ -297,7 +300,7 @@ export function IapLab() {
             </div>
           )}
           <p className="iap-disclaimer">
-            ※ 数値は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません。崩れる方向（丸まる／反る）は、どこが働きにくいかで変わることを単純化して示したもので、実際の崩れ方は人によって異なります。
+            ※ 数値は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません。背骨の崩れ方（丸まる／反る）は説明のための一例で、どこが働きにくいとどちらに崩れる、と決まっているものではありません。実際の崩れ方は人によって異なります。
             <br />
             3Dモデル: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International（腹圧の説明用に一部を抜き出し、改変して使用。腹壁は外腹斜筋のデータで表示）
           </p>

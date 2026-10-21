@@ -717,6 +717,13 @@ h4 {
   line-height: 1.7;
 }
 
+.iap-compare-note {
+  margin-top: 14px;
+  color: var(--muted, #6b7a70);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
 .iap-stage {
   background: var(--stage);
   border: 1px solid var(--stage-line);
