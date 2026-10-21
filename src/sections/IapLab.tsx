@@ -20,8 +20,8 @@ const PRESETS: Record<PresetId, [number, number, number]> = {
 const DEMO: { at: number; preset: PresetId; hold: boolean; caption: string; tone: 'good' | 'bad' | '' }[] = [
   { at: 0, preset: 'balance', hold: false, caption: '息を吸うと、天井(横隔膜)と床(骨盤底)が下がり、壁(腹壁)が広がります。', tone: '' },
   { at: 3.2, preset: 'balance', hold: true, caption: '3つがそろうと、圧の風船が内側から背骨を支えます。上から負荷がかかっても、背骨はまっすぐ保たれます。', tone: 'good' },
-  { at: 6.8, preset: 'brace', hold: true, caption: 'お腹だけ固めると、天井と床が受け止めず、圧が上と下へ逃げます。腹圧が足りず、背骨が支えきれずに崩れます。', tone: 'bad' },
-  { at: 10.4, preset: 'leak', hold: true, caption: '壁と床が働かないと、圧が前と下へ逃げます。やはり腹圧が高まらず、背骨が崩れます。', tone: 'bad' },
+  { at: 6.8, preset: 'brace', hold: true, caption: 'お腹だけ固めると、天井と床が受け止めず、圧が上と下へ逃げます。腹圧が足りず、背骨が丸まる方向へ崩れます。', tone: 'bad' },
+  { at: 10.4, preset: 'leak', hold: true, caption: '壁(腹壁)が働かないと、圧が前と下へ逃げます。お腹の前側で支えられず、今度は腰が反る方向へ崩れます。', tone: 'bad' },
   { at: 14, preset: 'balance', hold: false, caption: 'ひとつを強く固めるより、3つを一緒に働かせることが大切です。スライダーでも試してみてください。', tone: '' },
 ];
 const DEMO_END = 17;
@@ -111,6 +111,8 @@ export function IapLab() {
   const pressure = Math.min(breathPressure * (1 - load * 0.25) + posturalPressure, 1);
   const support = Math.min((0.35 + pressure * 0.65) * coordination * movementQuality, 1);
   const stress = Math.max(0, load * 0.95 - support);
+  // 崩れる方向(IapAnatomy3D と同じ考え方): 正=丸まる(屈曲), 負=反る(伸展)
+  const collapseBias = (1 - (dia + pf) / 2) - (1 - tva);
   const mmhg = Math.round(6 + pressure * 84);
   const stability = Math.round(support * 100);
 
@@ -271,7 +273,9 @@ export function IapLab() {
           {!demo && (
             <div className={`iap-verdict ${stress > 0.25 ? 'bad' : pressure > 0.55 ? 'good' : ''}`}>
               {stress > 0.25
-                ? '⚠ 負荷に対して腹圧が足りず、背骨が支えきれずに崩れています。圧が逃げる矢印を確認してください。'
+                ? collapseBias >= 0
+                  ? '⚠ 負荷に対して腹圧が足りず、背骨が丸まる方向へ崩れています。天井と床から圧が逃げる矢印を確認してください。'
+                  : '⚠ 負荷に対して腹圧が足りず、腰が反る方向へ崩れています。お腹の前側(壁)から圧が逃げる矢印を確認してください。'
                 : support > 0.55 && coordination > 0.72
                   ? '◎ 吸気で3つが一緒に下降・拡張し、呼気で一緒に戻っています。負荷時も呼吸を残しながら支持できる状態です。'
                   : coordination < 0.55
@@ -280,7 +284,7 @@ export function IapLab() {
             </div>
           )}
           <p className="iap-disclaimer">
-            ※ 数値は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません。
+            ※ 数値は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません。崩れる方向（丸まる／反る）は、どこが働きにくいかで変わることを単純化して示したもので、実際の崩れ方は人によって異なります。
             <br />
             3Dモデル: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International（腹圧の説明用に一部を抜き出し、改変して使用。腹壁は外腹斜筋のデータで表示）
           </p>

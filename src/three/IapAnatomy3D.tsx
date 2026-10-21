@@ -116,8 +116,15 @@ export function IapAnatomy3D({
   // 腹腔(圧の風船)の大きさ: 横隔膜の下〜骨盤底の上、腰椎の前〜腹壁の内側
   const CAV: Vec3 = [0, -0.08, 0.6];
 
-  // 腹圧で支えきれないと、腰椎が1節ずつ前へ曲がり、その上の胸郭ごと崩れ落ちる
-  const flex = stress * 0.13; // 1節あたりの屈曲(rad)。5節で最大約37°
+  // 腹圧で支えきれないと、腰椎が1節ずつ曲がり、その上の胸郭ごと崩れる。
+  // 崩れる方向は「どこが働いていないか」で変える(教育用の単純化):
+  //   横隔膜・骨盤底が働かない → 圧が上下へ逃げ、体幹が丸まる(屈曲)
+  //   腹壁が働かない           → 圧が前へ逃げ、前側で支えられず腰が反る(伸展)
+  const flexWeak = clamp(1 - (dia + pf) / 2, 0, 1);
+  const extWeak = clamp(1 - tva, 0, 1);
+  const bias = Math.tanh(6 * (flexWeak - extWeak)); // +1=屈曲, -1=伸展
+  const flex = stress * bias * (bias > 0 ? 0.13 : 0.12); // 1節あたり(rad)。屈曲は最大約37°、伸展は最大約34°
+  const collapseLabel = bias >= 0 ? '支えきれず背骨が丸まって崩れる' : '支えきれず腰が反って崩れる';
   const LUMBAR_CHAIN: { name: string; pivot: Vec3 }[] = [
     { name: 'L5', pivot: [0, -0.36, 0.36] },
     { name: 'L4', pivot: [0, -0.23, 0.36] },
@@ -250,7 +257,7 @@ export function IapAnatomy3D({
           <Label at={[0, -0.32, 1.12]} color={WALL_COLOR}>壁｜腹壁</Label>
           <Label at={[-0.62, -0.86 - floorSag, 0.3]} color={FLOOR_COLOR}>床｜骨盤底</Label>
           <Label at={[0.42, -0.05, 0.05]} color={stress > 0.35 ? ACTIVE : BONE_COLOR}>
-            {stress > 0.35 ? '支えきれず背骨が崩れる' : load > 0.3 ? '背骨がまっすぐ保たれる' : '背骨'}
+            {stress > 0.35 ? collapseLabel : load > 0.3 ? '背骨がまっすぐ保たれる' : '背骨'}
           </Label>
         </>
       )}
