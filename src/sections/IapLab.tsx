@@ -1,7 +1,8 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { Canvas } from '@react-three/fiber';
+import * as THREE from 'three';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { IapAnatomy3D } from '../three/IapAnatomy3D';
+import { IapAnatomy3D, type IapFocus } from '../three/IapAnatomy3D';
 
 /**
  * 腹腔内圧(IAP)シミュレーター
@@ -16,6 +17,70 @@ const PRESETS: Record<PresetId, [number, number, number]> = {
   leak: [0.82, 0.28, 0.18],
 };
 
+// --- 部位ごとに見る(Visible Body のように、選んだ部位だけを出す) ---
+type FocusPart = Exclude<IapFocus, 'all'>;
+type FocusMode = 'good' | 'bad';
+const PARTS: { id: IapFocus; label: string }[] = [
+  { id: 'all', label: '全体' },
+  { id: 'diaphragm', label: '横隔膜' },
+  { id: 'wall', label: '腹壁' },
+  { id: 'floor', label: '骨盤底' },
+  { id: 'spine', label: '背骨' },
+];
+/** 部位表示のときの [横隔膜, 腹壁, 骨盤底] の値。崩れたときは、その部位が働きにくい例 */
+const FOCUS_VALUES: Record<FocusPart, Record<FocusMode, [number, number, number]>> = {
+  diaphragm: { good: [0.85, 0.82, 0.82], bad: [0.12, 0.82, 0.8] },
+  wall: { good: [0.85, 0.82, 0.82], bad: [0.82, 0.12, 0.8] },
+  floor: { good: [0.85, 0.82, 0.82], bad: [0.82, 0.8, 0.12] },
+  spine: { good: [0.85, 0.82, 0.82], bad: [0.18, 0.95, 0.28] },
+};
+const FOCUS_TEXT: Record<FocusPart, Record<FocusMode, string>> = {
+  diaphragm: {
+    good: '息を吸うとドームが下がって平らになり、お腹の中身を下へ押して圧を高めます。息を吐くと元の高さへ戻ります。負荷がかかっても働き続け、呼吸と支えを両立します。',
+    bad: '（例）下がる動きが小さく、負荷がかかると圧に押し上げられます。天井が受け止めきれず、圧が上へ逃げています。',
+  },
+  wall: {
+    good: '息を吸うと、前だけでなく横や後ろにも広がり、吐くと戻ります。負荷がかかっても張りを保ち、内側からの圧を受け止めます。',
+    bad: '（例）圧を受け止めきれず、お腹の前側が押し出されます。壁が受け止めきれず、圧が前へ逃げています。',
+  },
+  floor: {
+    good: '息を吸うとわずかに下がり、吐くと持ち上がります。負荷がかかると、下から支えるように働きます。',
+    bad: '（例）負荷がかかると下へ押し下げられます。床が受け止めきれず、圧が下へ逃げています。',
+  },
+  spine: {
+    good: '天井・壁・床がそろって圧を保つので、負荷がかかっても背骨はまっすぐ保たれます。',
+    bad: '（例）腹圧で支えきれず、背骨にしわ寄せがきて丸まる方向へ崩れています。反る方向に崩れることもあり、崩れ方は人によって異なります。',
+  },
+};
+/** カメラが寄る位置(モデル座標)と距離 */
+const FOCUS_CAMERA: Record<IapFocus, { at: [number, number, number]; dist: number }> = {
+  all: { at: [0, 0.25, 0.45], dist: 5.3 },
+  diaphragm: { at: [0, 0.4, 0.45], dist: 3.8 },
+  wall: { at: [0, -0.05, 0.6], dist: 4.0 },
+  floor: { at: [0, -0.75, 0.3], dist: 3.2 },
+  spine: { at: [0, 0.15, 0.3], dist: 4.6 },
+};
+const MODEL_ROT_Y = -0.95;
+const MODEL_OFFSET = new THREE.Vector3(0, -0.25, -0.45);
+
+/** 選んだ部位へ、今の向きのままカメラをなめらかに寄せる */
+function CameraRig({ focus }: { focus: IapFocus }) {
+  const { camera, controls } = useThree() as unknown as { camera: THREE.Camera; controls: { target: THREE.Vector3; update: () => void } | null };
+  const goal = useRef(new THREE.Vector3());
+  useFrame((_, dt) => {
+    if (!controls) return;
+    const c = FOCUS_CAMERA[focus];
+    goal.current.set(...c.at).add(MODEL_OFFSET).applyAxisAngle(new THREE.Vector3(0, 1, 0), MODEL_ROT_Y);
+    const k = Math.min(dt * 3, 1);
+    controls.target.lerp(goal.current, k);
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    const want = controls.target.clone().add(dir.multiplyScalar(c.dist));
+    camera.position.lerp(want, k);
+    controls.update();
+  });
+  return null;
+}
+
 // 「▶ まず見る」の流れ(秒)
 const DEMO: { at: number; preset: PresetId; hold: boolean; caption: string; tone: 'good' | 'bad' | '' }[] = [
   { at: 0, preset: 'balance', hold: false, caption: '息を吸うと、天井(横隔膜)と床(骨盤底)が下がり、壁(腹壁)が広がります。', tone: '' },
@@ -29,9 +94,15 @@ const DEMO_END = 17;
 const BASE_LOAD = 0.55;
 
 export function IapLab() {
-  const [dia, setDia] = useState(0.82); // 横隔膜の下降
-  const [tva, setTva] = useState(0.8); // 腹壁の全周性拡張
-  const [pf, setPf] = useState(0.8); // 骨盤底の追従
+  const [sliderDia, setDia] = useState(0.82); // 横隔膜の下降
+  const [sliderTva, setTva] = useState(0.8); // 腹壁の全周性拡張
+  const [sliderPf, setPf] = useState(0.8); // 骨盤底の追従
+  const [focus, setFocus] = useState<IapFocus>('all');
+  const [focusMode, setFocusMode] = useState<FocusMode>('good');
+  const focusRef = useRef<IapFocus>('all');
+  focusRef.current = focus;
+  // 部位表示中は、その部位の「良い動き／崩れたとき」の値を使う
+  const [dia, tva, pf] = focus === 'all' ? [sliderDia, sliderTva, sliderPf] : FOCUS_VALUES[focus][focusMode];
   const [frame, setFrame] = useState({ breath: 0, load: 0, sDia: 0.82, sTva: 0.8, sPf: 0.8 });
   // 3Dモデルは目標値へなめらかに近づける(状態を切り替えたとき、背骨が少しずつ崩れる/戻る)
   const targetRef = useRef({ dia: 0.82, tva: 0.8, pf: 0.8 });
@@ -84,7 +155,9 @@ export function IapLab() {
       }
 
       const breath = (Math.sin(t * 1.4) + 1) / 2; // 0=呼気, 1=吸気
-      load += ((holdRef.current ? 1 : 0) - load) * Math.min(dt * 4, 1);
+      // 部位表示中は、数秒おきに自動で負荷をかけて「負荷を受けた瞬間」の反応を見せる
+      const autoLoad = focusRef.current !== 'all' && t % 7 > 4.2;
+      load += ((holdRef.current || autoLoad ? 1 : 0) - load) * Math.min(dt * 4, 1);
       const k = Math.min(dt * 3, 1);
       sm.dia += (targetRef.current.dia - sm.dia) * k;
       sm.tva += (targetRef.current.tva - sm.tva) * k;
@@ -97,6 +170,7 @@ export function IapLab() {
   }, []);
 
   const startDemo = () => {
+    setFocus('all');
     demoStart.current = performance.now();
     demoStepRef.current = -1; // 次のフレームで step 0 を適用させる
     demoActiveRef.current = true;
@@ -132,6 +206,12 @@ export function IapLab() {
 
   const changeValue = (setter: (value: number) => void, value: number) => {
     if (demoRunning) stopDemo();
+    if (focus !== 'all') {
+      setDia(dia);
+      setTva(tva);
+      setPf(pf);
+      setFocus('all');
+    }
     setPreset('custom');
     setter(value);
   };
@@ -163,13 +243,44 @@ export function IapLab() {
       <div className="iap-compare">
         <div className="iap-compare-head"><span>STEP 01</span><b>状態を選んで、違いを比較する</b></div>
         <div className="iap-presets">
-          <button className={preset === 'balance' ? 'active' : ''} onClick={() => { stopDemo(); applyPreset('balance'); }}><span>◎</span><b>呼吸と支持が協調</b><small>3つが同じリズムで動く</small></button>
-          <button className={preset === 'brace' ? 'active' : ''} onClick={() => { stopDemo(); applyPreset('brace'); }}><span>△</span><b>お腹だけ固める</b><small>横隔膜と骨盤底が追従しない</small></button>
-          <button className={preset === 'leak' ? 'active' : ''} onClick={() => { stopDemo(); applyPreset('leak'); }}><span>△</span><b>協調が崩れる</b><small>壁と床が圧を受け止めない</small></button>
+          <button className={preset === 'balance' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('balance'); }}><span>◎</span><b>呼吸と支持が協調</b><small>3つが同じリズムで動く</small></button>
+          <button className={preset === 'brace' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('brace'); }}><span>△</span><b>お腹だけ固める</b><small>横隔膜と骨盤底が追従しない</small></button>
+          <button className={preset === 'leak' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('leak'); }}><span>△</span><b>協調が崩れる</b><small>壁と床が圧を受け止めない</small></button>
         </div>
         <p className="iap-compare-note">
           ※ 背骨の崩れ方は一例です。腹壁が弱いと必ず腰が反る、お腹だけ固めると必ず背骨が丸まる、と決まっているわけではありません。どの方向に崩れるかは、姿勢のくせ・関節や筋の状態・動作の内容などによって人それぞれ異なります。ここでは「腹圧で支えきれないと、背骨にしわ寄せがくる」ことを分かりやすくするため、2つの方向に分けて表しています。
         </p>
+      </div>
+
+      <div className="iap-compare iap-parts">
+        <div className="iap-compare-head"><span>PARTS</span><b>部位を選んで、動きだけを見る</b></div>
+        <div className="region-chips" role="tablist" aria-label="表示する部位">
+          {PARTS.map((part) => (
+            <button
+              key={part.id}
+              className={`chip ${focus === part.id ? 'chip-active' : ''}`}
+              onClick={() => {
+                stopDemo();
+                setFocus(part.id);
+              }}
+            >
+              {part.label}
+            </button>
+          ))}
+        </div>
+        {focus !== 'all' && (
+          <>
+            <div className="iap-mode-toggle">
+              <button className={focusMode === 'good' ? 'active good' : ''} onClick={() => setFocusMode('good')}>◎ 良い動き</button>
+              <button className={focusMode === 'bad' ? 'active bad' : ''} onClick={() => setFocusMode('bad')}>△ 内圧が崩れたとき</button>
+            </div>
+            <p className="iap-part-caption">
+              <b>{PARTS.find((p) => p.id === focus)?.label}｜{focusMode === 'good' ? '良い動き' : '内圧が崩れたとき'}</b>
+              {FOCUS_TEXT[focus][focusMode]}
+              <span>数秒おきに自動で負荷がかかります。負荷を受けた瞬間の動きを見てください。</span>
+            </p>
+          </>
+        )}
       </div>
 
       <div className="iap-grid">
@@ -181,11 +292,12 @@ export function IapLab() {
               <pointLight position={[-6, -2, 5]} color="#5E8BA8" intensity={30} />
               <pointLight position={[6, 3, -4]} color="#C0562F" intensity={20} />
               <Suspense fallback={null}>
-                <group rotation={[0, -0.95, 0]}>
-                  <IapAnatomy3D dia={sDia} tva={sTva} pf={sPf} load={load} pressLoad={pressLoad} breath={breath} />
+                <group rotation={[0, MODEL_ROT_Y, 0]}>
+                  <IapAnatomy3D dia={sDia} tva={sTva} pf={sPf} load={load} pressLoad={pressLoad} breath={breath} focus={focus} gain={focus === 'all' ? 1 : 1.5} />
                 </group>
               </Suspense>
-              <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
+              <OrbitControls makeDefault enablePan={false} enableZoom={false} minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 1.8} />
+              <CameraRig focus={focus} />
             </Canvas>
           </div>
           <div className="iap-breath-tag">

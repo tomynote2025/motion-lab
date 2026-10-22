@@ -22,6 +22,8 @@ const WALL_COLOR = '#86B98C';
 const FLOOR_COLOR = '#C9982F';
 
 type Vec3 = [number, number, number];
+/** 部位ごとの表示。'all' 以外は、その部位だけをはっきり出してほかを透かす */
+export type IapFocus = 'all' | 'diaphragm' | 'wall' | 'floor' | 'spine';
 
 function Arrow({ from, dir, length, color, radius = 0.03 }: { from: Vec3; dir: Vec3; length: number; color: string; radius?: number }) {
   const quat = useMemo(
@@ -74,6 +76,8 @@ export function IapAnatomy3D({
   load,
   pressLoad = 0,
   breath = 0.5,
+  focus = 'all',
+  gain = 1,
   showLabels = true,
 }: {
   dia: number;
@@ -85,6 +89,9 @@ export function IapAnatomy3D({
   pressLoad?: number;
   /** 呼吸 0=呼気, 1=吸気。吸気で横隔膜と骨盤底が下がり、腹壁が広がる */
   breath?: number;
+  focus?: IapFocus;
+  /** 部位表示のとき、動きを見やすく大きくする倍率 */
+  gain?: number;
   showLabels?: boolean;
 }) {
   const g = useParts();
@@ -100,16 +107,24 @@ export function IapAnatomy3D({
   const floorLeak = load * clamp(1 - pf * 1.4, 0, 1);
 
   // 呼吸の動き(負荷中は小さくなる)
-  const breathAmp = breath * (1 - load * 0.5);
+  const breathAmp = breath * (1 - load * 0.5) * gain;
   const diaDrop = breathAmp * 0.08 * (0.3 + 0.7 * dia);
   const floorDrop = breathAmp * 0.045 * (0.3 + 0.7 * pf);
   const wallBreath = breathAmp * 0.07 * (0.3 + 0.7 * tva);
 
-  const wallBulge = 1 + wallLeak * 0.22 + wallBreath; // 背骨側を支点に前へふくらむ
-  const floorSag = floorLeak * 0.12;
-  const diaRise = diaLeak * 0.1;
+  const wallBulge = 1 + wallLeak * 0.22 * gain + wallBreath; // 背骨側を支点に前へふくらむ
+  const floorSag = floorLeak * 0.12 * gain;
+  const diaRise = diaLeak * 0.1 * gain;
+
+  const isFocus = focus !== 'all';
+  const ghost = (part: IapFocus) => isFocus && focus !== part;
+  const show = (part: IapFocus) => !isFocus || focus === part;
 
   const bone = useMemo(() => new THREE.MeshStandardMaterial({ color: BONE_COLOR, roughness: 0.55, metalness: 0.05 }), []);
+  const boneGhost = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: BONE_COLOR, roughness: 0.55, transparent: true, opacity: 0.1, depthWrite: false }),
+    [],
+  );
   const lumbarMat = useMemo(() => {
     const m = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.05, emissive: new THREE.Color(ACTIVE) });
     return m;
@@ -141,23 +156,27 @@ export function IapAnatomy3D({
   /** 腰椎より上(胸郭・横隔膜・負荷の矢印)。背骨と一緒に動く */
   const upper = (
     <>
-      {['ribs', 'cartilage', 'sternum', 'thoracic'].map((n) => g[n] && <mesh key={n} geometry={g[n]} material={bone} />)}
+      {['ribs', 'cartilage', 'sternum', 'thoracic'].map(
+        (n) => g[n] && <mesh key={n} geometry={g[n]} material={(n === 'thoracic' ? ghost('spine') : isFocus) ? boneGhost : bone} />,
+      )}
 
       {/* 天井: 横隔膜 */}
       {g.diaphragm && (
         <mesh geometry={g.diaphragm} position={[0, diaRise - diaDrop, 0]} renderOrder={2}>
           <meshStandardMaterial
             color={DIA_COLOR}
+            emissive={DIA_COLOR}
+            emissiveIntensity={focus === 'diaphragm' ? 0.3 : 0}
             transparent
-            opacity={0.3 + dia * 0.6}
-            wireframe={dia < 0.45}
+            opacity={ghost('diaphragm') ? 0.06 : focus === 'diaphragm' ? 0.95 : 0.3 + dia * 0.6}
+            wireframe={focus === 'all' && dia < 0.45}
             side={THREE.DoubleSide}
             roughness={0.5}
-            depthWrite={dia >= 0.45}
+            depthWrite={!ghost('diaphragm') && (focus === 'diaphragm' || dia >= 0.45)}
           />
         </mesh>
       )}
-      <Arrow from={[0, 0.72 + diaRise, 0.6]} dir={[0, 1, 0.25]} length={diaLeak * 0.6} color={ACTIVE} radius={0.045} />
+      <Arrow from={[0, 0.72 + diaRise, 0.6]} dir={[0, 1, 0.25]} length={show('diaphragm') ? diaLeak * 0.6 : 0} color={ACTIVE} radius={0.045} />
 
       {/* 負荷: 上からの押しつぶす力 */}
       {pressLoad > 0.05 && (
@@ -166,7 +185,7 @@ export function IapAnatomy3D({
           {showLabels && <Label at={[0.36, 1.86, 0.25]} color="#efeadc">負荷</Label>}
         </>
       )}
-      {showLabels && <Label at={[-0.72, 0.62 + diaRise, 0.4]} color={DIA_COLOR}>天井｜横隔膜</Label>}
+      {showLabels && show('diaphragm') && <Label at={[-0.72, 0.62 + diaRise, 0.4]} color={DIA_COLOR}>天井｜横隔膜</Label>}
     </>
   );
 
@@ -176,7 +195,7 @@ export function IapAnatomy3D({
     return (
       <group position={seg.pivot} rotation={[flex, 0, 0]}>
         <group position={back}>
-          {g[seg.name] && <mesh geometry={g[seg.name]} material={lumbarMat} />}
+          {g[seg.name] && <mesh geometry={g[seg.name]} material={ghost('spine') ? boneGhost : lumbarMat} />}
           {i < LUMBAR_CHAIN.length - 1 ? renderLumbar(i + 1) : upper}
         </group>
       </group>
@@ -186,7 +205,7 @@ export function IapAnatomy3D({
   return (
     <group position={[0, -0.25, -0.45]}>
       {/* 骨盤(固定) */}
-      {g.pelvis && <mesh geometry={g.pelvis} material={bone} />}
+      {g.pelvis && <mesh geometry={g.pelvis} material={isFocus ? boneGhost : bone} />}
 
       {/* 腰椎〜胸郭(腹圧が足りないと前へ崩れる) */}
       {renderLumbar(0)}
@@ -203,7 +222,7 @@ export function IapAnatomy3D({
           emissive={ACTIVE}
           emissiveIntensity={0.5 + pressure * 0.7}
           transparent
-          opacity={0.3 + pressure * 0.45}
+          opacity={isFocus ? 0.08 + pressure * 0.12 : 0.3 + pressure * 0.45}
           roughness={0.35}
           depthWrite={false}
         />
@@ -214,9 +233,11 @@ export function IapAnatomy3D({
         <mesh geometry={g.pelvic_floor} position={[0, -floorSag - floorDrop, 0]} renderOrder={2}>
           <meshStandardMaterial
             color={FLOOR_COLOR}
+            emissive={FLOOR_COLOR}
+            emissiveIntensity={focus === 'floor' ? 0.3 : 0}
             transparent
-            opacity={0.35 + pf * 0.6}
-            wireframe={pf < 0.45}
+            opacity={ghost('floor') ? 0.06 : focus === 'floor' ? 0.95 : 0.35 + pf * 0.6}
+            wireframe={focus === 'all' && pf < 0.45}
             side={THREE.DoubleSide}
             roughness={0.5}
           />
@@ -229,9 +250,11 @@ export function IapAnatomy3D({
           <mesh geometry={g.oblique} position={[0, 0, -0.45]} renderOrder={3}>
             <meshStandardMaterial
               color={WALL_COLOR}
+              emissive={WALL_COLOR}
+              emissiveIntensity={focus === 'wall' ? 0.25 : 0}
               transparent
-              opacity={0.08 + tva * 0.2}
-              wireframe={tva < 0.45}
+              opacity={ghost('wall') ? 0.03 : focus === 'wall' ? 0.55 : 0.08 + tva * 0.2}
+              wireframe={focus === 'all' && tva < 0.45}
               side={THREE.DoubleSide}
               roughness={0.5}
               depthWrite={false}
@@ -241,7 +264,7 @@ export function IapAnatomy3D({
       )}
 
       {/* まとまった圧が内側から押す矢印 */}
-      {support > 0.5 &&
+      {support > 0.5 && !isFocus &&
         ([
           [0, 0, 1],
           [1, 0, 0],
@@ -253,17 +276,19 @@ export function IapAnatomy3D({
         ))}
 
       {/* 圧が逃げる矢印(壁・床) */}
-      <Arrow from={[0, -0.1, 0.86 * wallBulge]} dir={[0, 0, 1]} length={wallLeak * 0.55} color={ACTIVE} radius={0.045} />
-      <Arrow from={[0.3, -0.25, 0.78 * wallBulge]} dir={[0.5, 0, 1]} length={wallLeak * 0.4} color={ACTIVE} radius={0.045} />
-      <Arrow from={[0, -0.95 - floorSag, 0.25]} dir={[0, -1, 0]} length={floorLeak * 0.6} color={ACTIVE} radius={0.045} />
+      <Arrow from={[0, -0.1, 0.86 * wallBulge]} dir={[0, 0, 1]} length={show('wall') ? wallLeak * 0.55 : 0} color={ACTIVE} radius={0.045} />
+      <Arrow from={[0.3, -0.25, 0.78 * wallBulge]} dir={[0.5, 0, 1]} length={show('wall') ? wallLeak * 0.4 : 0} color={ACTIVE} radius={0.045} />
+      <Arrow from={[0, -0.95 - floorSag, 0.25]} dir={[0, -1, 0]} length={show('floor') ? floorLeak * 0.6 : 0} color={ACTIVE} radius={0.045} />
 
       {showLabels && (
         <>
-          <Label at={[0, -0.32, 1.12]} color={WALL_COLOR}>壁｜腹壁</Label>
-          <Label at={[-0.62, -0.86 - floorSag, 0.3]} color={FLOOR_COLOR}>床｜骨盤底</Label>
-          <Label at={[0.42, -0.05, 0.05]} color={stress > 0.2 ? ACTIVE : BONE_COLOR}>
-            {stress > 0.2 ? collapseLabel : '背骨がまっすぐ保たれる'}
-          </Label>
+          {show('wall') && <Label at={[0, -0.32, 1.12]} color={WALL_COLOR}>壁｜腹壁</Label>}
+          {show('floor') && <Label at={[-0.62, -0.86 - floorSag, 0.3]} color={FLOOR_COLOR}>床｜骨盤底</Label>}
+          {show('spine') && (
+            <Label at={[0.42, -0.05, 0.05]} color={stress > 0.2 ? ACTIVE : BONE_COLOR}>
+              {stress > 0.2 ? collapseLabel : '背骨がまっすぐ保たれる'}
+            </Label>
+          )}
         </>
       )}
     </group>

@@ -717,6 +717,57 @@ h4 {
   line-height: 1.7;
 }
 
+.iap-parts .region-chips {
+  margin-top: 14px;
+}
+
+.iap-mode-toggle {
+  display: inline-flex;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.iap-mode-toggle button {
+  padding: 10px 18px;
+  border: 0;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.iap-mode-toggle button.active.good {
+  background: var(--green);
+  color: #fff;
+}
+
+.iap-mode-toggle button.active.bad {
+  background: #c0562f;
+  color: #fff;
+}
+
+.iap-part-caption {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.iap-part-caption b {
+  display: block;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.iap-part-caption span {
+  display: block;
+  margin-top: 4px;
+  color: var(--faint);
+  font-size: 11px;
+}
+
 .iap-compare-note {
   margin-top: 14px;
   color: var(--muted, #6b7a70);
