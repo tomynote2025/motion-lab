@@ -70,7 +70,7 @@ export function FasciaNetworkLab() {
   return (
     <section id="fascia-network" className="section">
       <div className="section-head">
-        <span className="section-index">05 / FASCIA NETWORK</span>
+        <span className="section-index">06 / FASCIA NETWORK</span>
         <h2>
           FASCIA NETWORK<span className="jp-sub">筋膜のつながり</span>
         </h2>

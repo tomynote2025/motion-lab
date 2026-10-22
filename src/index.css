@@ -2856,6 +2856,237 @@ body.has-custom-cursor input[type='range'] {
   }
 }
 
+
+/* ---------- LEFT / RIGHT LAB(左右判断テスト) ---------- */
+.lr-stage {
+  display: flex;
+  flex-direction: column;
+}
+
+.lr-canvas {
+  position: relative;
+  flex: 1;
+  min-height: 380px;
+  margin-top: 12px;
+}
+
+.lr-fixation,
+.lr-feedback,
+.lr-idle {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  color: var(--stage-text);
+}
+
+.lr-fixation {
+  font-family: var(--font-en);
+  font-size: 54px;
+  font-weight: 300;
+}
+
+.lr-feedback {
+  font-size: 72px;
+  font-weight: 700;
+}
+
+.lr-feedback.ok { color: #86b98c; }
+.lr-feedback.ng { color: #e08a6d; }
+
+.lr-idle {
+  text-align: center;
+  font-size: 13px;
+  line-height: 2;
+  color: rgba(239, 234, 220, 0.6);
+}
+
+.lr-answer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.lr-answer button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 64px;
+  border: 1px solid rgba(239, 234, 220, 0.25);
+  border-radius: 16px;
+  background: rgba(239, 234, 220, 0.08);
+  color: var(--stage-text);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.lr-answer button:not(:disabled):hover {
+  background: rgba(239, 234, 220, 0.16);
+}
+
+.lr-answer button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lr-answer button span {
+  font-family: var(--font-en);
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.lr-sub-btn {
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.lr-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.lr-progress span {
+  display: block;
+  height: 100%;
+  background: var(--green);
+  transition: width 0.2s;
+}
+
+.lr-score {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.lr-score div {
+  padding: 16px;
+  border-left: 4px solid var(--green);
+  background: var(--bg-2);
+}
+
+.lr-score span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.lr-score strong {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-en);
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.lr-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.lr-mini {
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.lr-compare {
+  display: grid;
+  gap: 6px;
+}
+
+.lr-compare-label {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lr-bar-row {
+  display: grid;
+  grid-template-columns: 4.5em 1fr 4.5em;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.lr-bar-row i {
+  font-style: normal;
+  color: var(--muted);
+}
+
+.lr-bar-row b {
+  font-family: var(--font-en);
+  text-align: right;
+}
+
+.lr-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.lr-bar span {
+  display: block;
+  height: 100%;
+  background: var(--green);
+}
+
+.lr-bar.alt span {
+  background: var(--amber);
+}
+
+.lr-howto ol {
+  margin: 8px 0 10px;
+  padding-left: 1.3em;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.9;
+}
+
+.lr-evidence {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.lr-evidence > div {
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.lr-evidence span {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--green);
+}
+
+.lr-evidence b {
+  display: block;
+  margin: 6px 0 8px;
+  font-size: 14px;
+}
+
+.lr-evidence p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.85;
+}
+
 /* ---------- Mobile (iPhone 等 〜640px) ---------- */
 
 @media (max-width: 640px) {
@@ -2964,6 +3195,18 @@ body.has-custom-cursor input[type='range'] {
 
   .iap-canvas {
     min-height: 440px;
+  }
+
+  .lr-canvas {
+    min-height: 300px;
+  }
+
+  .lr-evidence {
+    grid-template-columns: 1fr;
+  }
+
+  .lr-score strong {
+    font-size: 24px;
   }
 
   .bodymap-canvas {

@@ -15,7 +15,7 @@ export function NutriLab() {
   return (
     <section id="nutri" className="section">
       <div className="section-head">
-        <span className="section-index">06 / NUTRITION</span>
+        <span className="section-index">07 / NUTRITION</span>
         <h2>
           NUTRI LAB<span className="jp-sub">分子栄養学ラボ</span>
         </h2>
