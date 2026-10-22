@@ -3138,6 +3138,241 @@ body.has-custom-cursor input[type='range'] {
   line-height: 1.85;
 }
 
+
+/* ---------- HOMUNCULUS / BALANCE / BREATH / PAIN ---------- */
+.homu-stage,
+.bal-stage,
+.breath-stage,
+.pain-stage {
+  display: flex;
+  flex-direction: column;
+}
+
+.homu-canvas {
+  flex: 1;
+  min-height: 520px;
+}
+
+.homu-size {
+  font-family: var(--font-jp) !important;
+  font-size: 30px !important;
+}
+
+.bal-safety {
+  border-left-color: #c0562f;
+}
+
+.bal-center,
+.breath-center,
+.pain-center {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  min-height: 300px;
+  color: var(--stage-text);
+  text-align: center;
+}
+
+.bal-count {
+  font-family: var(--font-en);
+  font-size: 96px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.bal-center p,
+.bal-msg {
+  font-size: 13px;
+  line-height: 1.9;
+  color: rgba(239, 234, 220, 0.75);
+}
+
+.bal-steps {
+  max-width: 420px;
+  padding-left: 1.4em;
+  text-align: left;
+  font-size: 13px;
+  line-height: 2;
+  color: rgba(239, 234, 220, 0.8);
+}
+
+.bal-result {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 12px;
+  text-align: left;
+}
+
+.bal-bar-row {
+  display: grid;
+  grid-template-columns: 5.5em 1fr 3.5em;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.bal-bar-row i {
+  font-style: normal;
+}
+
+.bal-bar-row b {
+  font-family: var(--font-en);
+  text-align: right;
+}
+
+.bal-result .lr-mini {
+  color: rgba(239, 234, 220, 0.55);
+}
+
+.bal-trace,
+.breath-hr svg {
+  display: block;
+  width: 100%;
+  height: 90px;
+}
+
+.breath-ring {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, rgba(143, 184, 160, 0.55), rgba(143, 184, 160, 0.12) 70%);
+  border: 2px solid rgba(143, 184, 160, 0.7);
+  grid-area: 1 / 1;
+  transition: transform 0.08s linear;
+}
+
+.breath-label {
+  grid-area: 1 / 1;
+  display: grid;
+  gap: 4px;
+}
+
+.breath-label b {
+  font-size: 22px;
+}
+
+.breath-label span {
+  font-family: var(--font-en);
+  font-size: 15px;
+  opacity: 0.75;
+}
+
+.breath-hr {
+  color: var(--stage-text);
+}
+
+.breath-hr span {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+.breath-hr p {
+  font-size: 11px;
+  line-height: 1.8;
+  opacity: 0.6;
+}
+
+.breath-patterns .chip {
+  text-align: left;
+}
+
+.position-stage svg.pain-knob {
+  width: min(100%, 260px);
+  height: auto;
+  margin-top: 0;
+}
+
+.pain-knob-num {
+  font-family: var(--font-en);
+  font-size: 26px;
+  font-weight: 700;
+  fill: #efeadc;
+}
+
+.pain-delta {
+  font-size: 13px;
+  color: rgba(239, 234, 220, 0.75);
+}
+
+.pain-delta b.up { color: #f0a07e; }
+.pain-delta b.down { color: #9fd0aa; }
+
+.pain-slider {
+  margin-top: 8px;
+}
+
+.pain-group {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pain-group.danger { color: #c0562f; }
+.pain-group.safety { color: var(--green); }
+
+.pain-chip-danger.chip-active {
+  background: #c0562f;
+  border-color: #c0562f;
+}
+
+.pain-exp {
+  margin-top: 24px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.pain-exp-head span {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--green);
+}
+
+.pain-exp-head b {
+  display: block;
+  margin-top: 6px;
+  font-size: 15px;
+}
+
+.pain-exp-body {
+  display: grid;
+  grid-template-columns: 140px 140px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.pain-exp-body p {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.9;
+}
+
+.pain-cue {
+  display: grid;
+  place-items: center;
+  height: 96px;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+}
+
+.pain-cue small {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.pain-cue.red { background: #c63b2b; }
+.pain-cue.blue { background: #2f6fb0; }
+
 /* ---------- Mobile (iPhone 等 〜640px) ---------- */
 
 @media (max-width: 640px) {
@@ -3250,6 +3485,23 @@ body.has-custom-cursor input[type='range'] {
 
   .lr-canvas {
     min-height: 300px;
+  }
+
+  .homu-canvas {
+    min-height: 380px;
+  }
+
+  .pain-exp-body {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pain-exp-body p {
+    grid-column: 1 / -1;
+  }
+
+  .breath-ring {
+    width: 180px;
+    height: 180px;
   }
 
   .lr-evidence {

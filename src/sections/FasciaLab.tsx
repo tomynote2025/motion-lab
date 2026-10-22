@@ -37,7 +37,7 @@ export function FasciaLab() {
   return (
     <section id="fascia" className="section">
       <div className="section-head">
-        <span className="section-index">05 / FASCIA LAYERS</span>
+        <span className="section-index">09 / FASCIA LAYERS</span>
         <h2>
           FASCIA LAB<span className="jp-sub">筋膜スキャナー</span>
         </h2>
