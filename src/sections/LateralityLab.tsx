@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
- * LEFT / RIGHT LAB — 左右判断テスト(手・前腕と手・腕全体・足)
+ * LEFT / RIGHT LAB — 左右判断テスト(手・前腕と手・腕全体・足・すねから先・脚全体)
  *
  * 画面の体が右か左かを、できるだけ速く正確に答える。
  * 画像は MakeHuman(MPFB 2, CC0)で作った人体を描画したもの(public/images/laterality/)。
@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
  */
 
 type Side = 'L' | 'R';
-type Part = 'hand' | 'forearm' | 'upperlimb' | 'foot';
+type Part = 'hand' | 'forearm' | 'upperlimb' | 'foot' | 'lowerleg' | 'wholeleg';
 type Stim = { src: string; view: string };
 type Trial = { side: Side; stim: Stim; angle: number };
 type Result = Trial & { correct: boolean; rt: number; timeout: boolean };
@@ -79,8 +79,34 @@ const PARTS: Record<
     repeats: 1,
     howto: '二の腕から指先までを、手の甲側・手のひら側から、8方向の向きで出します。',
   },
+  lowerleg: {
+    label: 'すねから先',
+    question: 'この脚は、右？ 左？',
+    left: '左',
+    right: '右',
+    stims: [
+      { src: `${IMG}lowerleg-left-front.webp`, view: '前から' },
+      { src: `${IMG}lowerleg-left-medial.webp`, view: '内側から' },
+    ],
+    rotate: true,
+    repeats: 1,
+    howto: 'ひざから下を、前から・内側から見た向きで、8方向に回して出します。',
+  },
+  wholeleg: {
+    label: '脚全体',
+    question: 'この脚は、右？ 左？',
+    left: '左',
+    right: '右',
+    stims: [
+      { src: `${IMG}wholeleg-left-front.webp`, view: '前から' },
+      { src: `${IMG}wholeleg-left-medial.webp`, view: '内側から' },
+    ],
+    rotate: true,
+    repeats: 1,
+    howto: '太ももの途中からつま先までを、前から・内側から見た向きで、8方向に回して出します。',
+  },
 };
-const PART_ORDER: Part[] = ['hand', 'forearm', 'upperlimb', 'foot'];
+const PART_ORDER: Part[] = ['hand', 'forearm', 'upperlimb', 'foot', 'lowerleg', 'wholeleg'];
 
 const ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]; // 時計回り
 const FIXATION_MS = 500;
