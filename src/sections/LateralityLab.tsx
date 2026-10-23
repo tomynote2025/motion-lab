@@ -1,49 +1,111 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
- * LEFT / RIGHT LAB — 左右判断テスト(手・足)
+ * LEFT / RIGHT LAB — 左右判断テスト(手・足・首・体幹・肩と腕)
  *
- * 画面の手(足)が右か左かを、できるだけ速く正確に答える。
- * 刺激: 左右 × 甲/裏 × 8方向(0〜315°, 45°刻み) = 32通り。
- * 画像は MakeHuman(MPFB 2, CC0)で作った左手・左足を描画したもの(public/images/laterality/)。
- * 右は左右反転、向きは CSS の回転で作る。
+ * 画面の体が右か左かを、できるだけ速く正確に答える。
+ * 画像は MakeHuman(MPFB 2, CC0)で作った人体を描画したもの(public/images/laterality/)。
+ * どの画像も「左」側の画像だけを用意し、右は左右反転で作る。手と足は8方向に回転させる。
  *
  * 根拠(文言の範囲):
  *  - 手の左右判断には運動イメージが関わると考えられる(Parsons 1987/1994)。ただし見た目の手がかりで解ける場合もある。
- *  - 慢性痛では手足・顔の痛みで成績低下が一貫、体幹では一貫しない(Breckenridge 2019, 25研究)。
+ *  - 慢性痛では手足・顔の痛みで成績低下が一貫、首や腰など体幹では一貫しない(Breckenridge 2019, 25研究)。
  *  - 左右判断の練習だけで痛みが減る効果は確認されていない(Bowering 2013)。
- *  - 健康な18〜35歳100人: 正答率 約87〜89%、反応時間 約1.0〜1.4秒(オープンソース版HLJT, 2024 プレプリント)。
+ *  - 健康な18〜35歳100人(手): 正答率 約87〜89%、反応時間 約1.0〜1.4秒(オープンソース版HLJT, 2024 プレプリント)。
  */
 
 type Side = 'L' | 'R';
-type View = 'dorsal' | 'palmar';
-type Trial = { side: Side; view: View; angle: number };
+type Part = 'hand' | 'foot' | 'neck' | 'trunk' | 'arm';
+type Stim = { src: string; view: string };
+type Trial = { side: Side; stim: Stim; angle: number };
 type Result = Trial & { correct: boolean; rt: number; timeout: boolean };
 type Phase = 'intro' | 'fixation' | 'stimulus' | 'feedback' | 'result';
-type Part = 'hand' | 'foot';
 
-const PART_INFO: Record<Part, { label: string; unit: string; dorsal: string; palmar: string; img: Record<View, string> }> = {
+const IMG = '/images/laterality/';
+
+const PARTS: Record<
+  Part,
+  { label: string; question: string; left: string; right: string; stims: Stim[]; rotate: boolean; repeats: number; howto: string }
+> = {
   hand: {
     label: '手',
-    unit: '手',
-    dorsal: '手の甲',
-    palmar: '手のひら',
-    img: { dorsal: '/images/laterality/hand-left-dorsal.webp', palmar: '/images/laterality/hand-left-palmar.webp' },
+    question: 'この手は、右手？ 左手？',
+    left: '左手',
+    right: '右手',
+    stims: [
+      { src: `${IMG}hand-left-dorsal.webp`, view: '手の甲' },
+      { src: `${IMG}hand-left-palmar.webp`, view: '手のひら' },
+    ],
+    rotate: true,
+    repeats: 1,
+    howto: '手の甲・手のひらを、8方向の向きで出します。',
   },
   foot: {
     label: '足',
-    unit: '足',
-    dorsal: '足の甲',
-    palmar: '足の裏',
-    img: { dorsal: '/images/laterality/foot-left-dorsal.webp', palmar: '/images/laterality/foot-left-plantar.webp' },
+    question: 'この足は、右足？ 左足？',
+    left: '左足',
+    right: '右足',
+    stims: [
+      { src: `${IMG}foot-left-dorsal.webp`, view: '足の甲' },
+      { src: `${IMG}foot-left-plantar.webp`, view: '足の裏' },
+    ],
+    rotate: true,
+    repeats: 1,
+    howto: '足の甲・足の裏を、8方向の向きで出します。',
+  },
+  neck: {
+    label: '首（顔の向き）',
+    question: 'この人は、自分の右・左どちらを向いている？',
+    left: '左',
+    right: '右',
+    stims: [
+      { src: `${IMG}neck-45-front-left.webp`, view: '前から' },
+      { src: `${IMG}neck-45-back-left.webp`, view: '後ろから' },
+      { src: `${IMG}neck-70-front-left.webp`, view: '前から' },
+      { src: `${IMG}neck-70-back-left.webp`, view: '後ろから' },
+    ],
+    rotate: false,
+    repeats: 2,
+    howto: '前や後ろから見た人が、顔を左右に向けています。画面の人から見た「右・左」で答えます。',
+  },
+  trunk: {
+    label: '体幹（ひねる・倒す）',
+    question: 'この人は、体を自分の右・左どちらへ動かしている？',
+    left: '左',
+    right: '右',
+    stims: [
+      { src: `${IMG}trunk-rot-front-left.webp`, view: '前から' },
+      { src: `${IMG}trunk-rot-back-left.webp`, view: '後ろから' },
+      { src: `${IMG}trunk-bend-front-left.webp`, view: '前から' },
+      { src: `${IMG}trunk-bend-back-left.webp`, view: '後ろから' },
+    ],
+    rotate: false,
+    repeats: 2,
+    howto: '体をひねる・横に倒す姿を、前や後ろから出します。画面の人から見た「右・左」で答えます。',
+  },
+  arm: {
+    label: '肩・腕',
+    question: '上げているのは、右腕？ 左腕？',
+    left: '左腕',
+    right: '右腕',
+    stims: [
+      { src: `${IMG}arm-abd-front-left.webp`, view: '前から' },
+      { src: `${IMG}arm-abd-back-left.webp`, view: '後ろから' },
+      { src: `${IMG}arm-flex-front-left.webp`, view: '前から' },
+      { src: `${IMG}arm-flex-side-left.webp`, view: '斜めから' },
+    ],
+    rotate: false,
+    repeats: 2,
+    howto: '腕を横や前に上げた姿を、いろいろな方向から出します。画面の人が上げている腕を答えます。',
   },
 };
+const PART_ORDER: Part[] = ['hand', 'foot', 'neck', 'trunk', 'arm'];
 
 const ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]; // 時計回り
 const FIXATION_MS = 500;
 const FEEDBACK_MS = 350;
 const TIMEOUT_MS = 5000;
-const STORAGE_KEY = 'lr-lab-last'; // 部位ごとに保存する(キーの後ろに -hand / -foot)
+const STORAGE_KEY = 'lr-lab-last'; // 部位ごとに保存する(キーの後ろに -hand など)
 
 function shuffle<T>(a: T[]): T[] {
   const b = [...a];
@@ -54,15 +116,27 @@ function shuffle<T>(a: T[]): T[] {
   return b;
 }
 
-function makeTrials(practice: boolean): Trial[] {
+function makeTrials(part: Part, practice: boolean): Trial[] {
+  const def = PARTS[part];
   const all: Trial[] = [];
-  (['L', 'R'] as Side[]).forEach((side) =>
-    (['dorsal', 'palmar'] as View[]).forEach((view) => ANGLES.forEach((angle) => all.push({ side, view, angle }))),
-  );
-  return practice ? shuffle(all).slice(0, 4) : shuffle(all);
+  for (let r = 0; r < def.repeats; r++) {
+    (['L', 'R'] as Side[]).forEach((side) =>
+      def.stims.forEach((stim) => (def.rotate ? ANGLES : [0]).forEach((angle) => all.push({ side, stim, angle }))),
+    );
+  }
+  const order = shuffle(all);
+  // 同じ画像・同じ左右が2問続かないように入れ替える
+  const same = (a: Trial, b: Trial) => a.side === b.side && a.stim === b.stim && a.angle === b.angle;
+  for (let i = 1; i < order.length; i++) {
+    if (same(order[i], order[i - 1])) {
+      const j = order.findIndex((t, k) => k > i && !same(t, order[i - 1]));
+      if (j > 0) [order[i], order[j]] = [order[j], order[i]];
+    }
+  }
+  return practice ? order.slice(0, 4) : order;
 }
 
-/** 指先が体の中心(内側)を向く回転か、外側を向く回転か */
+/** 手のひら: 指先が体の中心(内側)を向く回転か、外側を向く回転か */
 function rotationDir(t: Trial): 'medial' | 'lateral' | null {
   if (t.angle === 0 || t.angle === 180) return null;
   const clockwise = t.angle < 180; // 指先が画面の右を向く
@@ -70,12 +144,12 @@ function rotationDir(t: Trial): 'medial' | 'lateral' | null {
   return clockwise ? 'lateral' : 'medial';
 }
 
-function Stimulus({ trial, part }: { trial: Trial; part: Part }) {
+function Stimulus({ trial }: { trial: Trial }) {
   // 左の画像を、右なら左右反転してから、時計回りに回す
   return (
     <img
       className="lr-stim-img"
-      src={PART_INFO[part].img[trial.view]}
+      src={trial.stim.src}
       alt=""
       draggable={false}
       style={{ transform: `rotate(${trial.angle}deg) scaleX(${trial.side === 'R' ? -1 : 1})` }}
@@ -102,37 +176,43 @@ function saveLast(part: Part, v: { acc: number; rt: number }) {
 
 const mean = (xs: number[]) => (xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : NaN);
 
+function group(rs: Result[], f: (r: Result) => boolean) {
+  const g = rs.filter(f);
+  const ok = g.filter((r) => r.correct);
+  return { acc: g.length ? ok.length / g.length : NaN, rt: mean(ok.map((r) => r.rt)), n: g.length };
+}
+
 function summarize(rs: Result[]) {
   const ok = rs.filter((r) => r.correct);
-  const acc = rs.length ? ok.length / rs.length : 0;
-  const rt = mean(ok.map((r) => r.rt));
-  const group = (f: (r: Result) => boolean) => {
-    const g = rs.filter(f);
-    const gOk = g.filter((r) => r.correct);
-    return { acc: g.length ? gOk.length / g.length : NaN, rt: mean(gOk.map((r) => r.rt)), n: g.length };
-  };
+  const views = [...new Set(rs.map((r) => r.stim.view))];
   return {
-    acc,
-    rt,
-    left: group((r) => r.side === 'L'),
-    right: group((r) => r.side === 'R'),
-    dorsal: group((r) => r.view === 'dorsal'),
-    palmar: group((r) => r.view === 'palmar'),
-    palmarMedial: group((r) => r.view === 'palmar' && rotationDir(r) === 'medial'),
-    palmarLateral: group((r) => r.view === 'palmar' && rotationDir(r) === 'lateral'),
+    acc: rs.length ? ok.length / rs.length : 0,
+    rt: mean(ok.map((r) => r.rt)),
+    left: group(rs, (r) => r.side === 'L'),
+    right: group(rs, (r) => r.side === 'R'),
+    views: views.map((v) => ({ view: v, ...group(rs, (r) => r.stim.view === v) })),
+    palmarMedial: group(rs, (r) => r.stim.view === '手のひら' && rotationDir(r) === 'medial'),
+    palmarLateral: group(rs, (r) => r.stim.view === '手のひら' && rotationDir(r) === 'lateral'),
   };
 }
 
 const fmtS = (ms: number) => (Number.isFinite(ms) ? `${(ms / 1000).toFixed(2)}秒` : '—');
 const fmtP = (p: number) => (Number.isFinite(p) ? `${Math.round(p * 100)}%` : '—');
 
-function CompareRow({ label, a, b, aLabel, bLabel }: { label: string; a: number; b: number; aLabel: string; bLabel: string }) {
-  const max = Math.max(a || 0, b || 0, 1);
+function Bars({ label, rows }: { label: string; rows: { name: string; rt: number }[] }) {
+  const max = Math.max(1, ...rows.map((r) => r.rt || 0));
   return (
     <div className="lr-compare">
       <span className="lr-compare-label">{label}</span>
-      <div className="lr-bar-row"><i>{aLabel}</i><span className="lr-bar"><span style={{ width: `${((a || 0) / max) * 100}%` }} /></span><b>{fmtS(a)}</b></div>
-      <div className="lr-bar-row"><i>{bLabel}</i><span className="lr-bar alt"><span style={{ width: `${((b || 0) / max) * 100}%` }} /></span><b>{fmtS(b)}</b></div>
+      {rows.map((r, i) => (
+        <div key={r.name} className="lr-bar-row">
+          <i>{r.name}</i>
+          <span className={`lr-bar ${i % 2 ? 'alt' : ''}`}>
+            <span style={{ width: `${((r.rt || 0) / max) * 100}%` }} />
+          </span>
+          <b>{fmtS(r.rt)}</b>
+        </div>
+      ))}
     </div>
   );
 }
@@ -157,10 +237,10 @@ export function LateralityLab() {
 
   // 反応時間に読み込みの遅れが混ざらないよう、画像を先に読み込んでおく
   useEffect(() => {
-    Object.values(PART_INFO).forEach((info) =>
-      Object.values(info.img).forEach((src) => {
+    PART_ORDER.forEach((p) =>
+      PARTS[p].stims.forEach((s) => {
         const im = new Image();
-        im.src = src;
+        im.src = s.src;
       }),
     );
   }, []);
@@ -179,7 +259,7 @@ export function LateralityLab() {
   const start = (isPractice: boolean) => {
     clearTimers();
     setPractice(isPractice);
-    setTrials(makeTrials(isPractice));
+    setTrials(makeTrials(part, isPractice));
     setResults([]);
     setPrevious(loadLast(part));
     showTrial(0);
@@ -239,8 +319,8 @@ export function LateralityLab() {
   const running = phase === 'fixation' || phase === 'stimulus' || phase === 'feedback';
   const trial = trials[index];
   const s = useMemo(() => summarize(results), [results]);
-  const info = PART_INFO[part];
-  const u = info.unit;
+  const def = PARTS[part];
+  const total = def.stims.length * 2 * (def.rotate ? ANGLES.length : 1) * def.repeats;
 
   return (
     <section id="laterality" className="section">
@@ -248,35 +328,35 @@ export function LateralityLab() {
         <span className="section-index">04 / LEFT-RIGHT JUDGEMENT</span>
         <h2>LEFT / RIGHT LAB<span className="jp-sub">左右判断テスト</span></h2>
         <p className="section-lead">
-          画面に出る手（または足）が「右」か「左」かを、できるだけ速く正確に答えてください。向きを判断するとき、脳の中では自分の手足を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり間違えやすくなったりすることが報告されています。
+          画面に出る体が「右」か「左」かを、できるだけ速く正確に答えてください。向きを判断するとき、脳の中では自分の体を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり間違えやすくなったりすることが報告されています。
         </p>
       </div>
 
       <div className="position-notice">
         <b>この体験で測るもの</b>
-        <p>手や足の左右を判断する速さと正確さです。運動イメージが関わると考えられていますが、見た目の手がかり（親指の位置や爪など）だけで判断できる場合もあり、運動イメージだけを測っているわけではありません。病気や痛みの原因を調べる検査ではありません。</p>
+        <p>体の左右を判断する速さと正確さです。運動イメージが関わると考えられていますが、見た目の手がかり（親指の位置や爪など）だけで判断できる場合もあり、運動イメージだけを測っているわけではありません。病気や痛みの原因を調べる検査ではありません。</p>
       </div>
 
       <div className="position-grid">
         <div className="position-stage lr-stage">
           <div className="position-stage-head">
             <span>{running ? `${practice ? 'PRACTICE' : 'TRIAL'} ${index + 1} / ${trials.length}` : 'LEFT OR RIGHT ?'}</span>
-            <b>{running ? `この${u}は、右${u}？ 左${u}？` : phase === 'result' ? 'おつかれさまでした' : '右の「はじめる」から開始'}</b>
+            <b>{running ? def.question : phase === 'result' ? 'おつかれさまでした' : '右の「はじめる」から開始'}</b>
           </div>
 
           <div className="lr-canvas lr-stim">
-            {phase === 'stimulus' && trial && <Stimulus trial={trial} part={part} />}
+            {phase === 'stimulus' && trial && <Stimulus trial={trial} />}
             {phase === 'fixation' && <div className="lr-fixation">+</div>}
             {phase === 'feedback' && <div className={`lr-feedback ${lastFeedback ? 'ok' : 'ng'}`}>{lastFeedback ? '○' : '×'}</div>}
-            {phase === 'intro' && <div className="lr-idle">{u}が表示されたら<br />左右のボタン（または ← / → キー）で答えます</div>}
+            {phase === 'intro' && <div className="lr-idle">画像が表示されたら<br />左右のボタン（または ← / → キー）で答えます</div>}
           </div>
 
           <div className="lr-answer">
             <button disabled={phase !== 'stimulus'} onClick={() => answer('L')}>
-              <span>←</span>左{u}
+              <span>←</span>{def.left}
             </button>
             <button disabled={phase !== 'stimulus'} onClick={() => answer('R')}>
-              右{u}<span>→</span>
+              {def.right}<span>→</span>
             </button>
           </div>
         </div>
@@ -285,7 +365,7 @@ export function LateralityLab() {
           {!running && (
             <>
               <div className="region-chips" role="radiogroup" aria-label="テストする部位">
-                {(['hand', 'foot'] as Part[]).map((pt) => (
+                {PART_ORDER.map((pt) => (
                   <button
                     key={pt}
                     className={`chip ${part === pt ? 'chip-active' : ''}`}
@@ -295,12 +375,12 @@ export function LateralityLab() {
                       setResults([]);
                     }}
                   >
-                    {PART_INFO[pt].label}
+                    {PARTS[pt].label}
                   </button>
                 ))}
               </div>
               <button className="start-btn position-main-btn" onClick={() => start(false)}>
-                {phase === 'result' && !practice ? 'もう一度（32問）' : 'はじめる（32問・約1分）'}
+                {phase === 'result' && !practice ? `もう一度（${total}問）` : `はじめる（${total}問）`}
               </button>
               <button className="lr-sub-btn" onClick={() => start(true)}>練習する（4問）</button>
             </>
@@ -318,18 +398,18 @@ export function LateralityLab() {
                 <div><span>平均反応時間（正解のみ）</span><strong>{fmtS(s.rt)}</strong></div>
               </div>
               {practice ? (
-                <p className="lr-note">練習が終わりました。慣れたら「はじめる」で32問に挑戦してください。</p>
+                <p className="lr-note">練習が終わりました。慣れたら「はじめる」で挑戦してください。</p>
               ) : (
                 <>
                   {previous && (
                     <p className="lr-note">前回：正答率 {fmtP(previous.acc)}／平均 {fmtS(previous.rt)}（くり返すと速くなる「練習効果」があります）</p>
                   )}
-                  <CompareRow label={`左${u}と右${u}`} a={s.left.rt} b={s.right.rt} aLabel={`左${u}`} bLabel={`右${u}`} />
-                  <p className="lr-mini">正答率　左{u} {fmtP(s.left.acc)}／右{u} {fmtP(s.right.acc)}</p>
-                  <CompareRow label={`${info.dorsal}と${info.palmar}`} a={s.dorsal.rt} b={s.palmar.rt} aLabel={info.dorsal} bLabel={info.palmar} />
+                  <Bars label={`${def.left}と${def.right}`} rows={[{ name: def.left, rt: s.left.rt }, { name: def.right, rt: s.right.rt }]} />
+                  <p className="lr-mini">正答率　{def.left} {fmtP(s.left.acc)}／{def.right} {fmtP(s.right.acc)}</p>
+                  <Bars label="見る方向による違い" rows={s.views.map((v) => ({ name: v.view, rt: v.rt }))} />
                   {part === 'hand' && (
                     <>
-                      <CompareRow label="手のひら：指先が内向き／外向き" a={s.palmarMedial.rt} b={s.palmarLateral.rt} aLabel="内向き" bLabel="外向き" />
+                      <Bars label="手のひら：指先が内向き／外向き" rows={[{ name: '内向き', rt: s.palmarMedial.rt }, { name: '外向き', rt: s.palmarLateral.rt }]} />
                       <p className="lr-mini">手のひらの画像では、指先が体の外側を向く回転のほうが時間がかかりやすいことが知られています。実際に手をその向きへ回すのが難しい（関節の動きの制約）ためと考えられています。</p>
                     </>
                   )}
@@ -342,11 +422,11 @@ export function LateralityLab() {
             <div className="lr-howto">
               <p><b>やり方</b></p>
               <ol>
-                <li>中央に「＋」が出たあと、{u}が表示されます。</li>
-                <li>右{u}か左{u}かを、ボタンか ← / → キー（F / J キーでも可）で答えます。</li>
-                <li>{info.dorsal}・{info.palmar}、8方向の向きで、全部で32問です。5秒で時間切れになります。</li>
+                <li>中央に「＋」が出たあと、画像が表示されます。</li>
+                <li>{def.left}か{def.right}かを、ボタンか ← / → キー（F / J キーでも可）で答えます。</li>
+                <li>{def.howto}全部で{total}問です。5秒で時間切れになります。</li>
               </ol>
-              <p className="lr-mini">自分の{u}を動かさず、画面だけを見て判断するのが基本です。</p>
+              <p className="lr-mini">自分の体を動かさず、画面だけを見て判断するのが基本です。</p>
             </div>
           )}
         </div>
@@ -361,7 +441,7 @@ export function LateralityLab() {
         <div>
           <span>PAIN</span>
           <b>痛みとの関係</b>
-          <p>25の研究をまとめた報告では、手足や顔の慢性的な痛みがある人で成績の低下が一貫して見られました。一方、腰や首など体幹の痛みでは結果が一貫していません。左右差や遅さがあっても、それだけで痛みの原因は分かりません。</p>
+          <p>25の研究をまとめた報告では、手足や顔の慢性的な痛みがある人で成績の低下が一貫して見られました。一方、首や腰など体幹の痛みでは結果が一貫していません。左右差や遅さがあっても、それだけで痛みの原因は分かりません。</p>
         </div>
         <div>
           <span>TRAINING</span>
@@ -370,9 +450,8 @@ export function LateralityLab() {
         </div>
       </div>
       <p className="neuro-caution">
-        参考: Parsons LM (1987, 1994) 手の左右判断と運動イメージ／Breckenridge JD ら (2019) J Pain 20(2):119-132／Bowering KJ ら (2013) J Pain 14(1):3-13／Development and validation of an open-source Hand Laterality Judgement Task (bioRxiv, 2024)。手足の画像は MakeHuman（MPFB 2、CC0）で作成。痛みやしびれが続く場合は、医療機関や専門家にご相談ください。
+        参考: Parsons LM (1987, 1994) 手の左右判断と運動イメージ／Breckenridge JD ら (2019) J Pain 20(2):119-132／Bowering KJ ら (2013) J Pain 14(1):3-13／Development and validation of an open-source Hand Laterality Judgement Task (bioRxiv, 2024)。画像は MakeHuman（MPFB 2、CC0）で作成。痛みやしびれが続く場合は、医療機関や専門家にご相談ください。
       </p>
     </section>
   );
 }
-
