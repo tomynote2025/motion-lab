@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
- * LEFT / RIGHT LAB — 左右判断テスト(手・足・首・体幹・肩と腕)
+ * LEFT / RIGHT LAB — 左右判断テスト(手・前腕と手・腕全体・足)
  *
  * 画面の体が右か左かを、できるだけ速く正確に答える。
  * 画像は MakeHuman(MPFB 2, CC0)で作った人体を描画したもの(public/images/laterality/)。
- * どの画像も「左」側の画像だけを用意し、右は左右反転で作る。手と足は8方向に回転させる。
+ * どの画像も「左」側の画像だけを用意し、右は左右反転で作り、8方向に回転させる。
  *
  * 根拠(文言の範囲):
  *  - 手の左右判断には運動イメージが関わると考えられる(Parsons 1987/1994)。ただし見た目の手がかりで解ける場合もある。
@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
  */
 
 type Side = 'L' | 'R';
-type Part = 'hand' | 'foot' | 'neck' | 'trunk' | 'arm';
+type Part = 'hand' | 'forearm' | 'upperlimb' | 'foot';
 type Stim = { src: string; view: string };
 type Trial = { side: Side; stim: Stim; angle: number };
 type Result = Trial & { correct: boolean; rt: number; timeout: boolean };
@@ -53,53 +53,34 @@ const PARTS: Record<
     repeats: 1,
     howto: '足の甲・足の裏を、8方向の向きで出します。',
   },
-  neck: {
-    label: '首（顔の向き）',
-    question: 'この人は、自分の右・左どちらを向いている？',
+  forearm: {
+    label: '前腕と手',
+    question: 'この腕は、右？ 左？',
     left: '左',
     right: '右',
     stims: [
-      { src: `${IMG}neck-45-front-left.webp`, view: '前から' },
-      { src: `${IMG}neck-45-back-left.webp`, view: '後ろから' },
-      { src: `${IMG}neck-70-front-left.webp`, view: '前から' },
-      { src: `${IMG}neck-70-back-left.webp`, view: '後ろから' },
+      { src: `${IMG}forearm-left-dorsal.webp`, view: '手の甲側' },
+      { src: `${IMG}forearm-left-palmar.webp`, view: '手のひら側' },
     ],
-    rotate: false,
-    repeats: 2,
-    howto: '前や後ろから見た人が、顔を左右に向けています。画面の人から見た「右・左」で答えます。',
+    rotate: true,
+    repeats: 1,
+    howto: 'ひじから先を、手の甲側・手のひら側から、8方向の向きで出します。',
   },
-  trunk: {
-    label: '体幹（ひねる・倒す）',
-    question: 'この人は、体を自分の右・左どちらへ動かしている？',
+  upperlimb: {
+    label: '腕全体',
+    question: 'この腕は、右？ 左？',
     left: '左',
     right: '右',
     stims: [
-      { src: `${IMG}trunk-rot-front-left.webp`, view: '前から' },
-      { src: `${IMG}trunk-rot-back-left.webp`, view: '後ろから' },
-      { src: `${IMG}trunk-bend-front-left.webp`, view: '前から' },
-      { src: `${IMG}trunk-bend-back-left.webp`, view: '後ろから' },
+      { src: `${IMG}upperlimb-left-dorsal.webp`, view: '手の甲側' },
+      { src: `${IMG}upperlimb-left-palmar.webp`, view: '手のひら側' },
     ],
-    rotate: false,
-    repeats: 2,
-    howto: '体をひねる・横に倒す姿を、前や後ろから出します。画面の人から見た「右・左」で答えます。',
-  },
-  arm: {
-    label: '肩・腕',
-    question: '上げているのは、右腕？ 左腕？',
-    left: '左腕',
-    right: '右腕',
-    stims: [
-      { src: `${IMG}arm-abd-front-left.webp`, view: '前から' },
-      { src: `${IMG}arm-abd-back-left.webp`, view: '後ろから' },
-      { src: `${IMG}arm-flex-front-left.webp`, view: '前から' },
-      { src: `${IMG}arm-flex-side-left.webp`, view: '斜めから' },
-    ],
-    rotate: false,
-    repeats: 2,
-    howto: '腕を横や前に上げた姿を、いろいろな方向から出します。画面の人が上げている腕を答えます。',
+    rotate: true,
+    repeats: 1,
+    howto: '二の腕から指先までを、手の甲側・手のひら側から、8方向の向きで出します。',
   },
 };
-const PART_ORDER: Part[] = ['hand', 'foot', 'neck', 'trunk', 'arm'];
+const PART_ORDER: Part[] = ['hand', 'forearm', 'upperlimb', 'foot'];
 
 const ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]; // 時計回り
 const FIXATION_MS = 500;
@@ -328,13 +309,13 @@ export function LateralityLab() {
         <span className="section-index">04 / LEFT-RIGHT JUDGEMENT</span>
         <h2>LEFT / RIGHT LAB<span className="jp-sub">左右判断テスト</span></h2>
         <p className="section-lead">
-          画面に出る体が「右」か「左」かを、できるだけ速く正確に答えてください。向きを判断するとき、脳の中では自分の体を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり間違えやすくなったりすることが報告されています。
+          画面に出る手足が「右」か「左」かを、できるだけ速く正確に答えてください。向きを判断するとき、脳の中では自分の手足を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり間違えやすくなったりすることが報告されています。
         </p>
       </div>
 
       <div className="position-notice">
         <b>この体験で測るもの</b>
-        <p>体の左右を判断する速さと正確さです。運動イメージが関わると考えられていますが、見た目の手がかり（親指の位置や爪など）だけで判断できる場合もあり、運動イメージだけを測っているわけではありません。病気や痛みの原因を調べる検査ではありません。</p>
+        <p>手足の左右を判断する速さと正確さです。運動イメージが関わると考えられていますが、見た目の手がかり（親指の位置や爪など）だけで判断できる場合もあり、運動イメージだけを測っているわけではありません。病気や痛みの原因を調べる検査ではありません。</p>
       </div>
 
       <div className="position-grid">
@@ -426,7 +407,7 @@ export function LateralityLab() {
                 <li>{def.left}か{def.right}かを、ボタンか ← / → キー（F / J キーでも可）で答えます。</li>
                 <li>{def.howto}全部で{total}問です。5秒で時間切れになります。</li>
               </ol>
-              <p className="lr-mini">自分の体を動かさず、画面だけを見て判断するのが基本です。</p>
+              <p className="lr-mini">自分の手足を動かさず、画面だけを見て判断するのが基本です。</p>
             </div>
           )}
         </div>
