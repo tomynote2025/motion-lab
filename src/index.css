@@ -2921,6 +2921,20 @@ body.has-custom-cursor input[type='range'] {
   margin-top: 12px;
 }
 
+.lr-stim {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.lr-stim-img {
+  width: min(78%, 380px);
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
 .lr-fixation,
 .lr-feedback,
 .lr-idle {

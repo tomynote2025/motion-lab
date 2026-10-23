@@ -1,3 +1,10 @@
+## 2026-10-23 Claude → ユーザー｜左右判断テストの手を MakeHuman の手足画像に差し替え、足のテストを追加
+- 状態: 未着手
+- やったこと: 自作の3Dの手（不評）をやめ、MakeHuman（MPFB 2.0.18、CC0）で作った人体から左手・左足を描画した画像に差し替え（public/images/laterality/*.webp、各20KB前後）。右は左右反転、向きは CSS の回転。テスト前に「手／足」を選べるようにし、結果の比較も部位に合わせた（内向き／外向きの比較は手のみ）。前回結果は部位ごとに保存。旧モデル（public/models/hand-left.glb、scripts/hand-model/）は削除
+- 次にやること: ローカルで手・足それぞれ32問を解いて確認 → GitHub Desktop で push
+- 注意点: 足の甲の画像は、真上から見ているため足首の切り口が少し見える。結果の目安（正答率約87〜89%・反応時間約1.0〜1.4秒）は手の研究の値。画像の作り直しは scripts/laterality-images/
+- 関連ファイル: src/sections/LateralityLab.tsx, src/index.css, public/images/laterality/, scripts/laterality-images/
+
 ## 2026-10-23 Claude → ユーザー｜脳・感覚系のラボを4つ追加（ホムンクルス・ふらつき・呼吸・痛み）
 - 状態: 未着手
 - やったこと: 根拠を確認したうえで4つのラボを追加。05 HOMUNCULUS LAB（実際の体⇄脳の中の体を3Dで変形、部位ごとの説明、家でできる2点識別）、06 BALANCE LAB（スマホの動きセンサーで開眼20秒・閉眼20秒の揺れを測って比較、開始・終了は音で合図、iPhoneは許可が必要、データは送信しない）、07 BREATH LAB（1分6回のゆっくり呼吸ガイド、心拍のゆらぎはモデル図と明記）、08 PAIN VOLUME LAB（危険・安全の手がかりで痛みのボリュームが変わる説明モデル、赤青の合図の実験、痛みは気のせいではない・受診の目安を明記）。筋膜・栄養は 09〜11 に繰り下げ、一覧は 11 EXPERIENCES
