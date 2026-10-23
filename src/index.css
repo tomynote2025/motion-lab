@@ -3387,6 +3387,139 @@ body.has-custom-cursor input[type='range'] {
 .pain-cue.red { background: #c63b2b; }
 .pain-cue.blue { background: #2f6fb0; }
 
+
+/* ---------- POSITION LAB(関節位置覚テスト) ---------- */
+#proprioception .position-main-btn {
+  margin-top: 0;
+}
+
+.pos-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.pos-toolbar .iap-mode-toggle {
+  margin-top: 0;
+}
+
+.pos-stage {
+  display: flex;
+  flex-direction: column;
+}
+
+.pos-img-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-top: 10px;
+}
+
+.pos-img {
+  width: min(100%, 460px);
+  height: auto;
+  user-select: none;
+}
+
+.pos-eyes,
+.pos-legend {
+  position: absolute;
+  top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pos-eyes {
+  left: 6px;
+  background: rgba(239, 234, 220, 0.92);
+  color: #14271c;
+}
+
+.pos-legend {
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(20, 39, 28, 0.8);
+  color: #efeadc;
+}
+
+.pos-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: rgba(236, 176, 80, 0.85);
+}
+
+.pos-step-text {
+  margin-top: 10px;
+  color: rgba(239, 234, 220, 0.85);
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.pos-step-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pos-step-tabs button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(239, 234, 220, 0.3);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--stage-text);
+  font-family: var(--font-en);
+  cursor: pointer;
+}
+
+.pos-step-tabs button.active {
+  background: var(--stage-text);
+  color: #14271c;
+}
+
+.pos-status {
+  padding: 14px 16px;
+  border-left: 4px solid var(--green);
+  background: var(--bg-2);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.pos-status.warn {
+  border-left-color: #c0562f;
+  font-weight: 400;
+}
+
+.pos-live {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pos-live b {
+  font-family: var(--font-en);
+  font-size: 34px;
+  color: var(--text);
+}
+
+.pos-errors {
+  margin: 6px 0 8px;
+  padding-left: 1.2em;
+  font-size: 13px;
+  line-height: 1.9;
+}
+
 /* ---------- Mobile (iPhone 等 〜640px) ---------- */
 
 @media (max-width: 640px) {

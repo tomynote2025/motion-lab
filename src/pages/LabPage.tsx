@@ -14,7 +14,7 @@ import { NutriLab } from '../sections/NutriLab';
 const LABS = [
   { n: '01', href: '#iap', en: 'CORE PRESSURE', title: '腹腔内圧', desc: '呼吸と体幹安定の関係' },
   { n: '02', href: '#neuro', en: 'NEUROLOGY', title: '眼と前庭機能', desc: '見る・動く・平衡感覚' },
-  { n: '03', href: '#proprioception', en: 'POSITION SENSE', title: '位置再現ゲーム', desc: '関節位置を覚えて再現' },
+  { n: '03', href: '#proprioception', en: 'POSITION SENSE', title: '関節位置覚テスト', desc: '目を閉じて同じ位置へ' },
   { n: '04', href: '#laterality', en: 'LEFT / RIGHT', title: '左右判断テスト', desc: '手の左右を見分ける速さ' },
   { n: '05', href: '#homunculus', en: 'BODY MAP IN THE BRAIN', title: '脳の中の体の地図', desc: '感覚の細かさと体の地図' },
   { n: '06', href: '#balance', en: 'BALANCE', title: 'スマホでふらつき測定', desc: '目を開けて・閉じて比べる' },
