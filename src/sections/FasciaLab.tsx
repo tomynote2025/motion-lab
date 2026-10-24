@@ -64,7 +64,7 @@ export function FasciaLab() {
       {mode === 'superficial' ? <SuperficialLab /> : <DeepLab />}
 
       <p className="neuro-caution">
-        参考: Fascial Manipulation® Institute by Stecco の方法論、およびC. &amp; A. Steccoらの筋膜解剖研究。本コンテンツは概念を体感する教育用モデルで、触診・評価・治療を再現するものではありません。
+        参考: Fascial Manipulation® Institute by Stecco の方法論、およびC. &amp; A. Steccoらの筋膜解剖研究／Matteini P ら (2009) Biomacromolecules（ヒアルロン酸の温度による変化）。「高密度化」は Stecco らが提唱する考え方で、体の中での検証はまだ限られています。本コンテンツは概念を体感する教育用モデルで、触診・評価・治療を再現するものではありません。
       </p>
     </section>
   );
@@ -279,13 +279,13 @@ function runDeepDemo(
     setWarmth(0);
     const lt = (t - 3.0) / 2.5;
     setSlide(Math.sin(lt * Math.PI * 1.2) * 0.22);
-    setCaption({ text: '⚠ 高密度化(densification)：層間の滑走抵抗が増え、動きの調整が難しくなります。', tone: 'bad' });
+    setCaption({ text: '⚠ 高密度化(densification)：層の間の滑りが悪くなり、動きの調整が難しくなると考えられています。', tone: 'bad' });
   } else if (t < 6.5) {
     const lt = (t - 5.5) / 1.0;
     setDens(0.85);
     setWarmth(easeOut(lt));
     setSlide(Math.sin(lt * Math.PI * 1.6) * 0.7);
-    setCaption({ text: '🔥 動かして温めると、一時的に滑走性が回復します。', tone: 'good' });
+    setCaption({ text: '🔥 ヒアルロン酸は温度が上がると粘りが下がることが、試験管の実験で示されています（体の中で確かめられた段階ではありません）。', tone: 'good' });
   } else if (t < 7.3) {
     const lt = easeOut((t - 6.5) / 0.8);
     setDens(lerp(0.85, 0.62, lt));
@@ -380,7 +380,7 @@ function DeepLab() {
   };
 
   const verdict = warmth > 0.25 && dens > 0.45
-    ? 'このモデルでは温度上昇により粘性が下がり、層間の滑走抵抗が一時的に小さくなっています。'
+    ? 'このモデルでは温度上昇により粘性が下がり、層間の滑走抵抗が一時的に小さくなっています（試験管の実験をもとにした仮説の表現です）。'
     : visc > 0.5
       ? '⚠ 高密度化(densification)を想定した状態です。癒着そのものではなく、ヒアルロン酸を含む層の粘性変化による滑走抵抗を表現しています。'
       : glide > 0.7
