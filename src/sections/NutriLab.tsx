@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { LabHead } from '../components/LabHead';
 
 /**
- * NUTRI LAB — 分子栄養学
- * PFCバランス(三大栄養素の比率と分子レベルの役割)と、
+ * 食事バランスのラボ
+ * PFCバランス(三大栄養素の比率と体の中での役割)と、
  * 超加工食品(ultra-processed food)の摂りすぎが血糖・満腹感・腸内環境・炎症に及ぼす影響を体験する。
  */
 
@@ -14,23 +15,19 @@ export function NutriLab() {
   const [tab, setTab] = useState<Tab>('pfc');
   return (
     <section id="nutri" className="section">
-      <div className="section-head">
-        <span className="section-index">11 / NUTRITION</span>
-        <h2>
-          NUTRI LAB<span className="jp-sub">分子栄養学ラボ</span>
-        </h2>
-        <p className="section-lead">
-          食べたものは、分子になって体をつくり、動かします。三大栄養素(PFC)のバランスを調整し、加工食品を摂りすぎると体の中で何が起きるのか —
-          スライダーで“分子の視点”から確かめてください。
-        </p>
-      </div>
+      <LabHead
+        id="nutri"
+        lead="同じカロリーでも、たんぱく質（P）・脂質（F）・炭水化物（C）の割合で、体の中での使われ方は変わります。日本人の食事摂取基準（2025年版）の目安と比べながら、自分の食事のバランスを確かめます。"
+        steps="「PFCバランス」で身長・体重・年齢・活動量を入れて目標を決め、割合のスライダーを動かします。「加工食品の影響」では、加工の多い食事で何が起きるかを見ます。"
+        read="割合が目安の範囲（たんぱく質13〜20%・脂質20〜30%・炭水化物50〜65%）に入っているかを見ます。必要量は年齢・活動量・目的で変わるので、目安として使ってください。"
+      />
 
       <div className="neuro-tabs" role="tablist">
         <button role="tab" aria-selected={tab === 'pfc'} className={tab === 'pfc' ? 'tab-active' : ''} onClick={() => setTab('pfc')}>
-          PFCバランス<span>PROTEIN / FAT / CARB</span>
+          PFCバランス<span>たんぱく質・脂質・炭水化物</span>
         </button>
         <button role="tab" aria-selected={tab === 'processed'} className={tab === 'processed' ? 'tab-active' : ''} onClick={() => setTab('processed')}>
-          加工食品の影響<span>ULTRA-PROCESSED</span>
+          加工食品の影響<span>超加工食品</span>
         </button>
       </div>
 
@@ -124,7 +121,7 @@ function PfcLab() {
         <div className="profile-head">
           <div>
             <b>あなたに合わせる</b>
-            <span>身長・体重・年齢から1日の消費カロリー(TDEE)を計算</span>
+            <span>身長・体重・年齢から、1日に使うエネルギーの目安を計算</span>
           </div>
           <div className="seg">
             <button className={sex === 'male' ? 'seg-on' : ''} onClick={() => setSex('male')}>
@@ -176,12 +173,12 @@ function PfcLab() {
 
         <div className="profile-result">
           <div className="pf-metric">
-            <span>基礎代謝(BMR)</span>
+            <span>基礎代謝（安静時に使う量）</span>
             <b>{bmr}</b>
             <em>kcal</em>
           </div>
           <div className="pf-metric">
-            <span>消費カロリー(TDEE)</span>
+            <span>1日の消費エネルギー（活動量込み）</span>
             <b>{tdee}</b>
             <em>kcal</em>
           </div>

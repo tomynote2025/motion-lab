@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { LabHead } from '../components/LabHead';
+import { OpenOnPhone } from '../components/OpenOnPhone';
 
 /**
  * BALANCE LAB — スマホでふらつき測定(目を開けて/閉じて)
@@ -169,13 +171,12 @@ export function BalanceLab() {
 
   return (
     <section id="balance" className="section">
-      <div className="section-head">
-        <span className="section-index">06 / BALANCE</span>
-        <h2>BALANCE LAB<span className="jp-sub">スマホでふらつき測定</span></h2>
-        <p className="section-lead">
-          立っているとき、体は目（視覚）・足裏などの感覚・耳の奥の平衡感覚を組み合わせてバランスをとっています。目を閉じると視覚の手がかりがなくなり、残りの感覚だけで立つことになります。スマホの動きセンサーで、目を開けたとき・閉じたときの揺れを比べてみましょう。
-        </p>
-      </div>
+      <LabHead
+        id="balance"
+        lead="立っているとき、体は目（視覚）・足裏などの感覚・耳の奥の平衡感覚を組み合わせてバランスをとっています。目を閉じると視覚の手がかりがなくなり、残りの感覚だけで立つことになります。スマホの動きセンサーで、その違いを比べます。"
+        steps="スマホを両手で胸の中央に当てて立ち、「はじめる」。目を開けて20秒、音の合図で目を閉じて20秒、そのまま静かに立ちます。"
+        read="目を閉じたときの揺れが、開けたときの何倍かが出ます。目を閉じると揺れが増えるのはふつうの反応です。数字は、同じ人が同じやり方でくり返し比べるための目安です。"
+      />
 
       <div className="position-notice bal-safety">
         <b>安全のために</b>
@@ -221,6 +222,9 @@ export function BalanceLab() {
         </div>
 
         <div className="position-controls">
+          {!running && phase !== 'result' && (
+            <OpenOnPhone id="balance" text="この測定はスマホの動きセンサーを使うため、パソコンでは測れません。スマホのカメラでQRコードを読み取ってください。" />
+          )}
           {running ? (
             <button className="lr-sub-btn" onClick={stop}>中止する</button>
           ) : (

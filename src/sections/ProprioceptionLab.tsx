@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { LabHead } from '../components/LabHead';
+import { OpenOnPhone } from '../components/OpenOnPhone';
 
 /**
  * POSITION LAB — 関節位置覚テスト(ひざ・ひじ・肩)
@@ -274,17 +276,16 @@ export function ProprioceptionLab() {
 
   return (
     <section id="proprioception" className="section">
-      <div className="section-head">
-        <span className="section-index">03 / POSITION SENSE</span>
-        <h2>POSITION LAB<span className="jp-sub">関節位置覚テスト</span></h2>
-        <p className="section-lead">
-          目を閉じていても、手足がどの位置にあるかはある程度分かります。筋肉や腱、関節から脳へ届く「固有感覚」のおかげです。目を開けて決めた位置を覚え、目を閉じたまま同じ位置に戻せるかを試して、その差を見てみましょう。
-        </p>
-      </div>
+      <LabHead
+        id="proprioception"
+        lead="目を閉じていても、手足がどの位置にあるかはある程度分かります。筋肉や腱、関節から脳へ届く「固有感覚」のおかげです。目を開けて決めた角度を覚え、目を閉じたまま同じ角度に戻せるかを試します。"
+        steps="関節を選び、スマホを手足に当てて「はじめる」。音声の合図に合わせて、目を閉じたまま同じ角度で止めます（3回）。スマホがなければ「目で見て確かめる」でも試せます。"
+        read="目標とのずれ（°）が小さいほど、同じ位置に戻せています。健康な人でも、ひざで平均約4°、肩で3〜6°ほどずれるのがふつうです。"
+      />
 
       <div className="position-notice">
-        <b>この体験で分かること</b>
-        <p>目を閉じて手足の位置を合わせる力（関節位置覚）の目安です。健康な人でも数度はずれるのがふつうで、日によっても変わります。病気やけがの診断ではありません。ひざや肩に痛みがある場合は、無理のない範囲で行い、痛みが強くなるときは中止してください。</p>
+        <b>はじめる前に</b>
+        <p>病気やけがの診断ではありません。ひざや肩に痛みがある場合は、無理のない範囲で行い、痛みが強くなるときは中止してください。</p>
       </div>
 
       <div className="pos-toolbar">
@@ -328,9 +329,14 @@ export function ProprioceptionLab() {
               {running ? (
                 <button className="lr-sub-btn" onClick={stopMeasure}>中止する</button>
               ) : (
+                <>
+                {phase === 'idle' && (
+                  <OpenOnPhone id="proprioception" text="角度はスマホの傾きセンサーで測ります。パソコンでは「目で見て確かめる」を使うか、スマホでQRコードを読み取ってください。" />
+                )}
                 <button className="start-btn position-main-btn" onClick={startMeasure}>
                   {phase === 'done' ? 'もう一度（3回）' : 'はじめる（3回）'}
                 </button>
+                </>
               )}
               {status && <p className={`pos-status ${phase === 'unsupported' || phase === 'denied' ? 'warn' : ''}`}>{status}</p>}
               {running && angle != null && (
@@ -351,7 +357,7 @@ export function ProprioceptionLab() {
                     ))}
                   </ul>
                   {phase === 'done' && (
-                    <p>健康な人でも数度はずれるのがふつうです。同じ人でも日によって数度変わるので、くり返して比べるときは、同じ姿勢・同じスマホの当て方で行ってください。</p>
+                    <p>目安：健康な人でも、座ったひざの再現で平均約4°、肩で3〜6°ほどずれます。同じ人でも日によって数度変わる（ひざでは約7°までは測定のばらつきの範囲）ので、くり返して比べるときは、同じ姿勢・同じスマホの当て方で行ってください。</p>
                   )}
                 </div>
               )}

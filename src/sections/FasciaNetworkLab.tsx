@@ -2,6 +2,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { FasciaNetworkModel, DENSITY_POINTS, type DensityPointId } from '../three/FasciaNetworkModel';
+import { LabHead } from '../components/LabHead';
 
 /**
  * FASCIA NETWORK — 筋膜は全身をつなぐ一枚のシート、を「前屈」という
@@ -69,15 +70,12 @@ export function FasciaNetworkLab() {
 
   return (
     <section id="fascia-network" className="section">
-      <div className="section-head">
-        <span className="section-index">10 / FASCIA NETWORK</span>
-        <h2>
-          FASCIA NETWORK<span className="jp-sub">筋膜のつながり</span>
-        </h2>
-        <p className="section-lead">
-          Fascial Manipulation®では、筋膜を身体各部の張力と動きをつなぐシステムとして捉えます。張力が集まる特定部位を<b>協調中心（Center of Coordination / CC）</b>と呼び、症状部位から離れたCCも評価候補に含めます。下の光る点は、CCの考え方を理解するための<b>仮想的な候補点</b>です。
-        </p>
-      </div>
+      <LabHead
+        id="fascia-network"
+        lead="筋膜の治療法のひとつ（Fascial Manipulation®）では、筋膜を体の各部の張力と動きをつなぐシステムとして考えます。張力が集まるとされる場所を「協調中心」と呼び、痛む場所から離れた所にも原因の候補があると考えます。光る点は、その考え方を理解するための仮の候補点です。"
+        steps="候補点を選んで「滑走抵抗」のスライダーを動かし、「▶ 前屈してみる」で前屈の動きがどう変わるかを3Dで観察します。"
+        read="離れた場所の硬さが、別の関節の動きにも影響しうる、という考え方を表したモデルです。仮説の段階で、実際の評価は専門家の触診などで行われます。"
+      />
 
       <div className="fascia-assessment-flow" aria-label="Stecco法の評価プロセス">
         <div><span>01</span><b>症状と経過を聞く</b><p>痛む場所だけでなく、過去の症状や負荷の履歴を整理</p></div>

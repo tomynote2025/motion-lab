@@ -10,55 +10,72 @@ import { PainVolumeLab } from '../sections/PainVolumeLab';
 import { FasciaLab } from '../sections/FasciaLab';
 import { FasciaNetworkLab } from '../sections/FasciaNetworkLab';
 import { NutriLab } from '../sections/NutriLab';
+import { LAB_GROUPS, LABS, labNo } from '../data/labs';
 
-const LABS = [
-  { n: '01', href: '#iap', en: 'CORE PRESSURE', title: '腹腔内圧', desc: '呼吸と体幹安定の関係' },
-  { n: '02', href: '#neuro', en: 'NEUROLOGY', title: '眼と前庭機能', desc: '見る・動く・平衡感覚' },
-  { n: '03', href: '#proprioception', en: 'POSITION SENSE', title: '関節位置覚テスト', desc: '目を閉じて同じ位置へ' },
-  { n: '04', href: '#laterality', en: 'LEFT / RIGHT', title: '左右判断テスト', desc: '手の左右を見分ける速さ' },
-  { n: '05', href: '#homunculus', en: 'BODY MAP IN THE BRAIN', title: '脳の中の体の地図', desc: '感覚の細かさと体の地図' },
-  { n: '06', href: '#balance', en: 'BALANCE', title: 'スマホでふらつき測定', desc: '目を開けて・閉じて比べる' },
-  { n: '07', href: '#breath', en: 'BREATHING', title: '呼吸と自律神経', desc: 'ゆっくり呼吸と心拍のゆらぎ' },
-  { n: '08', href: '#pain', en: 'PAIN', title: '痛みのボリュームつまみ', desc: '痛みを調整する手がかり' },
-  { n: '09', href: '#fascia', en: 'FASCIA LAYERS', title: '筋膜の層', desc: '浅筋膜と深筋膜の滑走' },
-  { n: '10', href: '#fascia-network', en: 'FASCIA NETWORK', title: '筋膜ネットワーク', desc: '離れた場所への影響' },
-  { n: '11', href: '#nutri', en: 'NUTRITION', title: '分子栄養学', desc: 'PFCと食事の変化' },
-];
+function GroupBand({ n }: { n: number }) {
+  const g = LAB_GROUPS[n - 1];
+  return (
+    <div className="lab-group-band">
+      <span>GROUP {n} / 3</span>
+      <b>{g.title}</b>
+      <p>{g.desc}</p>
+    </div>
+  );
+}
 
 export function LabPage() {
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // トップの紹介から /lab#ラボ名 で来たときは、そのラボまで移動する
+    const id = window.location.hash.slice(1);
+    const el = id ? document.getElementById(id) : null;
+    if (el) requestAnimationFrame(() => el.scrollIntoView());
+    else window.scrollTo(0, 0);
   }, []);
 
   return (
     <div className="page-top-pad lab-page">
       <header className="lab-index-hero">
         <div className="lab-index-copy">
-          <span className="section-index">LAB MENU / 11 EXPERIENCES</span>
+          <span className="section-index">LAB MENU / {LABS.length} EXPERIENCES</span>
           <h1>知識を、<br /><em>感覚に変える。</em></h1>
-          <p>腹圧・眼と平衡感覚・脳の中の体・呼吸・痛み・筋膜・栄養。気になる実験を選び、スライダーや3Dモデルを動かして身体のしくみを確かめてください。</p>
+          <p>自分の体で試すラボ、3Dで仕組みを見るラボ、暮らしに活かすラボの3つに分けています。はじめての方は「試して測る」から、気になるものを1つ選んでみてください。</p>
         </div>
         <nav className="lab-index-list" aria-label="体験ラボ一覧">
-          {LABS.map((lab) => (
-            <a key={lab.href} href={lab.href}>
-              <span className="lab-index-n">{lab.n}</span>
-              <span><small>{lab.en}</small><b>{lab.title}</b><i>{lab.desc}</i></span>
-              <strong>↓</strong>
-            </a>
+          {LAB_GROUPS.map((g) => (
+            <div key={g.id} className="lab-index-group">
+              <div className="lab-index-group-head">
+                <b>{g.title}</b>
+                <span>{g.desc}</span>
+              </div>
+              {LABS.filter((lab) => lab.group === g.id).map((lab) => (
+                <a key={lab.id} href={`#${lab.id}`}>
+                  <span className="lab-index-n">{labNo(lab.id)}</span>
+                  <span>
+                    <b>{lab.title}</b>
+                    <i>{lab.desc}</i>
+                    <em className="lab-index-tags">{lab.device}・{lab.time}</em>
+                  </span>
+                  <strong>↓</strong>
+                </a>
+              ))}
+            </div>
           ))}
         </nav>
       </header>
 
-      <IapLab />
-      <NeuroLab />
+      <GroupBand n={1} />
       <ProprioceptionLab />
       <LateralityLab />
-      <HomunculusLab />
       <BalanceLab />
-      <BreathLab />
-      <PainVolumeLab />
+      <NeuroLab />
+      <GroupBand n={2} />
+      <IapLab />
+      <HomunculusLab />
       <FasciaLab />
       <FasciaNetworkLab />
+      <GroupBand n={3} />
+      <BreathLab />
+      <PainVolumeLab />
       <NutriLab />
     </div>
   );

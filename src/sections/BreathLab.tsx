@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { LabHead } from '../components/LabHead';
 
 /**
  * BREATH LAB — 呼吸と自律神経(ゆっくり呼吸のガイド)
@@ -69,19 +70,18 @@ export function BreathLab() {
 
   return (
     <section id="breath" className="section">
-      <div className="section-head">
-        <span className="section-index">07 / BREATHING</span>
-        <h2>BREATH LAB<span className="jp-sub">呼吸と自律神経</span></h2>
-        <p className="section-lead">
-          息を吸うと心拍は少し速くなり、吐くと少し遅くなります。この揺れは自律神経（とくに副交感神経の働き）を映す指標のひとつです。1分間に6回前後のゆっくりした呼吸では、この揺れが大きくなることが知られています。円の動きに合わせて、ゆっくり呼吸してみましょう。
-        </p>
-      </div>
+      <LabHead
+        id="breath"
+        lead="息を吸うと心拍は少し速くなり、吐くと少し遅くなります。この揺れは自律神経（とくに副交感神経の働き）を映す指標のひとつです。1分間に6回前後のゆっくりした呼吸では、この揺れが大きくなることが知られています。"
+        steps="呼吸のペースと時間を選んで「はじめる」。円が大きくなるときに吸い、小さくなるときに吐きます。"
+        read="このラボは心拍を測りません。下の波は、ゆっくり呼吸で心拍の揺れが大きくなる様子のモデル図です。終わったあと、楽に感じたかどうかを目安にしてください。"
+      />
 
       <div className="position-grid">
         <div className="position-stage breath-stage">
           <div className="position-stage-head">
             <span>{running ? `${Math.floor(remain / 60)}:${String(remain % 60).padStart(2, '0')}` : 'BREATH PACER'}</span>
-            <b>{running ? (inhaling ? '鼻から、ゆっくり吸う' : 'ゆっくり、吐く') : '下の「はじめる」から開始'}</b>
+            <b>{running ? (inhaling ? '鼻から、ゆっくり吸う' : 'ゆっくり、吐く') : '「はじめる」で開始'}</b>
           </div>
           <div className="breath-center">
             <div className="breath-ring" style={{ transform: `scale(${0.45 + lung * 0.55})` }} />

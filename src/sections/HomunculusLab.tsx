@@ -2,6 +2,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import { LabHead } from '../components/LabHead';
 
 /**
  * HOMUNCULUS LAB — 脳の中の体の地図(体性感覚)
@@ -196,12 +197,12 @@ export function HomunculusLab() {
 
   return (
     <section id="homunculus" className="section">
-      <div className="section-head">
-        <span className="section-index">05 / BODY MAP IN THE BRAIN</span>
-        <h2>HOMUNCULUS LAB<span className="jp-sub">脳の中の体の地図</span></h2>
-        <p className="section-lead">
-          脳には、体のどこに触れたかを感じ取る「体の地図」があります。地図の広さは体の大きさとは比例せず、手や唇のように、細かく感じ分けたり動かしたりする場所ほど広く描かれます。その広さに合わせて体を描き直すと、手や唇が大きく、背中が細い、少し不思議な姿になります。</p>
-      </div>
+      <LabHead
+        id="homunculus"
+        lead="脳には、体のどこに触れたかを感じ取る「体の地図」があります。地図の広さは体の大きさとは比例せず、手や唇のように、細かく感じ分けたり動かしたりする場所ほど広く描かれます。その広さに合わせて体を描き直すと、手や唇が大きく、背中が細い、少し不思議な姿になります。"
+        steps="スライダーで「実際の体」と「脳の中の体」を見比べ、部位を選んで説明を読みます。家でできる「2点の向き当て」も試せます。"
+        read="大きく描かれる部位ほど、細かく感じ分けられる場所です。地図の広さは経験や痛みで変わることも報告されていますが、見た目の大小で体の良し悪しは分かりません。"
+      />
 
       <div className="position-grid">
         <div className="position-stage homu-stage">

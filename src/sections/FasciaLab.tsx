@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SuperficialFasciaModel3D, DeepFasciaModel3D } from '../three/FasciaModels';
+import { LabHead } from '../components/LabHead';
 
 /**
  * FASCIA LAB — 筋膜スキャナー(3D)
@@ -36,28 +37,25 @@ export function FasciaLab() {
   const [mode, setMode] = useState<Mode>('superficial');
   return (
     <section id="fascia" className="section">
-      <div className="section-head">
-        <span className="section-index">09 / FASCIA LAYERS</span>
-        <h2>
-          FASCIA LAB<span className="jp-sub">筋膜スキャナー</span>
-        </h2>
-        <p className="section-lead">
-          筋膜は筋肉を包むだけでなく、身体各部の張力をつなぎ、動きの調整に関わる連続した組織です。ここでは浅筋膜と深筋膜を分け、まず<b>「▶ まず見る」</b>で構造の違いを確認し、その後に立体モデルを動かして“滑走”と“戻り”を比べます。
-        </p>
-      </div>
+      <LabHead
+        id="fascia"
+        lead="筋膜は、筋肉を包むだけでなく、体の各部をつないでいる膜状の組織です。ここでは、皮膚のすぐ下にある「浅筋膜」と、筋肉を包む「深筋膜」に分け、層どうしがどう滑るかをモデルで見ます。"
+        steps="タブで浅筋膜・深筋膜を選び、「▶ まず見る」で違いを確かめてから、立体モデルをドラッグして滑り方と戻り方を比べます。"
+        read="層がなめらかに滑って元に戻れば、動きやすい状態のモデルです。滑りが悪くなる「高密度化」は Stecco らが提唱する考え方で、体の中での検証はまだ限られています。"
+      />
 
       <div className="fascia-principles">
         <div><span>01</span><b>局所だけで見ない</b><p>痛む場所と、動きが乱れる原因候補は同じとは限りません。</p></div>
         <div><span>02</span><b>動きの連続性を見る</b><p>筋膜を、身体各部の張力と運動をつなぐシステムとして捉えます。</p></div>
-        <div><span>03</span><b>高密度化を評価する</b><p>運動検査と触診を組み合わせ、滑走抵抗が疑われる点を絞ります。</p></div>
+        <div><span>03</span><b>滑りの悪い所を探す</b><p>層の滑りが悪くなった状態を Stecco らは「高密度化」と呼び、動きの検査と触診を組み合わせて探します。</p></div>
       </div>
 
       <div className="neuro-tabs" role="tablist">
         <button role="tab" aria-selected={mode === 'superficial'} className={mode === 'superficial' ? 'tab-active' : ''} onClick={() => setMode('superficial')}>
-          浅筋膜<span>SUPERFICIAL FASCIA</span>
+          浅筋膜<span>皮膚のすぐ下の膜</span>
         </button>
         <button role="tab" aria-selected={mode === 'deep'} className={mode === 'deep' ? 'tab-active' : ''} onClick={() => setMode('deep')}>
-          深筋膜<span>DEEP FASCIA</span>
+          深筋膜<span>筋肉を包む膜</span>
         </button>
       </div>
 

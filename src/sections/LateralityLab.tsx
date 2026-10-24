@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { LabHead } from '../components/LabHead';
 
 /**
  * LEFT / RIGHT LAB — 左右判断テスト(手・前腕と手・腕全体・足・すねから先・脚全体)
@@ -331,13 +332,12 @@ export function LateralityLab() {
 
   return (
     <section id="laterality" className="section">
-      <div className="section-head">
-        <span className="section-index">04 / LEFT-RIGHT JUDGEMENT</span>
-        <h2>LEFT / RIGHT LAB<span className="jp-sub">左右判断テスト</span></h2>
-        <p className="section-lead">
-          画面に出る手足が「右」か「左」かを、できるだけ速く正確に答えてください。向きを判断するとき、脳の中では自分の手足を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり間違えやすくなったりすることが報告されています。
-        </p>
-      </div>
+      <LabHead
+        id="laterality"
+        lead="画面に出る手足が「右」か「左」かを判断するとき、脳の中では自分の手足を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり、間違えやすくなったりすることが報告されています。"
+        steps="部位を選んで「はじめる」。画像が出たら、右か左かをボタン（パソコンは ← / → キーでも可）でできるだけ速く答えます。慣れないうちは「練習する」から。"
+        read="正答率と、正解したときの平均反応時間が出ます。手の画像では、健康な若い成人で正答率 約87〜89%、平均 約1.0〜1.4秒という報告があります。左右の差や、前回との変化を見てください。"
+      />
 
       <div className="position-notice">
         <b>この体験で測るもの</b>
@@ -348,7 +348,7 @@ export function LateralityLab() {
         <div className="position-stage lr-stage">
           <div className="position-stage-head">
             <span>{running ? `${practice ? 'PRACTICE' : 'TRIAL'} ${index + 1} / ${trials.length}` : 'LEFT OR RIGHT ?'}</span>
-            <b>{running ? def.question : phase === 'result' ? 'おつかれさまでした' : '右の「はじめる」から開始'}</b>
+            <b>{running ? def.question : phase === 'result' ? 'おつかれさまでした' : '「はじめる」で開始'}</b>
           </div>
 
           <div className="lr-canvas lr-stim">
@@ -408,6 +408,7 @@ export function LateralityLab() {
                 <p className="lr-note">練習が終わりました。慣れたら「はじめる」で挑戦してください。</p>
               ) : (
                 <>
+                  <p className="lr-note">目安：手の画像では、健康な18〜35歳で正答率 約87〜89%、平均 約1.0〜1.4秒という報告があります（手以外の部位や、画面・答え方の条件で変わります）。</p>
                   {previous && (
                     <p className="lr-note">前回：正答率 {fmtP(previous.acc)}／平均 {fmtS(previous.rt)}（くり返すと速くなる「練習効果」があります）</p>
                   )}

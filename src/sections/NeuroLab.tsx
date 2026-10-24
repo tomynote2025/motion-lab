@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { LabHead } from '../components/LabHead';
 
 type Tab = 'saccade' | 'pursuit' | 'vestibular';
 
@@ -6,25 +7,22 @@ export function NeuroLab() {
   const [tab, setTab] = useState<Tab>('saccade');
   return (
     <section id="neuro" className="section">
-      <div className="section-head">
-        <span className="section-index">02 / NEUROLOGY</span>
-        <h2>
-          NEURO LAB<span className="jp-sub">機能神経学ラボ</span>
-        </h2>
-        <p className="section-lead">
-          動きには、筋力だけでなく、目・内耳・体からの感覚と、それをまとめる脳の働きが関わっています。眼の動きや平衡感覚は、医療でも神経の働きを調べる手がかりとして診察されます。3つのミニラボで、その仕組みを体験してみましょう（検査や診断ではありません）。
-        </p>
-      </div>
+      <LabHead
+        id="neuro"
+        lead="動きには、筋力だけでなく、目・耳の奥の平衡感覚・体からの感覚と、それをまとめる脳の働きが関わっています。眼の動きや平衡感覚は、医療でも神経の働きを調べる手がかりとして診察されます。3つのミニラボで、その仕組みを体験してみましょう（検査や診断ではありません）。"
+        steps="上のタブから「すばやく見つける」「なめらかに追う」「視線を保つ」のどれかを選んで試します。"
+        read="反応時間や追えた割合は、画面の大きさ・指かマウスか・慣れで大きく変わります。良い悪いの判定ではなく、同じ条件でくり返したときの「前回との比較」に使ってください。"
+      />
 
       <div className="neuro-tabs" role="tablist">
         <button role="tab" aria-selected={tab === 'saccade'} className={tab === 'saccade' ? 'tab-active' : ''} onClick={() => setTab('saccade')}>
-          サッケード<span>衝動性眼球運動</span>
+          すばやく見つける<span>サッケード（視線を飛ばす）</span>
         </button>
         <button role="tab" aria-selected={tab === 'pursuit'} className={tab === 'pursuit' ? 'tab-active' : ''} onClick={() => setTab('pursuit')}>
-          追従眼球運動<span>スムースパースート</span>
+          なめらかに追う<span>追従眼球運動</span>
         </button>
         <button role="tab" aria-selected={tab === 'vestibular'} className={tab === 'vestibular' ? 'tab-active' : ''} onClick={() => setTab('vestibular')}>
-          前庭システム<span>OKN / VOR</span>
+          視線を保つ<span>耳の奥の平衡感覚（前庭）</span>
         </button>
       </div>
 
@@ -41,6 +39,39 @@ export function NeuroLab() {
   );
 }
 
+/* 前回の結果（この端末のブラウザにだけ保存。読めない環境では表示しない） */
+function readLast(key: string): number | null {
+  try {
+    const v = localStorage.getItem(key);
+    return v == null ? null : Number(v);
+  } catch {
+    return null;
+  }
+}
+
+function saveLast(key: string, value: number) {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {
+    /* 保存できなくても体験は続けられる */
+  }
+}
+
+function Compare({ prev, now, unit, lowerIsBetter }: { prev: number | null; now: number; unit: string; lowerIsBetter: boolean }) {
+  if (prev == null || !Number.isFinite(prev)) {
+    return <div className="neuro-compare">次回からは、前回の結果と並べて表示します。</div>;
+  }
+  const diff = Math.round(now - prev);
+  const same = Math.abs(diff) < (unit === 'ms' ? 15 : 3);
+  const better = lowerIsBetter ? diff < 0 : diff > 0;
+  return (
+    <div className="neuro-compare">
+      前回 <b>{Math.round(prev)}{unit}</b> → 今回 <b>{Math.round(now)}{unit}</b>
+      <span>{same ? '（ほぼ同じ）' : `（${diff > 0 ? '+' : ''}${diff}${unit}・${better ? '前回より良い' : '前回より低め'}）`}</span>
+    </div>
+  );
+}
+
 /* ---------------- サッケード反応テスト ---------------- */
 
 const SACCADE_ROUNDS = 8;
@@ -50,6 +81,7 @@ function SaccadeTest() {
   const [round, setRound] = useState(0);
   const [times, setTimes] = useState<number[]>([]);
   const [pos, setPos] = useState({ x: 50, y: 50 });
+  const [prev, setPrev] = useState<number | null>(null);
   const shownAt = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -78,6 +110,8 @@ function SaccadeTest() {
     const next = [...times, rt];
     setTimes(next);
     if (round + 1 >= SACCADE_ROUNDS) {
+      setPrev(readLast('neuro-saccade'));
+      saveLast('neuro-saccade', Math.round(next.reduce((a, b) => a + b, 0) / next.length));
       setPhase('done');
     } else {
       setRound(round + 1);
@@ -88,14 +122,14 @@ function SaccadeTest() {
   const avg = times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : 0;
   const best = times.length ? Math.round(Math.min(...times)) : 0;
   // 画面の大きさ・指かマウスか・機器で大きく変わるため、良し悪しの判定はしない
-  const rating = '画面の大きさや、指かマウスかで数値は変わります。同じ条件でくり返して比べてみてください。';
+  const rating = '点数ではなく、自分の前回と比べるための数字です。画面の大きさや、指かマウスかで変わるので、同じ条件でくり返してください。';
 
   return (
     <div className="lab">
       <div className="lab-desc">
-        <h3>サッケード反応テスト</h3>
+        <h3>すばやく見つける（サッケード反応テスト）</h3>
         <p>
-          サッケードは、視線を目標へ一瞬で飛ばす眼球運動で、前頭葉の眼球運動の領域や脳幹（上丘）などが関わります。このテストで測るのは、光点が見えてから指やマウスで押すまでの「反応時間」です。目の動きそのものではなく、見つける時間や手を動かす時間も含まれます。現れた光点をできるだけ速くタップ — {SACCADE_ROUNDS}回の平均を出します。
+          サッケード（衝動性眼球運動）は、視線を目標へ一瞬で飛ばす眼球運動で、前頭葉の眼球運動の領域や脳幹（上丘）などが関わります。このテストで測るのは、光点が見えてから指やマウスで押すまでの「反応時間」です。目の動きそのものではなく、見つける時間や手を動かす時間も含まれます。現れた光点をできるだけ速くタップ — {SACCADE_ROUNDS}回の平均を出します。
         </p>
       </div>
       <div className="saccade-field">
@@ -117,6 +151,7 @@ function SaccadeTest() {
           <div className="lab-result">
             <div className="result-big">{avg}ms</div>
             <div className="result-sub">平均反応時間(最速 {best}ms)</div>
+            <Compare prev={prev} now={avg} unit="ms" lowerIsBetter />
             <div className="result-rating">{rating}</div>
             <button className="start-btn" onClick={start}>
               もう一度
@@ -141,6 +176,7 @@ function PursuitTest() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<number | null>(null);
+  const [prev, setPrev] = useState<number | null>(null);
   const pointer = useRef({ x: -999, y: -999 });
 
   useEffect(() => {
@@ -171,7 +207,10 @@ function PursuitTest() {
       t += Math.min((now - last) / 1000, 0.05);
       last = now;
       if (t >= PURSUIT_SECONDS) {
-        setResult(totalFrames ? Math.round((hitFrames / totalFrames) * 100) : 0);
+        const score = totalFrames ? Math.round((hitFrames / totalFrames) * 100) : 0;
+        setPrev(readLast('neuro-pursuit'));
+        saveLast('neuro-pursuit', score);
+        setResult(score);
         setRunning(false);
         return;
       }
@@ -213,12 +252,12 @@ function PursuitTest() {
 
   const rating =
     // 手の操作の慣れや機器で大きく変わるため、良し悪しの判定はしない
-    result === null ? '' : '手の操作の慣れや、画面の大きさで数値は変わります。同じ条件でくり返して比べてみてください。';
+    result === null ? '' : '点数ではなく、自分の前回と比べるための数字です。手の操作の慣れや画面の大きさで変わるので、同じ条件でくり返してください。';
 
   return (
     <div className="lab">
       <div className="lab-desc">
-        <h3>スムースパースート(滑動性追従)</h3>
+        <h3>なめらかに追う（追従眼球運動）</h3>
         <p>
           動く物を滑らかに追う眼球運動（滑動性追従）には、小脳や大脳の視覚・眼球運動の領域などが関わります。このテストでは、動く光点にカーソル（指）を重ね続けられた割合を測ります。目の動きだけでなく、手の操作の正確さも含まれます。{PURSUIT_SECONDS}
           秒間、頭は動かさずに目で追いながら操作してみてください。
@@ -232,7 +271,8 @@ function PursuitTest() {
             {result !== null && (
               <>
                 <div className="result-big">{result}%</div>
-                <div className="result-sub">追従率</div>
+                <div className="result-sub">光点に重ねられていた時間の割合</div>
+                <Compare prev={prev} now={result} unit="%" lowerIsBetter={false} />
                 <div className="result-rating">{rating}</div>
               </>
             )}
@@ -337,15 +377,15 @@ function VestibularLab() {
   return (
     <div className="lab lab-vestibular">
       <div className="lab-desc">
-        <h3>前庭システム(バランスの感覚)</h3>
+        <h3>視線を保つ（耳の奥の平衡感覚）</h3>
         <p>
-          内耳の前庭は頭の動きを感じ取り、視線を安定させたり、姿勢を保ったりするのに役立っています。下の2つは、前庭リハビリで使われる刺激や運動を、体験用にしたものです。
+          耳の奥にある前庭は頭の動きを感じ取り、視線を安定させたり、姿勢を保ったりするのに役立っています。下の2つは、前庭リハビリで使われる刺激や運動を、体験用にしたものです。
         </p>
       </div>
 
       <div className="vestibular-grid">
         <div className="vest-card">
-          <h4>視運動性刺激(OKN)</h4>
+          <h4>流れるしま模様を見る（視運動性刺激）</h4>
           <p>流れるしま模様を見ると、目が自然に追っては戻る「視運動性眼振」が起こります。中央の点を見つめると、この目の動きは起こりにくくなります。見ていて揺れる感じや気分の悪さが出たら、すぐに中止してください。</p>
           <div className="okn-wrap">
             <canvas ref={canvasRef} className="okn-canvas" />
@@ -356,14 +396,14 @@ function VestibularLab() {
             <span className="slider-val">{speed > 0 ? '→' : speed < 0 ? '←' : '停止'}</span>
           </label>
           <button className="chip" onClick={() => setShowDot(!showDot)}>
-            {showDot ? '固視点を消す' : '固視点を表示'}
+            {showDot ? '中央の点を消す' : '中央の点を表示'}
           </button>
         </div>
 
         <div className="vest-card">
-          <h4>VOR(前庭動眼反射)ドリル</h4>
+          <h4>頭を振っても文字を見続ける（前庭動眼反射）</h4>
           <p>
-            中央の「K」を見つめたまま、メトロノームに合わせて頭を小さく左右に振ります。頭が動いても文字がぶれずに見えるのは、前庭動眼反射（VOR）が目を頭と反対向きに動かして、視線を保っているためです。まずは短い時間から。めまいやふらつきが出たら中止し、続く場合は医療機関にご相談ください。
+            中央の「K」を見つめたまま、メトロノームに合わせて頭を小さく左右に振ります。頭が動いても文字がぶれずに見えるのは、前庭動眼反射が目を頭と反対向きに動かして、視線を保っているためです。まずは短い時間から。めまいやふらつきが出たら中止し、続く場合は医療機関にご相談ください。
           </p>
           <div className="vor-stage">
             <span className={`vor-arrow ${vorOn && side === 'L' ? 'vor-hot' : ''}`}>←</span>

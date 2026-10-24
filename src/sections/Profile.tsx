@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { BLOG_BASE } from '../data/blogLinks';
 
 /**
@@ -7,8 +8,6 @@ import { BLOG_BASE } from '../data/blogLinks';
 export function Profile() {
   return (
     <header className="hero profile-hero lab-home-hero">
-      <div className="hero-blob hero-blob-a" />
-      <div className="hero-blob hero-blob-b" />
       <div className="hero-inner">
         <p className="hero-kicker">INTERACTIVE BODY SCIENCE</p>
         <h1>
@@ -17,7 +16,7 @@ export function Profile() {
           <em>触れる科学。</em>
         </h1>
         <p className="hero-lead">
-          骨格・筋膜・腹圧・神経・栄養。読むだけでは見えにくい身体のしくみを、自分の手で動かしながら理解するための体験型ラボです。
+          体の感覚を、自分で試して確かめる。3Dの骨格マップと、関節の位置感覚・ふらつき・腹圧・呼吸・痛みなど11の体験ラボで、読むだけでは見えにくい体のしくみを、自分の手で動かしながら理解できます。
         </p>
 
         <div className="profile-meta">
@@ -36,8 +35,11 @@ export function Profile() {
         </div>
 
         <div className="hero-cta">
-          <a href="#bodymap" className="cta-primary">
-            BODY MAPを体験 ↓
+          <Link to="/lab" className="cta-primary">
+            体験ラボを選ぶ →
+          </Link>
+          <a href="#bodymap" className="cta-ghost">
+            3D骨格マップ ↓
           </a>
           <a href={BLOG_BASE} target="_blank" rel="noreferrer" className="cta-ghost">
             健康記事を読む ↗

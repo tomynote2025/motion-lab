@@ -908,11 +908,16 @@ h4 {
 
 .slider-row {
   display: grid;
-  grid-template-columns: 76px 1fr 56px;
+  /* ラベルは折り返さない（「横隔膜の下／降」のような改行を防ぐ） */
+  grid-template-columns: minmax(76px, max-content) 1fr 56px;
   align-items: center;
   gap: 12px;
   font-size: 14px;
   font-weight: 700;
+}
+
+.slider-row .slider-name {
+  white-space: nowrap;
 }
 
 .slider-val {
@@ -1569,10 +1574,30 @@ input[type='range']::-webkit-slider-thumb:hover {
 }
 
 .result-rating {
+  max-width: 460px;
+  margin: 8px auto 12px;
+  color: var(--stage-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.8;
+}
+
+.neuro-compare {
+  margin-top: 10px;
   color: var(--stage-text);
-  font-size: 15px;
-  font-weight: 700;
-  margin: 8px 0 12px;
+  font-size: 14px;
+}
+
+.neuro-compare b {
+  font-family: var(--font-en);
+  font-size: 16px;
+}
+
+.neuro-compare span {
+  display: block;
+  margin-top: 2px;
+  color: var(--stage-muted);
+  font-size: 12.5px;
 }
 
 .pursuit-canvas {
@@ -2457,7 +2482,7 @@ body.has-custom-cursor input[type='range'] {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
-  align-items: center;
+  align-items: start;
   background: var(--green-deep);
   border-radius: 26px;
   padding: 52px 48px;
@@ -5075,8 +5100,14 @@ body.has-custom-cursor input[type='range'] {
   margin-top: 0;
 }
 
-.lab-page .section-head .section-lead {
+.lab-page .section-head .section-lead,
+.lab-page .section-head .lab-tags,
+.lab-page .section-head .lab-flow {
   grid-column: 2;
+}
+
+.lab-page .section-head .section-index {
+  grid-row: 1 / span 4;
 }
 
 .footer {
@@ -5167,6 +5198,252 @@ body.has-custom-cursor input[type='range'] {
   opacity: 0.45;
 }
 
+/* ---------- ラボ共通の見出し（LabHead） ---------- */
+.lab-head h2 {
+  font-size: clamp(30px, 4.4vw, 50px);
+  line-height: 1.25;
+  gap: 8px 16px;
+}
+
+.lab-head .en-sub {
+  font-family: var(--font-en);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--faint);
+}
+
+.lab-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.lab-tags span {
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lab-flow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 920px;
+  margin-top: 22px;
+}
+
+.lab-flow > div {
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.lab-flow dt {
+  margin-bottom: 6px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.lab-flow dd {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+/* IAP：詳しい操作の開閉 */
+.iap-more-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--green);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.iap-more-btn:hover {
+  background: var(--bg-2);
+}
+
+.iap-sliders {
+  margin-top: 14px;
+}
+
+.iap-sliders-note {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.8;
+}
+
+/* パソコンで開いたときの「スマホで開く」案内 */
+.open-on-phone {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--bg);
+}
+
+.open-on-phone img {
+  width: 104px;
+  height: 104px;
+  border-radius: 8px;
+}
+
+.open-on-phone b {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--green);
+  font-size: 15px;
+}
+
+.open-on-phone p {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.8;
+}
+
+.open-on-phone small {
+  display: block;
+  margin-top: 4px;
+  color: var(--faint);
+  font-family: var(--font-en);
+  font-size: 10.5px;
+  word-break: break-all;
+}
+
+/* ラボ一覧のグループ */
+.lab-index-list {
+  border-top: none;
+}
+
+.lab-index-group + .lab-index-group {
+  margin-top: 44px;
+}
+
+.lab-index-group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--green);
+}
+
+.lab-index-group-head b {
+  font-size: 19px;
+  color: var(--green);
+}
+
+.lab-index-group-head span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.lab-index-list > .lab-index-group > a {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 18px;
+  align-items: center;
+  padding: 20px 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  text-decoration: none;
+  transition: padding 0.22s ease, background 0.22s ease;
+}
+
+.lab-index-list > .lab-index-group > a:hover {
+  padding-left: 18px;
+  padding-right: 18px;
+  background: var(--panel);
+}
+
+.lab-index-list .lab-index-tags {
+  display: block;
+  margin-top: 6px;
+  color: var(--green);
+  font-size: 11.5px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* ラボのグループの区切り */
+.lab-group-band {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 90px 28px 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+}
+
+.lab-group-band span {
+  font-family: var(--font-en);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--faint);
+}
+
+.lab-group-band b {
+  font-size: clamp(24px, 3vw, 32px);
+  color: var(--green);
+}
+
+.lab-group-band p {
+  width: 100%;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.lab-group-band + .section {
+  padding-top: 50px !important;
+}
+
+/* トップのラボ紹介：グループとリンク */
+.lab-promo-group {
+  margin-top: 6px;
+  padding-top: 14px;
+  color: var(--green-soft);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+a.lab-promo-item {
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.2s ease, padding 0.2s ease;
+}
+
+a.lab-promo-item:hover {
+  background: rgba(243, 240, 231, 0.06);
+  padding-left: 10px;
+}
+
+.lab-promo-item .lab-promo-go {
+  margin-left: auto;
+  align-self: center;
+  color: var(--green-soft);
+}
+
 @media (max-width: 900px) {
   .personal-promo-grid,
   .personal-page-section {
@@ -5237,7 +5514,9 @@ body.has-custom-cursor input[type='range'] {
   }
 
   .lab-page .section-head .section-index,
-  .lab-page .section-head .section-lead {
+  .lab-page .section-head .section-lead,
+  .lab-page .section-head .lab-tags,
+  .lab-page .section-head .lab-flow {
     grid-column: 1;
     grid-row: auto;
   }
@@ -5699,5 +5978,26 @@ body.has-custom-cursor input[type='range'] {
 
   .profile-contact {
     padding: 42px 24px;
+  }
+}
+
+/* ラボ共通の見出し・一覧（スマホ） */
+@media (max-width: 640px) {
+  .lab-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .lab-flow > div {
+    padding: 14px 16px;
+  }
+
+  .lab-group-band {
+    padding: 70px 16px 0;
+  }
+
+  .lab-index-list > .lab-index-group > a {
+    grid-template-columns: 34px 1fr auto;
+    gap: 12px;
+    padding: 16px 4px;
   }
 }

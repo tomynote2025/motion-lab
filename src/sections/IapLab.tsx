@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { IapAnatomy3D, type IapFocus } from '../three/IapAnatomy3D';
+import { LabHead } from '../components/LabHead';
 
 /**
  * 腹腔内圧(IAP)シミュレーター
@@ -99,6 +100,7 @@ export function IapLab() {
   const [sliderPf, setPf] = useState(0.8); // 骨盤底の追従
   const [focus, setFocus] = useState<IapFocus>('all');
   const [focusMode, setFocusMode] = useState<FocusMode>('good');
+  const [advanced, setAdvanced] = useState(false);
   const focusRef = useRef<IapFocus>('all');
   focusRef.current = focus;
   // 部位表示中は、その部位の「良い動き／崩れたとき」の値を使う
@@ -203,6 +205,8 @@ export function IapLab() {
   // 実測値(mmHg)と誤解されないよう、圧の高まりは言葉の目安で示す
   const pressureWord = pressure < 0.35 ? '低い' : pressure < 0.65 ? '中くらい' : '高い';
   const stability = Math.round(support * 100);
+  // 数字だと測定値に見えるので、支えの状態は言葉で示す
+  const supportWord = stress > 0.25 ? '崩れやすい' : stress > 0.08 ? 'やや弱い' : 'しっかり';
 
   const changeValue = (setter: (value: number) => void, value: number) => {
     if (demoRunning) stopDemo();
@@ -221,15 +225,12 @@ export function IapLab() {
 
   return (
     <section id="iap" className="section">
-      <div className="section-head">
-        <span className="section-index">01 / CORE PRESSURE</span>
-        <h2>
-          IAP LAB<span className="jp-sub">腹腔内圧シミュレーター</span>
-        </h2>
-        <p className="section-lead">
-          腹圧は「お腹を固める力」だけではありません。横隔膜・腹壁・骨盤底が呼吸に合わせて協調し、体幹を内側から支える仕組みのひとつと考えられています。まず「▶ まず見る」で流れを確かめてから、3つの状態を切り替えて比べてください。
-        </p>
-      </div>
+      <LabHead
+        id="iap"
+        lead="腹圧は「お腹を固める力」だけではありません。横隔膜（天井）・お腹の壁・骨盤底（床）が呼吸に合わせて協調し、体幹を内側から支える仕組みのひとつと考えられています。"
+        steps="まず「▶ まず見る」で流れを確かめ、次に3つの状態を切り替えて比べます。部位ごとの動きや数値を動かしたいときは「詳しく動かす」を開きます。"
+        read="背骨がまっすぐ保たれ、「背骨の支え」が「しっかり」なら、圧がうまく受け止められている状態です。背骨が丸まる・反るのは、支えきれないときの一例として表しています。"
+      />
 
       <div className="iap-canister" aria-label="腹圧を作る3つの要素">
         <div><span>01 / CEILING</span><b>横隔膜</b><p>吸気で収縮・下降し、呼気で上昇する「天井」</p></div>
@@ -241,17 +242,18 @@ export function IapLab() {
       </div>
 
       <div className="iap-compare">
-        <div className="iap-compare-head"><span>STEP 01</span><b>状態を選んで、違いを比較する</b></div>
+        <div className="iap-compare-head"><span>COMPARE</span><b>3つの状態を切り替えて比べる</b></div>
         <div className="iap-presets">
           <button className={preset === 'balance' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('balance'); }}><span>◎</span><b>呼吸と支持が協調</b><small>3つが同じリズムで動く</small></button>
           <button className={preset === 'brace' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('brace'); }}><span>△</span><b>お腹だけ固める</b><small>横隔膜と骨盤底が追従しない</small></button>
           <button className={preset === 'leak' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('leak'); }}><span>△</span><b>協調が崩れる</b><small>壁と床が圧を受け止めない</small></button>
         </div>
         <p className="iap-compare-note">
-          ※ 背骨の崩れ方は一例です。腹壁が弱いと必ず腰が反る、お腹だけ固めると必ず背骨が丸まる、と決まっているわけではありません。どの方向に崩れるかは、姿勢のくせ・関節や筋の状態・動作の内容などによって人それぞれ異なります。ここでは「腹圧で支えきれないと、背骨にしわ寄せがくる」ことを分かりやすくするため、2つの方向に分けて表しています。
+          ※ 背骨の崩れ方（丸まる／反る）は一例です。どの方向に崩れるかは、姿勢のくせ・関節や筋の状態・動作の内容によって人それぞれで、決まっているわけではありません。
         </p>
       </div>
 
+      {advanced && (
       <div className="iap-compare iap-parts">
         <div className="iap-compare-head"><span>PARTS</span><b>部位を選んで、動きだけを見る</b></div>
         <div className="region-chips" role="tablist" aria-label="表示する部位">
@@ -282,6 +284,7 @@ export function IapLab() {
           </>
         )}
       </div>
+      )}
 
       <div className="iap-grid">
         <div className="iap-stage iap-stage-3d">
@@ -313,7 +316,6 @@ export function IapLab() {
           </button>
           {demo && <div className={`iap-verdict ${demo.tone}`}>{demo.caption}</div>}
 
-          <div className="iap-control-head"><span>STEP 02</span><b>数値を動かして観察する</b></div>
           <div className="iap-gauges">
             <div className="gauge">
               <svg viewBox="0 0 120 120">
@@ -354,38 +356,16 @@ export function IapLab() {
                   strokeDashoffset={gaugeCirc * (1 - stability / 100)}
                   transform="rotate(-90 60 60)"
                 />
-                <text x="60" y="56" textAnchor="middle" className="gauge-num" fill="#1B1B17">
-                  {stability}
+                <text x="60" y="62" textAnchor="middle" className="gauge-word" fill="#1B1B17">
+                  {supportWord}
                 </text>
-                <text x="60" y="76" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
-                  安定性
+                <text x="60" y="80" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
+                  目安
                 </text>
               </svg>
-              <span>体幹の安定性</span>
+              <span>背骨の支え</span>
             </div>
           </div>
-
-          <label className="slider-row">
-            <span className="slider-name" style={{ color: '#5E8BA8' }}>
-              横隔膜の下降
-            </span>
-            <input type="range" min="0" max="1" step="0.01" value={dia} onChange={(e) => changeValue(setDia, +e.target.value)} />
-            <span className="slider-val">{Math.round(dia * 100)}%</span>
-          </label>
-          <label className="slider-row">
-            <span className="slider-name" style={{ color: '#86B98C' }}>
-              腹壁の広がり
-            </span>
-            <input type="range" min="0" max="1" step="0.01" value={tva} onChange={(e) => changeValue(setTva, +e.target.value)} />
-            <span className="slider-val">{Math.round(tva * 100)}%</span>
-          </label>
-          <label className="slider-row">
-            <span className="slider-name" style={{ color: '#C9982F' }}>
-              骨盤底の追従
-            </span>
-            <input type="range" min="0" max="1" step="0.01" value={pf} onChange={(e) => changeValue(setPf, +e.target.value)} />
-            <span className="slider-val">{Math.round(pf * 100)}%</span>
-          </label>
 
           <button
             className="load-btn"
@@ -396,8 +376,47 @@ export function IapLab() {
             onPointerUp={() => (holdRef.current = false)}
             onPointerLeave={() => (holdRef.current = false)}
           >
-            STEP 03　長押しで負荷を加える
+            長押しで負荷を加える
           </button>
+
+          <button
+            className="iap-more-btn"
+            aria-expanded={advanced}
+            onClick={() => {
+              if (advanced) {
+                setFocus('all');
+              }
+              setAdvanced(!advanced);
+            }}
+          >
+            {advanced ? '詳しい操作を閉じる ▲' : '詳しく動かす（部位ごとの動き・数値） ▼'}
+          </button>
+          {advanced && (
+            <div className="iap-sliders">
+              <p className="iap-sliders-note">3つの動きの大きさを変えると、腹圧と背骨の支えがどう変わるかを確かめられます。部位ごとの動きは、3Dの上の「部位を選んで、動きだけを見る」で切り替えます。</p>
+              <label className="slider-row">
+                <span className="slider-name" style={{ color: '#5E8BA8' }}>
+                  横隔膜の下降
+                </span>
+                <input type="range" min="0" max="1" step="0.01" value={dia} onChange={(e) => changeValue(setDia, +e.target.value)} />
+                <span className="slider-val">{Math.round(dia * 100)}%</span>
+              </label>
+              <label className="slider-row">
+                <span className="slider-name" style={{ color: '#86B98C' }}>
+                  腹壁の広がり
+                </span>
+                <input type="range" min="0" max="1" step="0.01" value={tva} onChange={(e) => changeValue(setTva, +e.target.value)} />
+                <span className="slider-val">{Math.round(tva * 100)}%</span>
+              </label>
+              <label className="slider-row">
+                <span className="slider-name" style={{ color: '#C9982F' }}>
+                  骨盤底の追従
+                </span>
+                <input type="range" min="0" max="1" step="0.01" value={pf} onChange={(e) => changeValue(setPf, +e.target.value)} />
+                <span className="slider-val">{Math.round(pf * 100)}%</span>
+              </label>
+            </div>
+          )}
 
           {!demo && (
             <div className={`iap-verdict ${stress > 0.25 ? 'bad' : pressure > 0.55 ? 'good' : ''}`}>
@@ -408,12 +427,12 @@ export function IapLab() {
                 : support > 0.55 && coordination > 0.72
                   ? '◎ 吸気で3つが一緒に下降・拡張し、呼気で一緒に戻っています。負荷時も呼吸を残しながら支持できる状態です。'
                   : coordination < 0.55
-                    ? '△ 動くタイミングが揃っていません。ひとつを強く固めるのではなく、3つの数値を近づけてみましょう。'
+                    ? '△ 動くタイミングが揃っていません。ひとつを強く固めるより、3つが一緒に動くことが大切です。'
                     : '吸気では横隔膜と骨盤底が下降し、腹壁が広がります。呼気では3つが一緒に元の位置へ戻ります。'}
             </div>
           )}
           <p className="iap-disclaimer">
-            ※ 表示は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません（健康な成人の安静時の腹腔内圧は、おおむね 7 mmHg 未満とされます）。背骨の崩れ方（丸まる／反る）は説明のための一例で、どこが働きにくいとどちらに崩れる、と決まっているものではありません。実際の崩れ方は人によって異なります。
+            ※ 表示は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません（健康な成人の安静時の腹腔内圧は、おおむね 7 mmHg 未満とされます）。
             <br />
             参考: Hodges PW, Gandevia SC (2000) J Appl Physiol 89(3):967-976（姿勢と呼吸での横隔膜と腹腔内圧）／Talasz H ら (2011) Int Urogynecol J（呼吸で横隔膜と骨盤底が同じ向きに動く）／Hagins M ら (2004) Spine 29(4):464-469（呼吸の仕方と持ち上げ動作時の腹腔内圧）。
             <br />

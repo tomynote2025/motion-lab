@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LabHead } from '../components/LabHead';
 
 /**
  * PAIN VOLUME LAB — 痛みのボリュームつまみ
@@ -76,13 +77,12 @@ export function PainVolumeLab() {
 
   return (
     <section id="pain" className="section">
-      <div className="section-head">
-        <span className="section-index">08 / PAIN</span>
-        <h2>PAIN VOLUME LAB<span className="jp-sub">痛みのボリュームつまみ</span></h2>
-        <p className="section-lead">
-          痛みは、体からの信号の大きさだけで決まるわけではありません。脳はその信号を、過去の経験・今の状況・気持ちなどと合わせて「どのくらい守る必要があるか」を判断し、痛みの強さを調整していると考えられています。危険を思わせる手がかりと、安全を思わせる手がかりを選んで、痛みのボリュームがどう変わるかを見てみましょう。
-        </p>
-      </div>
+      <LabHead
+        id="pain"
+        lead="痛みは、体からの信号の大きさだけで決まるわけではありません。脳はその信号を、過去の経験・今の状況・気持ちなどと合わせて「どのくらい守る必要があるか」を判断し、痛みの強さを調整していると考えられています。"
+        steps="体からの信号の強さを決め、危険を思わせる手がかり・安全を思わせる手がかりを選んで、つまみの目盛りがどう変わるかを見ます。"
+        read="同じ信号でも、手がかりによって痛みのボリュームが上下する、という考え方のモデルです。数値は実際の痛みの強さを表すものではありません。"
+      />
 
       <div className="position-notice">
         <b>大切な前提</b>
