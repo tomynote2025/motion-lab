@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, useGLTF } from '@react-three/drei';
 import { LabHead } from '../components/LabHead';
 
 /**
@@ -19,10 +19,10 @@ import { LabHead } from '../components/LabHead';
  *  - 従来の2点識別は距離以外の手がかりで答えられてしまう。向き当てのほうが妥当(Tong 2013)。
  */
 
-const SKIN = '#e3cdb4';
 const ACTIVE = '#C0562F';
+/** MakeHuman(MPFB 2, CC0) の人体。real(実際の体) と brain(脳の中の体) の2つの形を持つ（scripts/homunculus-model） */
+const MODEL_URL = '/models/homunculus.glb';
 
-type Vec3 = [number, number, number];
 type PartId = 'hand' | 'face' | 'foot' | 'trunk' | 'limb';
 
 const PARTS: { id: PartId; label: string; size: string; text: string }[] = [
@@ -58,119 +58,58 @@ const PARTS: { id: PartId; label: string; size: string; text: string }[] = [
   },
 ];
 
-/** 「脳の中の体」にしたときの拡大率 */
-const SCALE: Record<PartId, number> = { hand: 3.1, face: 1.7, foot: 1.4, trunk: 0.62, limb: 0.6 };
-
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-
-function Capsule({ from, to, r, material }: { from: Vec3; to: Vec3; r: number; material: THREE.Material }) {
-  const a = new THREE.Vector3(...from);
-  const b = new THREE.Vector3(...to);
-  const dir = b.clone().sub(a);
-  const len = Math.max(dir.length() - r * 1.2, 0.02);
-  const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
-  return (
-    <mesh position={a.clone().lerp(b, 0.5)} quaternion={quat} material={material}>
-      <capsuleGeometry args={[r, len, 6, 16]} />
-    </mesh>
-  );
-}
-
-/** 手のひら+5本の指。手首を原点に、下向きに伸びる */
-function Hand({ side, material }: { side: 1 | -1; material: THREE.Material }) {
-  const fingers: { x: number; len: number }[] = [
-    { x: -0.07, len: 0.16 },
-    { x: -0.023, len: 0.19 },
-    { x: 0.023, len: 0.18 },
-    { x: 0.068, len: 0.14 },
-  ];
-  return (
-    <group>
-      <mesh position={[0, -0.12, 0]} scale={[0.13, 0.13, 0.05]} material={material}>
-        <sphereGeometry args={[1, 20, 16]} />
-      </mesh>
-      {fingers.map((f, i) => (
-        <Capsule key={i} from={[f.x * side, -0.2, 0]} to={[f.x * 1.15 * side, -0.2 - f.len, 0.01]} r={0.022} material={material} />
-      ))}
-      <Capsule from={[-0.1 * side, -0.1, 0.02]} to={[-0.17 * side, -0.2, 0.05]} r={0.026} material={material} />
-    </group>
-  );
-}
+/** 「脳の中の体」にしたときの拡大率（モデルはこの値で作ってある: hand 3.1, face 1.7, foot 1.4, trunk 0.62, limb 0.6） */
 
 function Figure({ morph, selected }: { morph: number; selected: PartId }) {
   const group = useRef<THREE.Group>(null);
+  const { scene } = useGLTF(MODEL_URL);
+
+  // 材質は部位ごと（skin_hand, cloth_trunk など）。この画面用に複製して色を変えられるようにする
+  const { root, meshes, materials } = useMemo(() => {
+    const root = scene.clone(true);
+    const meshes: THREE.Mesh[] = [];
+    const materials: THREE.MeshStandardMaterial[] = [];
+    root.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const m = (mesh.material as THREE.MeshStandardMaterial).clone();
+      mesh.material = m;
+      materials.push(m);
+      meshes.push(mesh);
+    });
+    return { root, meshes, materials };
+  }, [scene]);
+
+  useEffect(() => {
+    materials.forEach((m) => {
+      const on = m.name.endsWith(`_${selected}`);
+      m.emissive.set(on ? ACTIVE : '#000000');
+      m.emissiveIntensity = on ? 0.55 : 0;
+    });
+  }, [materials, selected]);
+
+  useEffect(() => {
+    meshes.forEach((mesh) => {
+      const dict = mesh.morphTargetDictionary;
+      const inf = mesh.morphTargetInfluences;
+      if (!dict || !inf) return;
+      inf[dict.real] = 1 - morph;
+      inf[dict.brain] = morph;
+    });
+  }, [meshes, morph]);
+
   useFrame(({ clock }) => {
-    if (group.current) group.current.position.y = Math.sin(clock.elapsedTime * 0.8) * 0.04;
+    if (group.current) group.current.position.y = -2.95 + Math.sin(clock.elapsedTime * 0.8) * 0.04;
   });
 
-  // 選択中の部位だけ色を変える(材質は選択が変わったときだけ作り直す)
-  const mats = useMemo(() => {
-    const m = {} as Record<PartId, THREE.MeshStandardMaterial>;
-    (['hand', 'face', 'foot', 'trunk', 'limb'] as PartId[]).forEach((id) => {
-      m[id] = new THREE.MeshStandardMaterial({
-        color: selected === id ? ACTIVE : SKIN,
-        emissive: selected === id ? ACTIVE : '#000000',
-        emissiveIntensity: selected === id ? 0.35 : 0,
-        roughness: 0.6,
-      });
-    });
-    return m;
-  }, [selected]);
-  const mat = (id: PartId) => mats[id];
-  const s = (id: PartId) => lerp(1, SCALE[id], morph);
-
-  const trunkR = 0.42 * s('trunk');
-  const limbR = s('limb');
-  const head = 0.42 * s('face');
-  const headY = 2.45 + head;
-  const lipsScale = lerp(1, 3.6, morph);
-
-  const shoulderX = 0.32 + trunkR * 0.9;
-  const wrist = (side: 1 | -1): Vec3 => [side * (shoulderX + 0.42), 0.35, 0.05];
-
   return (
-    <group ref={group} position={[0, -0.15, 0]}>
-      {/* 体幹 */}
-      <Capsule from={[0, 0.25, 0]} to={[0, 2.05, 0]} r={trunkR} material={mat('trunk')} />
-      {/* 頭・顔 */}
-      <mesh position={[0, headY, 0]} material={mat('face')}>
-        <sphereGeometry args={[head, 28, 24]} />
-      </mesh>
-      {/* 唇 */}
-      <mesh position={[0, headY - head * 0.42, head * 0.86]} scale={[0.11 * lipsScale, 0.045 * lipsScale, 0.06 * lipsScale]} material={mat('face')}>
-        <sphereGeometry args={[1, 20, 16]} />
-      </mesh>
-      {/* 鼻 */}
-      <mesh position={[0, headY - head * 0.05, head * 0.95]} scale={[0.05 * s('face'), 0.08 * s('face'), 0.06 * s('face')]} material={mat('face')}>
-        <sphereGeometry args={[1, 16, 12]} />
-      </mesh>
-
-      {/* 腕と手 */}
-      {([1, -1] as const).map((side) => (
-        <group key={side}>
-          <Capsule from={[side * shoulderX, 1.95, 0]} to={[side * (shoulderX + 0.28), 1.15, 0.02]} r={0.1 * limbR} material={mat('limb')} />
-          <Capsule from={[side * (shoulderX + 0.28), 1.15, 0.02]} to={wrist(side)} r={0.08 * limbR} material={mat('limb')} />
-          <group position={wrist(side)} scale={s('hand')}>
-            <Hand side={side} material={mat('hand')} />
-          </group>
-        </group>
-      ))}
-
-      {/* 脚と足 */}
-      {([1, -1] as const).map((side) => (
-        <group key={`l${side}`}>
-          <Capsule from={[side * 0.24, 0.2, 0]} to={[side * 0.3, -1.25, 0]} r={0.13 * limbR} material={mat('limb')} />
-          <Capsule from={[side * 0.3, -1.25, 0]} to={[side * 0.32, -2.55, 0]} r={0.1 * limbR} material={mat('limb')} />
-          <group position={[side * 0.32, -2.62, 0.02]} scale={s('foot')}>
-            <mesh position={[0, -0.04, 0.14]} scale={[0.1, 0.06, 0.22]} material={mat('foot')}>
-              <sphereGeometry args={[1, 18, 14]} />
-            </mesh>
-          </group>
-        </group>
-      ))}
+    <group ref={group} scale={3.6}>
+      <primitive object={root} />
     </group>
   );
 }
+
+useGLTF.preload(MODEL_URL);
 
 export function HomunculusLab() {
   const [morph, setMorph] = useState(0);
@@ -278,7 +217,7 @@ export function HomunculusLab() {
         </div>
       </div>
       <p className="neuro-caution">
-        参考: Penfield W, Boldrey E (1937) Brain 60:389-443／Corniani G, Saal HP (2020) Tactile innervation densities across the whole body. J Neurophysiol 124(4):1229-1240／Gordon EM ら (2023) Nature 617:351-359／Di Pietro F ら (2013) J Pain 14(10)（CRPS と一次体性感覚野）／Catley MJ ら (2014) J Pain（慢性痛と触覚の鋭さ）／Graham A ら (2022) 慢性筋骨格系疼痛への感覚識別トレーニングの系統的レビュー／Tong J ら (2013) Front Hum Neurosci（2点の向き当てと従来の2点識別）。図の大きさは説明のための目安で、実際の脳の面積の比率を正確に表すものではありません。
+        参考: Penfield W, Boldrey E (1937) Brain 60:389-443／Corniani G, Saal HP (2020) Tactile innervation densities across the whole body. J Neurophysiol 124(4):1229-1240／Gordon EM ら (2023) Nature 617:351-359／Di Pietro F ら (2013) J Pain 14(10)（CRPS と一次体性感覚野）／Catley MJ ら (2014) J Pain（慢性痛と触覚の鋭さ）／Graham A ら (2022) 慢性筋骨格系疼痛への感覚識別トレーニングの系統的レビュー／Tong J ら (2013) Front Hum Neurosci（2点の向き当てと従来の2点識別）。図の大きさは説明のための目安で、実際の脳の面積の比率を正確に表すものではありません。3Dの人体は MakeHuman（MPFB 2、CC0）で作成しました。
       </p>
     </section>
   );

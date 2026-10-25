@@ -1,0 +1,9 @@
+skeleton.glb（骨格マップの全身骨格モデル）
+
+出典: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan
+https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html
+
+元データ: isa_BP3D_4.0_obj_99（OBJ, 99% reduction）
+改変: 全身の骨・肋軟骨・歯（245部品）だけを抜き出し、Blender で結合・軽量化・座標変換した
+（scripts/skeleton-model/build_skeleton.py、部品の一覧は scripts/skeleton-model/parts.json）。
+この改変モデルも同じ条件（表示・継承）で利用できる。

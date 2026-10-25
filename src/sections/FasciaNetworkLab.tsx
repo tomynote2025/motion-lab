@@ -167,7 +167,7 @@ export function FasciaNetworkLab() {
       </div>
 
       <p className="neuro-caution">
-        参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「高密度化」「全身を多因子的に評価する」方法論を単純化しています。これらは提唱者らによる考え方で、検証はまだ限られています。表示している点は正式なCCマップではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。
+        参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「高密度化」「全身を多因子的に評価する」方法論を単純化しています。これらは提唱者らによる考え方で、検証はまだ限られています。表示している点は正式なCCマップではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。3D骨格: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（抜き出し・軽量化して使用）。
       </p>
     </section>
   );

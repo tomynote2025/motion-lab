@@ -135,6 +135,9 @@ export function BodyMap() {
           )}
         </div>
       </div>
+      <p className="bodymap-credit">
+        3Dモデル: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（骨・肋軟骨・歯を抜き出し、軽量化して使用）
+      </p>
     </section>
   );
 }

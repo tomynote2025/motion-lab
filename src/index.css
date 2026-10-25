@@ -5453,6 +5453,13 @@ body.has-custom-cursor input[type='range'] {
   }
 }
 
+.bodymap-credit {
+  margin-top: 14px;
+  color: var(--faint);
+  font-size: 10.5px;
+  line-height: 1.7;
+}
+
 /* ラボ一覧のグループ */
 .lab-index-list {
   border-top: none;

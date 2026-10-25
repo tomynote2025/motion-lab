@@ -21,7 +21,7 @@ export const REGIONS: Region[] = [
     id: 'neck',
     label: '首・頸椎',
     en: 'NECK',
-    position: [0, 2.42, 0.22],
+    position: [0, 2.58, 0.2],
     summary:
       '頭の重さ約5kgを支える司令塔。スマホ姿勢による頸椎の前方化は、頭痛・眼精疲労・自律神経の乱れまで波及します。',
     signs: ['朝起きると首が重い', 'デスクワーク後の頭痛', '振り向くと詰まり感がある'],
@@ -32,7 +32,7 @@ export const REGIONS: Region[] = [
     id: 'shoulder',
     label: '肩・肩甲帯',
     en: 'SHOULDER',
-    position: [0.78, 2.05, 0.12],
+    position: [0.68, 2.17, 0.12],
     summary:
       '人体で最も可動域が広い関節。その自由度は肩甲骨と胸郭の連動が前提で、土台が崩れると腱板へのストレスが集中します。',
     signs: ['腕を上げると引っかかる', '夜間にズキズキ痛む', '背中に手が回らない'],
@@ -43,7 +43,7 @@ export const REGIONS: Region[] = [
     id: 'elbow',
     label: '肘',
     en: 'ELBOW',
-    position: [0.98, 1.12, 0.12],
+    position: [0.9, 1.13, 0.1],
     summary:
       '肘の痛みの多くは肘自体ではなく、手首の使いすぎと肩の機能低下の「しわ寄せ」。ラケットスポーツや長時間のPC作業で顕在化します。',
     signs: ['物を掴むと外側が痛い', 'タオルを絞ると痛む', 'PC作業後に前腕が張る'],
@@ -54,7 +54,7 @@ export const REGIONS: Region[] = [
     id: 'wrist',
     label: '手首・手',
     en: 'WRIST / HAND',
-    position: [1.1, 0.18, 0.12],
+    position: [0.97, 0.3, 0.12],
     summary:
       '8個の手根骨が織りなす精密機構。腱鞘炎やTFCC損傷は、前腕の回旋機能と握り方のクセを見直すことが回復の鍵になります。',
     signs: ['ドアノブを回すと痛い', '小指側に体重をかけられない', '朝、指がこわばる'],
@@ -65,7 +65,7 @@ export const REGIONS: Region[] = [
     id: 'thoracic',
     label: '胸椎・胸郭',
     en: 'THORACIC',
-    position: [0, 1.75, 0.42],
+    position: [0, 1.89, 0.47],
     summary:
       '呼吸と回旋の中心。胸椎の硬さは肩・首・腰の代償運動を生む「隠れた黒幕」。ここが動けば全身が変わります。',
     signs: ['深呼吸で胸が広がらない', 'ゴルフで回旋が浅い', '猫背を指摘される'],
@@ -76,7 +76,7 @@ export const REGIONS: Region[] = [
     id: 'core',
     label: '体幹・腹圧',
     en: 'CORE / IAP',
-    position: [0, 0.75, 0.4],
+    position: [0, 1.0, 0.42],
     summary:
       '横隔膜・腹横筋・骨盤底筋・多裂筋が作る「天然のコルセット」。腹腔内圧(IAP)のコントロールがすべての動作の土台です。',
     signs: ['腰を反らないと立てない', '重い物を持つのが怖い', 'くしゃみで尿もれがある'],
@@ -87,7 +87,7 @@ export const REGIONS: Region[] = [
     id: 'lumbar',
     label: '腰・腰椎',
     en: 'LUMBAR',
-    position: [0, 0.45, -0.38],
+    position: [0, 0.85, -0.36],
     summary:
       '腰痛の85%は画像で説明できない「非特異的腰痛」。腰そのものより、股関節と胸椎の動きと腹圧の使い方が問われます。',
     signs: ['長く座ると腰が抜けそう', '前屈みで痛みが走る', 'ぎっくり腰を繰り返す'],
@@ -98,7 +98,7 @@ export const REGIONS: Region[] = [
     id: 'hip',
     label: '股関節',
     en: 'HIP',
-    position: [-0.45, -0.18, 0.2],
+    position: [-0.34, 0.28, 0.16],
     summary:
       '体重を受け止め、パワーを生む要。股関節がしゃがむ・ひねるを担えないと、腰と膝が肩代わりして痛めます。',
     signs: ['あぐらがかけない', '歩き始めに脚の付け根が痛い', 'しゃがむと詰まる'],
@@ -109,7 +109,7 @@ export const REGIONS: Region[] = [
     id: 'knee',
     label: '膝',
     en: 'KNEE',
-    position: [-0.47, -1.55, 0.2],
+    position: [-0.31, -1.35, 0.16],
     summary:
       '膝は股関節と足首に挟まれた「中間管理職」。膝痛の多くは上下の関節の機能不全のツケを払っている状態です。',
     signs: ['階段の下りで痛む', '正座ができない', '膝が内側に入ると言われる'],
@@ -120,7 +120,7 @@ export const REGIONS: Region[] = [
     id: 'nutrition',
     label: '栄養・消化',
     en: 'NUTRITION',
-    position: [0, 0.5, 0.46],
+    position: [0, 0.64, 0.44],
     kind: 'system',
     summary:
       '食べたものは分子になり、骨・筋・ホルモン・神経の材料になります。どんなに動きを整えても、材料が足りなければ体は作り替わりません。',
@@ -132,7 +132,7 @@ export const REGIONS: Region[] = [
     id: 'ankle',
     label: '足首・足部',
     en: 'ANKLE / FOOT',
-    position: [-0.47, -2.85, 0.2],
+    position: [-0.27, -2.84, 0.14],
     summary:
       '全身で唯一、地面と接する土台。捻挫の放置や扁平足は、上に積み上がる全関節のアライメントを狂わせます。',
     signs: ['捻挫グセがある', '足裏のアーチが落ちている', 'ふくらはぎが常に張る'],

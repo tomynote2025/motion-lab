@@ -1,25 +1,28 @@
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 
 /**
  * FASCIA NETWORK — 筋膜は全身をつなぐ一枚のシート、を「動き」で体感するモデル。
  *
- * BODY MAP(SkeletonModel.tsx)と同じ色・マテリアル・パーツの組み方(カプセル+球のジョイント)
- * に統一し、サイト全体のトーンから浮かないようにしている。
+ * 骨格は BODY MAP と同じ BodyParts3D の全身骨格（public/models/skeleton.glb）を使い、
+ * 「脚・骨盤・腰椎1〜5・上半身」に分かれたまとまりを回して前屈させる。
  *
  *   1. 選んだポイント(アキレス腱／ハムストリングス／殿筋・腰背部)が高密度化(硬さ)しているほど、
  *      股関節が曲がらず前屈が浅くなる(可動域制限)
- *   2. 股関節が曲がらない分、腰椎が過剰に丸まって代償する → 腰にストレスが集中する(代償による痛みの土台)
+ *   2. 股関節が曲がらない分、腰椎が過剰に丸まって代償する → 腰にストレスが集中する
  *
  * 「下肢後面全体が均等に硬い」という単一パターンにならないよう、線維のラインを3区間に分け、
  * 選んだポイントの区間だけが強く張力を受けるようにしている。
  */
 
+const MODEL_URL = '/models/skeleton.glb';
+
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-// BODY MAP(SkeletonModel.tsx)と完全に同じ配色に統一
+// BODY MAP と同じ配色
 const BONE_COLOR = '#ddd6c4';
 const ACCENT = '#5E8BA8';
 const ACTIVE = '#C0562F';
@@ -27,144 +30,62 @@ const ACTIVE = '#C0562F';
 type Vec3 = [number, number, number];
 export type DensityPointId = 'achilles' | 'hamstring' | 'glute';
 
-export const DENSITY_POINTS: { id: DensityPointId; label: string; at: Vec3; range: [number, number] }[] = [
-  { id: 'achilles', label: 'アキレス腱・ふくらはぎ', at: [0.47, -2.45, 0.16], range: [0, 0.36] },
-  { id: 'hamstring', label: 'ハムストリングス', at: [0.42, -1.05, -0.1], range: [0.3, 0.74] },
-  { id: 'glute', label: '殿筋・腰背部', at: [0.26, -0.12, -0.2], range: [0.68, 1] },
-];
+/** 骨格の座標（BodyParts3D を縮小したもの。前 = +Z、+X = 体の左。後ろ側は -Z） */
+const HIP: Vec3 = [0, 0.277, -0.076]; // 股関節（大腿骨頭）の高さ。骨盤から上はここを軸に回る
+const LUMBAR_BOTTOM = 0.637; // 第5腰椎の下
+const LUMBAR_STEP = 0.136; // 腰椎1つ分の高さ
+const SPINE_Z = -0.113; // 椎体の前後位置
 
-const boneMaterial = new THREE.MeshStandardMaterial({
-  color: BONE_COLOR,
-  roughness: 0.55,
-  metalness: 0.05,
-});
+export const DENSITY_POINTS: { id: DensityPointId; label: string; at: Vec3; range: [number, number]; onPelvis?: boolean }[] = [
+  { id: 'achilles', label: 'アキレス腱・ふくらはぎ', at: [0.27, -2.45, -0.36], range: [0, 0.36] },
+  { id: 'hamstring', label: 'ハムストリングス', at: [0.33, -0.9, -0.29], range: [0.3, 0.74] },
+  { id: 'glute', label: '殿筋・腰背部', at: [0.2, 0.5, -0.36], range: [0.68, 1], onPelvis: true },
+];
 
 function lerpColor(a: string, b: string, t: number) {
   return new THREE.Color(a).lerp(new THREE.Color(b), clamp(t, 0, 1));
 }
 
-function Bone({ from, to, r, material }: { from: Vec3; to: Vec3; r: number; material?: THREE.Material }) {
-  const { pos, quat, len } = useMemo(() => {
-    const a = new THREE.Vector3(...from);
-    const b = new THREE.Vector3(...to);
-    const dir = b.clone().sub(a);
-    const len = Math.max(dir.length() - r * 1.2, 0.05);
-    const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
-    return { pos: a.clone().lerp(b, 0.5), quat, len };
-  }, [from[0], from[1], from[2], to[0], to[1], to[2], r]);
-  return (
-    <mesh position={pos} quaternion={quat} material={material ?? boneMaterial}>
-      <capsuleGeometry args={[r, len, 6, 14]} />
-    </mesh>
-  );
+/** pivot を軸に angle(ラジアン)だけ前へ倒した点 */
+function rotateAround(p: THREE.Vector3, pivot: Vec3, angle: number) {
+  const y = p.y - pivot[1];
+  const z = p.z - pivot[2];
+  return new THREE.Vector3(p.x, pivot[1] + y * Math.cos(angle) - z * Math.sin(angle), pivot[2] + y * Math.sin(angle) + z * Math.cos(angle));
 }
 
-function Joint({ at, r, material }: { at: Vec3; r: number; material?: THREE.Material }) {
+/** pivot を軸に、子どもを angle だけ回すグループ（子どもは骨格の座標のまま置ける） */
+function Pivot({ at, angle, children }: { at: Vec3; angle: number; children: React.ReactNode }) {
   return (
-    <mesh position={at} material={material ?? boneMaterial}>
-      <sphereGeometry args={[r, 18, 18]} />
-    </mesh>
-  );
-}
-
-function Rib({ y, rx }: { y: number; rx: number }) {
-  return (
-    <mesh position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 0.72, 1]} material={boneMaterial}>
-      <torusGeometry args={[rx, 0.045, 10, 40]} />
-    </mesh>
-  );
-}
-
-/** 骨盤・脚(固定、回転しない部分)。座標は BODY MAP と揃えている */
-function LowerBody() {
-  return (
-    <group>
-      <mesh position={[0, 0.05, 0]} rotation={[Math.PI / 2.4, 0, 0]} scale={[1, 0.8, 1]} material={boneMaterial}>
-        <torusGeometry args={[0.42, 0.11, 12, 30]} />
-      </mesh>
-      <mesh position={[0, -0.02, -0.12]} rotation={[0.5, 0, 0]} material={boneMaterial}>
-        <boxGeometry args={[0.26, 0.34, 0.14]} />
-      </mesh>
-
-      <Joint at={[0.45, -0.18, 0]} r={0.14} />
-      <Joint at={[-0.45, -0.18, 0]} r={0.14} />
-      <Bone from={[0.45, -0.18, 0]} to={[0.47, -1.55, 0]} r={0.19} />
-      <Bone from={[-0.45, -0.18, 0]} to={[-0.47, -1.55, 0]} r={0.19} />
-      <Joint at={[0.47, -1.55, 0]} r={0.13} />
-      <Joint at={[-0.47, -1.55, 0]} r={0.13} />
-      <Bone from={[0.47, -1.55, 0]} to={[0.47, -2.85, 0]} r={0.09} />
-      <Bone from={[-0.47, -1.55, 0]} to={[-0.47, -2.85, 0]} r={0.09} />
-      <mesh position={[0.47, -2.98, 0.18]} material={boneMaterial}>
-        <boxGeometry args={[0.22, 0.12, 0.52]} />
-      </mesh>
-      <mesh position={[-0.47, -2.98, 0.18]} material={boneMaterial}>
-        <boxGeometry args={[0.22, 0.12, 0.52]} />
-      </mesh>
+    <group position={at} rotation={[angle, 0, 0]}>
+      <group position={[-at[0], -at[1], -at[2]]}>{children}</group>
     </group>
   );
 }
 
-/** 腰椎(骨盤のすぐ上〜胸郭の下)。ストレスが強いほどオレンジに発光して代償を示す */
-function LumbarSegment({ strain }: { strain: number }) {
+/** 骨格のまとまり（glb のノード名: legs / pelvis / L1〜L5 / upper） */
+function useSkeletonParts() {
+  const { nodes } = useGLTF(MODEL_URL) as unknown as { nodes: Record<string, THREE.Object3D> };
+  return nodes;
+}
+
+/** まとまり1つを描く。材質が複数あるまとまり(上半身など)は、材質ごとのメッシュの集まりになっている */
+function Part({ mesh, material }: { mesh: THREE.Object3D; material?: THREE.Material }) {
+  const meshes = (mesh as THREE.Mesh).isMesh ? [mesh as THREE.Mesh] : (mesh.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[]);
+  return (
+    <>
+      {meshes.map((m) => (
+        <mesh key={m.uuid} geometry={m.geometry} material={material ?? m.material} raycast={() => null} />
+      ))}
+    </>
+  );
+}
+
+/** 腰椎。ストレスが強いほどオレンジに光って代償を示す */
+function useLumbarMaterial(strain: number) {
   const color = lerpColor(BONE_COLOR, ACTIVE, strain);
-  const mat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: strain * 1.2, roughness: 0.5, metalness: 0.05 }),
+  return useMemo(
+    () => new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: strain * 1.1, roughness: 0.5, metalness: 0.05 }),
     [color.getHexString(), strain],
-  );
-  return (
-    <group>
-      {[0.28, 0.52, 0.76, 1.0].map((y, i) => (
-        <mesh key={i} position={[0, y, i < 2 ? -0.04 : 0]} material={mat}>
-          <cylinderGeometry args={[0.13, 0.13, 0.17, 12]} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-/** 胸郭より上(頸椎・胸郭・肩・腕・頭)。座標は BODY MAP と揃えている */
-function UpperBody() {
-  return (
-    <group>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <mesh key={i} position={[0, 1.35 + i * 0.245, i < 3 ? -0.06 : 0]} material={boneMaterial}>
-          <cylinderGeometry args={[0.11, 0.11, 0.15, 12]} />
-        </mesh>
-      ))}
-
-      <Rib y={2.1} rx={0.5} />
-      <Rib y={1.92} rx={0.6} />
-      <Rib y={1.72} rx={0.66} />
-      <Rib y={1.52} rx={0.64} />
-      <Rib y={1.32} rx={0.56} />
-      <mesh position={[0, 1.75, 0.44]} material={boneMaterial}>
-        <boxGeometry args={[0.14, 0.72, 0.06]} />
-      </mesh>
-
-      <mesh position={[0, 2.95, 0]} scale={[0.86, 1, 0.92]} material={boneMaterial}>
-        <sphereGeometry args={[0.46, 24, 24]} />
-      </mesh>
-      <mesh position={[0, 2.6, 0.1]} material={boneMaterial}>
-        <boxGeometry args={[0.34, 0.26, 0.32]} />
-      </mesh>
-
-      <Bone from={[0.1, 2.12, 0.3]} to={[0.78, 2.05, 0]} r={0.05} />
-      <Bone from={[-0.1, 2.12, 0.3]} to={[-0.78, 2.05, 0]} r={0.05} />
-      <Joint at={[0.78, 2.05, 0]} r={0.15} />
-      <Joint at={[-0.78, 2.05, 0]} r={0.15} />
-      <Bone from={[0.78, 2.05, 0]} to={[0.98, 1.12, 0]} r={0.075} />
-      <Bone from={[-0.78, 2.05, 0]} to={[-0.98, 1.12, 0]} r={0.075} />
-      <Joint at={[0.98, 1.12, 0]} r={0.11} />
-      <Joint at={[-0.98, 1.12, 0]} r={0.11} />
-      <Bone from={[0.98, 1.12, 0]} to={[1.1, 0.22, 0.06]} r={0.06} />
-      <Bone from={[-0.98, 1.12, 0]} to={[-1.1, 0.22, 0.06]} r={0.06} />
-      <mesh position={[1.12, 0.02, 0.08]} scale={[1, 1.4, 0.6]} material={boneMaterial}>
-        <sphereGeometry args={[0.12, 14, 14]} />
-      </mesh>
-      <mesh position={[-1.12, 0.02, 0.08]} scale={[1, 1.4, 0.6]} material={boneMaterial}>
-        <sphereGeometry args={[0.12, 14, 14]} />
-      </mesh>
-    </group>
   );
 }
 
@@ -219,23 +140,23 @@ function DensityHotspot({
   );
 }
 
-/** ハムストリングスライン全体の経路(足首 → 坐骨) */
+/** ハムストリングスのライン（かかと → ふくらはぎ → ひざ裏 → 太もも裏 → 坐骨 → 殿部） */
 const HAM_LINE_POINTS: Vec3[] = [
-  [0.47, -2.85, 0.2],
-  [0.47, -2.2, 0.0],
-  [0.47, -1.5, -0.08],
-  [0.46, -0.75, -0.14],
-  [0.3, -0.05, -0.2],
+  [0.265, -2.8, -0.4],
+  [0.29, -2.05, -0.33],
+  [0.31, -1.28, -0.25],
+  [0.32, -0.52, -0.28],
+  [0.2, 0.13, -0.24],
+  [0.17, 0.52, -0.34],
 ];
-const BASE_CURVE = new THREE.CatmullRomCurve3(HAM_LINE_POINTS.map((p) => new THREE.Vector3(...p)));
 const FIBER_COUNT = 4;
 const FIBER_SEGMENTS = 24;
 
-function segmentCurve(range: [number, number]) {
+function segmentCurve(base: THREE.CatmullRomCurve3, range: [number, number]) {
   const steps = 16;
   const pts: THREE.Vector3[] = [];
   for (let i = 0; i <= steps; i++) {
-    pts.push(BASE_CURVE.getPoint(lerp(range[0], range[1], i / steps)));
+    pts.push(base.getPoint(lerp(range[0], range[1], i / steps)));
   }
   return new THREE.CatmullRomCurve3(pts);
 }
@@ -284,11 +205,22 @@ function ElasticFiber({ curve, tension, angle, phase }: { curve: THREE.CatmullRo
 
 /** 3区間(アキレス腱／ハムストリングス／殿筋)に分けたライン。
  * 選んだ区間だけ強く張力を受け、それ以外はほぼ健康な状態のままにする。 */
-function HamstringLine({ selectedPoint, tension }: { selectedPoint: DensityPointId; tension: number }) {
+function HamstringLine({ selectedPoint, tension, hipAngle }: { selectedPoint: DensityPointId; tension: number; hipAngle: number }) {
+  // 坐骨より上（骨盤についている端）は、前屈で骨盤と一緒に動く
+  const base = useMemo(
+    () =>
+      new THREE.CatmullRomCurve3(
+        HAM_LINE_POINTS.map((p, i) => {
+          const v = new THREE.Vector3(...p);
+          return i >= HAM_LINE_POINTS.length - 2 ? rotateAround(v, HIP, hipAngle) : v;
+        }),
+      ),
+    [hipAngle],
+  );
   return (
     <group>
       {DENSITY_POINTS.map((point) => {
-        const curve = segmentCurve(point.range);
+        const curve = segmentCurve(base, point.range);
         const segTension = point.id === selectedPoint ? tension : tension * 0.1;
         return (
           <group key={point.id}>
@@ -325,9 +257,6 @@ function JointLimitRing({ at, intensity }: { at: Vec3; intensity: number }) {
   );
 }
 
-const HIP_Y = 0.05; // 股関節(骨盤の位置、BODY MAPと同じ)
-const LUMBAR_TOP_Y = 1.1; // 腰椎の上端(胸郭の下、代償の回転軸)
-
 export function FasciaNetworkModel({
   densification,
   bendProgress,
@@ -342,6 +271,7 @@ export function FasciaNetworkModel({
   selectedPoint: DensityPointId;
   onSelectPoint: (id: DensityPointId) => void;
 }) {
+  const nodes = useSkeletonParts();
   const maxHipDeg = lerp(80, 22, densification);
   const maxLumbarDeg = lerp(5, 38, densification);
 
@@ -351,30 +281,52 @@ export function FasciaNetworkModel({
   const tension = clamp(bendProgress * (0.3 + densification * 0.7), 0, 1);
   const lumbarStrain = clamp((lumbarAngle / ((38 * Math.PI) / 180)) * bendProgress, 0, 1);
   const hipLimitHit = clamp((bendProgress - 0.25) / 0.75, 0, 1) * densification;
+  const lumbarMat = useLumbarMaterial(lumbarStrain);
+
+  // 腰椎は5つに分けて少しずつ曲げる（下の第5腰椎から順に積み重ねる）
+  const seg = lumbarAngle / 5;
+  const pivotAt = (i: number): Vec3 => [0, LUMBAR_BOTTOM + LUMBAR_STEP * i, SPINE_Z];
+  const fixedPoints = DENSITY_POINTS.filter((p) => !p.onPelvis);
+  const pelvisPoints = DENSITY_POINTS.filter((p) => p.onPelvis);
 
   return (
-    <group rotation={[0, 0.5, 0]} position={[0, 0.15, 0]}>
-      <LowerBody />
-      <JointLimitRing at={[0.45, -0.18, 0]} intensity={hipLimitHit} />
-      <JointLimitRing at={[-0.45, -0.18, 0]} intensity={hipLimitHit} />
+    <group rotation={[0, 0.5, 0]} position={[0, -0.1, 0]}>
+      <Part mesh={nodes.legs} />
+      <JointLimitRing at={[0.333, HIP[1], HIP[2]]} intensity={hipLimitHit} />
+      <JointLimitRing at={[-0.333, HIP[1], HIP[2]]} intensity={hipLimitHit} />
 
-      {DENSITY_POINTS.map((point) => (
+      {fixedPoints.map((point) => (
         <DensityHotspot key={point.id} point={point} active={selectedPoint === point.id} onSelect={onSelectPoint} />
       ))}
 
-      <group position={[0, HIP_Y, 0]} rotation={[hipAngle, 0, 0]}>
-        <group position={[0, -HIP_Y, 0]}>
-          <LumbarSegment strain={lumbarStrain} />
+      <Pivot at={HIP} angle={hipAngle}>
+        <Part mesh={nodes.pelvis} />
+        {pelvisPoints.map((point) => (
+          <DensityHotspot key={point.id} point={point} active={selectedPoint === point.id} onSelect={onSelectPoint} />
+        ))}
+        <Pivot at={pivotAt(0)} angle={seg}>
+          <Part mesh={nodes.L5} material={lumbarMat} />
+          <Pivot at={pivotAt(1)} angle={seg}>
+            <Part mesh={nodes.L4} material={lumbarMat} />
+            <Pivot at={pivotAt(2)} angle={seg}>
+              <Part mesh={nodes.L3} material={lumbarMat} />
+              <Pivot at={pivotAt(3)} angle={seg}>
+                <Part mesh={nodes.L2} material={lumbarMat} />
+                <Pivot at={pivotAt(4)} angle={seg}>
+                  <Part mesh={nodes.L1} material={lumbarMat} />
+                  <Pivot at={pivotAt(5)} angle={seg}>
+                    <Part mesh={nodes.upper} />
+                  </Pivot>
+                </Pivot>
+              </Pivot>
+            </Pivot>
+          </Pivot>
+        </Pivot>
+      </Pivot>
 
-          <group position={[0, LUMBAR_TOP_Y, 0]} rotation={[lumbarAngle, 0, 0]}>
-            <group position={[0, -LUMBAR_TOP_Y, 0]}>
-              <UpperBody />
-            </group>
-          </group>
-        </group>
-      </group>
-
-      <HamstringLine selectedPoint={selectedPoint} tension={tension} />
+      <HamstringLine selectedPoint={selectedPoint} tension={tension} hipAngle={hipAngle} />
     </group>
   );
 }
+
+useGLTF.preload(MODEL_URL);

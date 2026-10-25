@@ -1,3 +1,17 @@
+## 2026-10-26 Claude → ユーザー｜見た目の改善（優先度・高の4つ）
+- 状態: 未着手
+- やったこと:
+  - 数字が測定値に見える表示をやめ、言葉の目安に（筋膜のつながり・筋膜の層・加工食品の影響。腹圧は前回対応済み）
+  - 始める前の画面に見本を表示（骨格マップは最初から「腰」を選択／左右判断は見本の画像／呼吸は円がゆっくり動く／眼と反応は光点の動きの見本）
+  - ラボをページごとに分けた（/lab/ラボ名）。上に「← 体験ラボ一覧」とグループ内の位置、下に前後のラボへのリンク。ページの題名もラボごと。以前の /lab#balance などは自動で新しいページへ移る。各ラボは開いたときに読み込む（最初の読み込みが軽くなった）
+  - 人体の見た目を統一:
+    - 骨格マップと筋膜のつながり → BodyParts3D の全身骨格（public/models/skeleton.glb、1.7MB）。筋膜のつながりは「脚・骨盤・腰椎5個・上半身」を回して前屈し、骨盤と一緒に坐骨側のラインも動く
+    - 脳の中の体の地図 → MakeHuman の人体（public/models/homunculus.glb、2.3MB）。実際の体と脳の中の体の2つの形の間で変形し、選んだ部位だけ色が変わる
+  - 作り方は scripts/skeleton-model/・scripts/homunculus-model/ の README、出典は public/models/*.ATTRIBUTION.txt と各ラボの注記
+- 次にやること: 画面を確認 → GitHub Desktop で push
+- 注意点: 骨格マップの光る点の位置（src/data/regions.ts）は新しい骨格に合わせて変えた。QRコードは /lab/balance・/lab/proprioception を指すように作り直した
+- 関連ファイル: src/pages/LabDetailPage.tsx, src/pages/LabPage.tsx, src/three/SkeletonModel.tsx, src/three/FasciaNetworkModel.tsx, src/sections/HomunculusLab.tsx, public/models/, scripts/skeleton-model/, scripts/homunculus-model/
+
 ## 2026-10-24 Claude → ユーザー｜全体の分かりにくい所を直した（ラボの並び・名前・見出しの統一）
 - 状態: 未着手
 - やったこと:
