@@ -8,11 +8,11 @@ export function OpenOnPhone({ id, text }: { id: string; text: string }) {
   if (!isDesktop) return null;
   return (
     <div className="open-on-phone">
-      <img src={`/images/qr/${id}.svg`} alt={`スマホでこのラボを開くQRコード（lab.health-football.com/lab#${id}）`} width={104} height={104} />
+      <img src={`/images/qr/${id}.svg`} alt={`スマホでこのラボを開くQRコード（lab.health-football.com/lab/${id}）`} width={104} height={104} />
       <div>
         <b>スマホで開いてください</b>
         <p>{text}</p>
-        <small>lab.health-football.com/lab#{id}</small>
+        <small>lab.health-football.com/lab/{id}</small>
       </div>
     </div>
   );

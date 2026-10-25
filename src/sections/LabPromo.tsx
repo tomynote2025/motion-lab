@@ -24,7 +24,7 @@ export function LabPromo() {
             <div key={g.id}>
               <div className="lab-promo-group">{g.title}</div>
               {LABS.filter((l) => l.group === g.id).map((l) => (
-                <Link key={l.id} to={`/lab#${l.id}`} className="lab-promo-item">
+                <Link key={l.id} to={`/lab/${l.id}`} className="lab-promo-item">
                   <span className="lab-promo-n">{labNo(l.id)}</span>
                   <div>
                     <b>{l.title}</b>

@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route, Link, NavLink } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import { HomePage } from './pages/HomePage';
 import { LabPage } from './pages/LabPage';
+import { LabDetailPage } from './pages/LabDetailPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { PersonalTrainingPage } from './pages/PersonalTrainingPage';
 import { PersonalTrainingApplyPage } from './pages/PersonalTrainingApplyPage';
@@ -14,9 +16,19 @@ import {
 import { CustomCursor } from './components/CustomCursor';
 import { BLOG_BASE } from './data/blogLinks';
 
+/** ラボ以外のページでは、題名を元に戻す（ラボのページは各ページで設定する） */
+function DefaultTitle() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (!pathname.startsWith('/lab')) document.title = 'Be:come｜からだの実験室';
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <DefaultTitle />
       <CustomCursor />
       <nav className="nav">
         <Link to="/" className="nav-logo">
@@ -36,6 +48,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/lab" element={<LabPage />} />
+          <Route path="/lab/:id" element={<LabDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/personal-training" element={<PersonalTrainingPage />} />
           <Route path="/personal-training/apply" element={<PersonalTrainingApplyPage />} />
