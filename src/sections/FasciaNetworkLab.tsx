@@ -58,7 +58,10 @@ export function FasciaNetworkLab() {
 
   // 見た目の指標(スライダーと連動する説明用の数値)
   const romPct = Math.round(lerpPct(78, 20, densification));
-  const stressPct = Math.round(densification * 100);
+  // 数字だと測定値に見えるので、状態は言葉で示す
+  const glideWord = densification < 0.25 ? 'なめらか' : densification < 0.55 ? 'やや硬い' : '硬い';
+  const bendWord = romPct >= 60 ? '股関節' : romPct >= 40 ? '股関節＋腰' : '腰が多め';
+  const resistWord = densification < 0.25 ? '弱' : densification < 0.55 ? '中' : '強';
 
   const verdict = bent
     ? densification > 0.55
@@ -135,8 +138,8 @@ export function FasciaNetworkLab() {
           </button>
 
           <div className="iap-gauges">
-            <Gauge value={1 - densification} label="モデル上の滑走性" display={`${Math.round((1 - densification) * 100)}`} unit="%" color="#86B98C" />
-            <Gauge value={romPct / 100} label="モデル上の運動配分" display={`${romPct}`} unit="%" color="#5E8BA8" />
+            <Gauge value={1 - densification} label="層の滑り（モデル）" display={glideWord} color="#86B98C" />
+            <Gauge value={romPct / 100} label="前屈で主に動く所" display={bendWord} color="#5E8BA8" />
           </div>
 
           <label className="slider-row">
@@ -152,7 +155,7 @@ export function FasciaNetworkLab() {
               disabled={bending}
               onChange={(e) => setDensification(+e.target.value)}
             />
-            <span className="slider-val">{stressPct}%</span>
+            <span className="slider-val">{resistWord}</span>
           </label>
 
           <div className="fascia-note">
@@ -174,7 +177,7 @@ function lerpPct(a: number, b: number, t: number) {
   return a + (b - a) * clamp(t, 0, 1);
 }
 
-function Gauge({ value, label, display, unit, color }: { value: number; label: string; display: string; unit: string; color: string }) {
+function Gauge({ value, label, display, color }: { value: number; label: string; display: string; color: string }) {
   const circ = 2 * Math.PI * 52;
   const v = clamp(value, 0, 1);
   return (
@@ -193,11 +196,11 @@ function Gauge({ value, label, display, unit, color }: { value: number; label: s
           strokeDashoffset={circ * (1 - v)}
           transform="rotate(-90 60 60)"
         />
-        <text x="60" y="56" textAnchor="middle" className="gauge-num" fill="#1B1B17">
+        <text x="60" y="62" textAnchor="middle" className={display.length > 4 ? 'gauge-word gauge-word-sm' : 'gauge-word'} fill="#1B1B17">
           {display}
         </text>
-        <text x="60" y="76" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
-          {unit}
+        <text x="60" y="80" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
+          目安
         </text>
       </svg>
       <span>{label}</span>

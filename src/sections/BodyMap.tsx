@@ -8,7 +8,8 @@ import { linksByPart, blogUrl, formatDate, BLOG_BASE } from '../data/blogLinks';
 const SYSTEM_REGIONS = REGIONS.filter((r) => r.kind === 'system');
 
 export function BodyMap() {
-  const [selected, setSelected] = useState<string | null>(null);
+  // 右の欄が空にならないよう、最初は相談の多い「腰」を選んでおく
+  const [selected, setSelected] = useState<string | null>('lumbar');
   const region = REGIONS.find((r) => r.id === selected) ?? null;
   const related = region ? linksByPart(region.id) : [];
 

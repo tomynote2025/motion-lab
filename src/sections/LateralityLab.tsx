@@ -355,7 +355,12 @@ export function LateralityLab() {
             {phase === 'stimulus' && trial && <Stimulus trial={trial} />}
             {phase === 'fixation' && <div className="lr-fixation">+</div>}
             {phase === 'feedback' && <div className={`lr-feedback ${lastFeedback ? 'ok' : 'ng'}`}>{lastFeedback ? '○' : '×'}</div>}
-            {phase === 'intro' && <div className="lr-idle">画像が表示されたら<br />左右のボタン（または ← / → キー）で答えます</div>}
+            {phase === 'intro' && (
+              <div className="lr-idle lr-idle-sample">
+                <img src={def.stims[0].src} alt="" draggable={false} />
+                <span>例：この画像なら「{def.left}」</span>
+              </div>
+            )}
           </div>
 
           <div className="lr-answer">

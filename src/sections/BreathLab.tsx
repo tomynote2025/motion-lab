@@ -84,9 +84,13 @@ export function BreathLab() {
             <b>{running ? (inhaling ? '鼻から、ゆっくり吸う' : 'ゆっくり、吐く') : '「はじめる」で開始'}</b>
           </div>
           <div className="breath-center">
-            <div className="breath-ring" style={{ transform: `scale(${0.45 + lung * 0.55})` }} />
+            {running ? (
+              <div className="breath-ring" style={{ transform: `scale(${0.45 + lung * 0.55})` }} />
+            ) : (
+              <div className="breath-ring breath-ring-idle" style={{ animationDuration: `${cycle}s` }} />
+            )}
             <div className="breath-label">
-              <b>{running ? (inhaling ? '吸う' : '吐く') : '—'}</b>
+              <b>{running ? (inhaling ? '吸う' : '吐く') : '見本'}</b>
               <span>{running ? secLeft : `1分${Math.round(rate)}回`}</span>
             </div>
           </div>

@@ -134,9 +134,16 @@ function SaccadeTest() {
       </div>
       <div className="saccade-field">
         {phase === 'idle' && (
-          <button className="start-btn" onClick={start}>
-            テスト開始
-          </button>
+          <div className="neuro-idle">
+            <div className="neuro-idle-demo" aria-hidden="true">
+              <span className="neuro-idle-cross">+</span>
+              <span className="neuro-idle-dot saccade" />
+            </div>
+            <p>「＋」のあと、どこかに光点が出ます。見つけたら、すぐにタップ（クリック）します。</p>
+            <button className="start-btn" onClick={start}>
+              テスト開始
+            </button>
+          </div>
         )}
         {phase === 'wait' && <div className="saccade-fixation">+</div>}
         {phase === 'target' && (
@@ -268,6 +275,14 @@ function PursuitTest() {
           <canvas ref={canvasRef} className="pursuit-canvas" />
         ) : (
           <div className="lab-result">
+            {result === null && (
+              <div className="neuro-idle">
+                <div className="neuro-idle-demo" aria-hidden="true">
+                  <span className="neuro-idle-dot pursuit" />
+                </div>
+                <p>ゆっくり動く光点に、カーソル（指）を重ね続けます。頭は動かさず、目で追いながら操作します。</p>
+              </div>
+            )}
             {result !== null && (
               <>
                 <div className="result-big">{result}%</div>

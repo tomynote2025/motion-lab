@@ -325,11 +325,15 @@ function ProcessedLab() {
 
   const peak = Math.round(90 + (30 + 60 * proc)); // おおよそのピーク
   const cursorH = 3 * animT;
-  const cursorG = Math.round(glucose(Math.min(cursorH, 3), proc));
 
   const diversity = Math.round(90 - 55 * proc); // 腸内細菌の多様性
   const inflammation = Math.round(12 + 73 * proc); // 慢性炎症リスク
   const satiety = (3.2 - 2.1 * proc).toFixed(1); // 満腹感の持続(時間)
+  // 説明用モデルの値なので、測定値に見える数字ではなく言葉で示す
+  const peakWord = peak < 130 ? 'ゆるやか' : peak < 155 ? 'やや高め' : '高め';
+  const diversityWord = diversity > 60 ? '多い' : diversity > 40 ? '中くらい' : '少ない';
+  const satietyWord = +satiety > 2.4 ? '長い' : +satiety > 1.6 ? '中くらい' : '短い';
+  const inflammationWord = inflammation < 35 ? '低い' : inflammation < 60 ? '中くらい' : '高い';
 
   const gaugeCirc = 2 * Math.PI * 52;
 
@@ -374,7 +378,7 @@ function ProcessedLab() {
           <circle cx={xForH(Math.min(cursorH, 3))} cy={yForG(glucose(Math.min(cursorH, 3), proc))} r="5" fill="#EFEADC" />
 
           <text x={x1} y="30" textAnchor="end" fontSize="12" fontWeight="700" fill="#EFEADC">
-            {cursorG} mg/dL
+            血糖の上がり方（モデル）
           </text>
           <text x={x1} y="266" textAnchor="end" fontSize="10" fill="#86B98C" opacity="0.7">
             ---- 未加工食
@@ -388,24 +392,24 @@ function ProcessedLab() {
             <svg viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="52" fill="none" stroke="#E6E1D2" strokeWidth="10" />
               <circle cx="60" cy="60" r="52" fill="none" stroke={proc > 0.55 ? '#C0562F' : '#86B98C'} strokeWidth="10" strokeLinecap="round" strokeDasharray={gaugeCirc} strokeDashoffset={gaugeCirc * (1 - clamp((peak - 90) / 100, 0, 1))} transform="rotate(-90 60 60)" />
-              <text x="60" y="56" textAnchor="middle" className="gauge-num" fill="#1B1B17">
-                {peak}
+              <text x="60" y="62" textAnchor="middle" className="gauge-word" fill="#1B1B17">
+                {peakWord}
               </text>
-              <text x="60" y="76" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
-                mg/dL
+              <text x="60" y="80" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
+                目安
               </text>
             </svg>
-            <span>血糖ピーク</span>
+            <span>食後の血糖の山</span>
           </div>
           <div className="gauge">
             <svg viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="52" fill="none" stroke="#E6E1D2" strokeWidth="10" />
               <circle cx="60" cy="60" r="52" fill="none" stroke={diversity > 55 ? '#86B98C' : '#C0562F'} strokeWidth="10" strokeLinecap="round" strokeDasharray={gaugeCirc} strokeDashoffset={gaugeCirc * (1 - diversity / 100)} transform="rotate(-90 60 60)" />
-              <text x="60" y="56" textAnchor="middle" className="gauge-num" fill="#1B1B17">
-                {diversity}
+              <text x="60" y="62" textAnchor="middle" className="gauge-word" fill="#1B1B17">
+                {diversityWord}
               </text>
-              <text x="60" y="76" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
-                %
+              <text x="60" y="80" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
+                目安
               </text>
             </svg>
             <span>腸内細菌の多様性</span>
@@ -413,8 +417,8 @@ function ProcessedLab() {
         </div>
 
         <div className="nutri-bars">
-          <MiniBar label="満腹感の持続" value={`${satiety} h`} pct={clamp((+satiety / 3.2) * 100, 0, 100)} color="#5E8BA8" />
-          <MiniBar label="慢性炎症リスク" value={`${inflammation}%`} pct={inflammation} color="#C0562F" />
+          <MiniBar label="満腹感の続きやすさ" value={satietyWord} pct={clamp((+satiety / 3.2) * 100, 0, 100)} color="#5E8BA8" />
+          <MiniBar label="炎症に傾きやすさ" value={inflammationWord} pct={inflammation} color="#C0562F" />
         </div>
 
         <label className="slider-row">

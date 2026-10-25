@@ -906,6 +906,10 @@ h4 {
   font-weight: 700;
 }
 
+.gauge-word-sm {
+  font-size: 14px;
+}
+
 .slider-row {
   display: grid;
   /* ラベルは折り返さない（「横隔膜の下／降」のような改行を防ぐ） */
@@ -5327,6 +5331,126 @@ body.has-custom-cursor input[type='range'] {
   font-family: var(--font-en);
   font-size: 10.5px;
   word-break: break-all;
+}
+
+/* 始める前の見本表示 */
+.breath-ring-idle {
+  transform: scale(0.45);
+  animation: breathIdle 10s ease-in-out infinite;
+}
+
+@keyframes breathIdle {
+  0%,
+  100% {
+    transform: scale(0.45);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+
+.lr-idle-sample {
+  align-content: center;
+  gap: 10px;
+}
+
+.lr-idle-sample img {
+  width: min(52%, 220px);
+  margin: 0 auto;
+  opacity: 0.55;
+}
+
+.lr-idle-sample span {
+  font-size: 12.5px;
+  color: rgba(239, 234, 220, 0.75);
+}
+
+.neuro-idle {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  max-width: 420px;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.neuro-idle p {
+  color: var(--stage-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.neuro-idle-demo {
+  position: relative;
+  width: 220px;
+  height: 110px;
+  border: 1px dashed var(--stage-line);
+  border-radius: 12px;
+}
+
+.neuro-idle-cross {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  color: var(--stage-text);
+  font-size: 22px;
+}
+
+.neuro-idle-dot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #5e8ba8;
+  box-shadow: 0 0 0 6px rgba(94, 139, 168, 0.25);
+}
+
+.neuro-idle-dot.saccade {
+  animation: saccadeIdle 2.4s steps(1) infinite;
+}
+
+@keyframes saccadeIdle {
+  0% {
+    left: 18%;
+    top: 22%;
+    opacity: 0;
+  }
+  25% {
+    left: 18%;
+    top: 22%;
+    opacity: 1;
+  }
+  50% {
+    left: 74%;
+    top: 62%;
+    opacity: 0;
+  }
+  75% {
+    left: 74%;
+    top: 62%;
+    opacity: 1;
+  }
+}
+
+.neuro-idle-dot.pursuit {
+  offset-path: path('M20,55 C60,5 160,105 200,55 C160,5 60,105 20,55');
+  animation: pursuitIdle 5s linear infinite;
+  left: 0;
+  top: 0;
+}
+
+@keyframes pursuitIdle {
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breath-ring-idle,
+  .neuro-idle-dot {
+    animation: none;
+  }
 }
 
 /* ラボ一覧のグループ */

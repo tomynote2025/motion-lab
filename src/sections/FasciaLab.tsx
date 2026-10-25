@@ -176,6 +176,8 @@ function SuperficialLab() {
 
   const stretchPct = Math.round((Math.abs(disp) / maxD) * 100);
   const recoilPct = Math.round(elast * 100);
+  const recoilWord = elast > 0.66 ? 'よく戻る' : elast > 0.4 ? 'ふつう' : '戻りにくい';
+  const stretchWord = stretchPct > 66 ? '大きい' : stretchPct > 33 ? '中くらい' : '小さい';
 
   const verdict =
     elast > 0.66
@@ -219,8 +221,8 @@ function SuperficialLab() {
         </button>
 
         <div className="iap-gauges">
-          <Gauge value={elast} label="弾性(戻る力)" display={`${recoilPct}`} unit="%" color="#86B98C" />
-          <Gauge value={Math.abs(disp) / maxD} label="皮膚の滑走" display={`${stretchPct}`} unit="%" color="#5E8BA8" />
+          <Gauge value={elast} label="戻る力（弾性）" display={recoilWord} color="#86B98C" />
+          <Gauge value={Math.abs(disp) / maxD} label="皮膚の滑り" display={stretchWord} color="#5E8BA8" />
         </div>
 
         <label className="slider-row">
@@ -347,8 +349,9 @@ function DeepLab() {
 
   const visc = Math.max(0.05, dens * (1 - 0.78 * warmth)); // 実効的なHA粘度
   const glide = 1 - visc; // 滑走性 0..1
-  const glidePct = Math.round(glide * 100);
   const romPct = Math.round(45 + glide * 55);
+  const glideWord = glide > 0.66 ? 'なめらか' : glide > 0.4 ? 'やや硬い' : '硬い';
+  const romWord = romPct > 80 ? '広い' : romPct > 65 ? 'やや狭い' : '狭い';
   const playing = demoPhase === 'playing';
 
   const startDemo = () => {
@@ -422,8 +425,8 @@ function DeepLab() {
         </button>
 
         <div className="iap-gauges">
-          <Gauge value={glide} label="層間の滑走性" display={`${glidePct}`} unit="%" color={visc > 0.5 ? '#C0562F' : '#86B98C'} />
-          <Gauge value={romPct / 100} label="可動域(ROM)" display={`${romPct}`} unit="%" color="#5E8BA8" />
+          <Gauge value={glide} label="層どうしの滑り" display={glideWord} color={visc > 0.5 ? '#C0562F' : '#86B98C'} />
+          <Gauge value={romPct / 100} label="動く範囲（可動域）" display={romWord} color="#5E8BA8" />
         </div>
 
         <label className="slider-row">
@@ -463,7 +466,7 @@ function DeepLab() {
 
 /* =============== 共有:円ゲージ =============== */
 
-function Gauge({ value, label, display, unit, color }: { value: number; label: string; display: string; unit: string; color: string }) {
+function Gauge({ value, label, display, color }: { value: number; label: string; display: string; color: string }) {
   const circ = 2 * Math.PI * 52;
   const v = clamp(value, 0, 1);
   return (
@@ -482,11 +485,11 @@ function Gauge({ value, label, display, unit, color }: { value: number; label: s
           strokeDashoffset={circ * (1 - v)}
           transform="rotate(-90 60 60)"
         />
-        <text x="60" y="56" textAnchor="middle" className="gauge-num" fill="#1B1B17">
+        <text x="60" y="62" textAnchor="middle" className={display.length > 4 ? 'gauge-word gauge-word-sm' : 'gauge-word'} fill="#1B1B17">
           {display}
         </text>
-        <text x="60" y="76" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
-          {unit}
+        <text x="60" y="80" textAnchor="middle" className="gauge-unit" fill="#7E8F84">
+          目安
         </text>
       </svg>
       <span>{label}</span>
