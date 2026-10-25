@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
 import { OpenOnPhone } from '../components/OpenOnPhone';
+import { InsightResult, Predict, readPrevious, savePrevious } from '../components/Insight';
 
 /**
  * BALANCE LAB — スマホでふらつき測定(目を開けて/閉じて)
@@ -10,7 +11,9 @@ import { OpenOnPhone } from '../components/OpenOnPhone';
  *  - 目を閉じると視覚の手がかりがなくなり、足裏などの感覚と平衡感覚でバランスをとる(Romberg の考え方)。
  *  - スマホや加速度計での静止立位の揺れの測定は、小規模な研究で一定の信頼性・妥当性が示されている
  *    (例: 無線加速度計で開眼/閉眼・硬い床/柔らかい床の差を検出、ICC 0.74〜0.97)。ただし研究の質は低〜中程度。
- *  - スマホでの基準値はないため、同じ人の「開眼と閉眼の比較」だけを示す。
+ *  - スマホでの基準値はないため、同じ人の「開眼と閉眼の比較」を示す。目安の帯は、床に置く測定板で
+ *    健康な18〜40歳144人を測った研究(Silva ら 2012, Rev Bras Eng Biomed 28(4))の、閉眼/開眼の揺れの速さの比
+ *    (平均 約1.67倍、95%範囲 約0.85〜2.67倍)。測り方が違うので「目安」として出し、判定はしない。
  */
 
 type Phase = 'intro' | 'countdown1' | 'open' | 'countdown2' | 'closed' | 'result' | 'unsupported' | 'denied';
@@ -45,6 +48,9 @@ export function BalanceLab() {
   const [remain, setRemain] = useState(0);
   const [trace, setTrace] = useState<number[]>([]);
   const [result, setResult] = useState<{ open: number; closed: number } | null>(null);
+  // 測る前の予想（undefined = まだ / null = 予想しない）と、前回の結果
+  const [prediction, setPrediction] = useState<number | null | undefined>(undefined);
+  const [previous, setPrevious] = useState<number | null>(null);
   const phaseRef = useRef<Phase>('intro');
   const phaseStart = useRef(0);
   const samples = useRef<{ open: number[]; closed: number[] }>({ open: [], closed: [] });
@@ -108,6 +114,9 @@ export function BalanceLab() {
           beep(audio.current, 520, 3);
           const r = { open: rms(samples.current.open), closed: rms(samples.current.closed) };
           setResult(r);
+          const q = r.closed / r.open;
+          setPrevious(readPrevious('balance-ratio'));
+          if (Number.isFinite(q)) savePrevious('balance-ratio', q);
           setP('result');
         }
         return;
@@ -156,6 +165,11 @@ export function BalanceLab() {
     setP('intro');
   };
 
+  // 「もう一度」で予想を消したら、測定前の画面に戻す
+  useEffect(() => {
+    if (prediction === undefined && phase === 'result') setP('intro');
+  }, [prediction, phase]);
+
   const running = phase === 'countdown1' || phase === 'open' || phase === 'countdown2' || phase === 'closed';
   const ratio = result ? result.closed / result.open : NaN;
   const maxBar = result ? Math.max(result.open, result.closed) : 1;
@@ -174,8 +188,8 @@ export function BalanceLab() {
       <LabHead
         id="balance"
         lead="立っているとき、体は目（視覚）・足裏などの感覚・耳の奥の平衡感覚を組み合わせてバランスをとっています。目を閉じると視覚の手がかりがなくなり、残りの感覚だけで立つことになります。スマホの動きセンサーで、その違いを比べます。"
-        steps="スマホを両手で胸の中央に当てて立ち、「はじめる」。目を開けて20秒、音の合図で目を閉じて20秒、そのまま静かに立ちます。"
-        read="目を閉じたときの揺れが、開けたときの何倍かが出ます。目を閉じると揺れが増えるのはふつうの反応です。数字は、同じ人が同じやり方でくり返し比べるための目安です。"
+        steps="まず、目を閉じると揺れが何倍になるかを予想します。次にスマホを両手で胸の中央に当てて立ち、「はじめる」。目を開けて20秒、音の合図で目を閉じて20秒、そのまま静かに立ちます。"
+        read="目を閉じたときの揺れが、開けたときの何倍かが出ます。予想と並べ、研究で報告されている健康な成人の幅（帯）のどこに入るかに印を付けます。良い悪いの判定ではありません。"
       />
 
       <div className="position-notice bal-safety">
@@ -225,26 +239,52 @@ export function BalanceLab() {
           {!running && phase !== 'result' && (
             <OpenOnPhone id="balance" text="この測定はスマホの動きセンサーを使うため、パソコンでは測れません。スマホのカメラでQRコードを読み取ってください。" />
           )}
+          {!running && phase !== 'result' && (
+            <Predict
+              question="目を閉じると、揺れは何倍になると思いますか？"
+              hint="1.0倍なら「変わらない」。目を開けているときの揺れと比べた大きさで予想します。"
+              min={1}
+              max={4}
+              step={0.1}
+              initial={1.5}
+              format={fmtRatio}
+              value={prediction}
+              onChange={setPrediction}
+            />
+          )}
           {running ? (
             <button className="lr-sub-btn" onClick={stop}>中止する</button>
           ) : (
-            <button className="start-btn position-main-btn" onClick={start}>
-              {phase === 'result' ? 'もう一度測る' : 'はじめる（約50秒）'}
+            <button
+              className="start-btn position-main-btn"
+              onClick={() => {
+                if (phase === 'result') setPrediction(undefined);
+                else start();
+              }}
+            >
+              {phase === 'result' ? 'もう一度（予想からやり直す）' : 'はじめる（約50秒）'}
             </button>
           )}
 
           {phase === 'result' && result && Number.isFinite(ratio) && (
-            <div className="position-result">
-              <span>目を閉じたときの揺れ ÷ 目を開けたときの揺れ</span>
-              <strong>{ratio.toFixed(1)}<small> 倍</small></strong>
-              <p>
-                {ratio < 1.2
-                  ? '目を閉じても、揺れはあまり変わりませんでした。'
-                  : ratio < 2
-                    ? '目を閉じると、揺れが少し大きくなりました。視覚の手がかりがなくなると揺れが増えるのは、ふつうの反応です。'
-                    : '目を閉じると、揺れがかなり大きくなりました。立つときに視覚に頼る割合が大きいのかもしれません。気になる場合は、日を変えて同じやり方で測り直してみてください。'}
-              </p>
-            </div>
+            <InsightResult
+              title="予想と結果"
+              result={ratio}
+              prediction={prediction}
+              previous={previous}
+              format={fmtRatio}
+              min={0.5}
+              max={4}
+              ticks={[1, 2, 3, 4]}
+              tickFormat={(v) => `${v}倍`}
+              band={{ from: 0.85, to: 2.67, label: '健康な成人の95%（約0.9〜2.7倍）' }}
+              gap={prediction != null ? balanceGap(prediction, ratio) : undefined}
+              caption={
+                <>
+                  帯：健康な18〜40歳144人を、床に置く測定板で測った研究では、目を閉じたときの揺れの速さは開けたときの平均約1.7倍で、95%の人が約0.9〜2.7倍でした（Silva ら 2012）。スマホを胸に当てる測り方とは違うため、あくまで目安です。帯の外でも、異常という意味ではありません。
+                </>
+              }
+            />
           )}
 
           <div className="lr-howto">
@@ -276,8 +316,19 @@ export function BalanceLab() {
         </div>
       </div>
       <p className="neuro-caution">
-        参考: Saunders NW ら (2015) Reliability and validity of a wireless accelerometer for the assessment of postural sway／Inertial sensor reliability and validity for static and dynamic balance in healthy adults: a systematic review (Sensors, 2021)。ふらつきやめまいが続く場合は、医療機関にご相談ください。
+        参考: Silva PJG, Nadal J, Infantosi AFC (2012) Investigating the center of pressure velocity Romberg's quotient for assessing the visual role on the body sway. Rev Bras Eng Biomed 28(4)（目安の帯）／Saunders NW ら (2015) Reliability and validity of a wireless accelerometer for the assessment of postural sway／Inertial sensor reliability and validity for static and dynamic balance in healthy adults: a systematic review (Sensors, 2021)。ふらつきやめまいが続く場合は、医療機関にご相談ください。
       </p>
     </section>
   );
+}
+
+const fmtRatio = (v: number) => `${v.toFixed(1)}倍`;
+
+/** 予想とのずれについての一言（良い悪いの判定はしない） */
+function balanceGap(pred: number, result: number) {
+  const d = result - pred;
+  if (Math.abs(d) < 0.25) return '予想とほぼ同じでした。目を閉じると揺れが増えるのは、目からの手がかりがなくなるためです。';
+  if (d > 0)
+    return '予想より大きく揺れました。目を開けて立っているとき、目からの情報をどれくらい使っているかは、ふだん自分では気づきにくいものです。';
+  return '予想ほどは揺れませんでした。目を閉じても、足裏などの感覚や耳の奥の平衡感覚が、思った以上に体を支えています。';
 }

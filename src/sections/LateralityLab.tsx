@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { InsightResult, Predict } from '../components/Insight';
 
 /**
  * LEFT / RIGHT LAB — 左右判断テスト(手・前腕と手・腕全体・足・すねから先・脚全体)
@@ -205,6 +206,7 @@ function summarize(rs: Result[]) {
 }
 
 const fmtS = (ms: number) => (Number.isFinite(ms) ? `${(ms / 1000).toFixed(2)}秒` : '—');
+const fmtSec = (sec: number) => `${sec.toFixed(1)}秒`;
 const fmtP = (p: number) => (Number.isFinite(p) ? `${Math.round(p * 100)}%` : '—');
 
 function Bars({ label, rows }: { label: string; rows: { name: string; rt: number }[] }) {
@@ -234,6 +236,8 @@ export function LateralityLab() {
   const [results, setResults] = useState<Result[]>([]);
   const [lastFeedback, setLastFeedback] = useState<boolean | null>(null);
   const [previous, setPrevious] = useState<{ acc: number; rt: number } | null>(null);
+  // 測る前の予想（1問あたりの秒数。undefined = まだ / null = 予想しない）
+  const [prediction, setPrediction] = useState<number | null | undefined>(undefined);
   const t0 = useRef(0);
   const timers = useRef<number[]>([]);
 
@@ -253,11 +257,15 @@ export function LateralityLab() {
     );
   }, []);
 
+  // 1問につき回答は1回だけ（すばやく2回押したとき、画面が切り替わる前に2回目が入らないようにする）
+  const answered = useRef(true);
+
   const showTrial = useCallback((i: number) => {
     setIndex(i);
     setPhase('fixation');
     timers.current.push(
       window.setTimeout(() => {
+        answered.current = false;
         setPhase('stimulus');
         t0.current = performance.now();
       }, FIXATION_MS),
@@ -275,7 +283,8 @@ export function LateralityLab() {
 
   const answer = useCallback(
     (choice: Side | null) => {
-      if (phase !== 'stimulus') return;
+      if (phase !== 'stimulus' || answered.current) return;
+      answered.current = true;
       clearTimers();
       const trial = trials[index];
       const rt = performance.now() - t0.current;
@@ -335,8 +344,8 @@ export function LateralityLab() {
       <LabHead
         id="laterality"
         lead="画面に出る手足が「右」か「左」かを判断するとき、脳の中では自分の手足を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり、間違えやすくなったりすることが報告されています。"
-        steps="部位を選んで「はじめる」。画像が出たら、右か左かをボタン（パソコンは ← / → キーでも可）でできるだけ速く答えます。慣れないうちは「練習する」から。"
-        read="正答率と、正解したときの平均反応時間が出ます。手の画像では、健康な若い成人で正答率 約87〜89%、平均 約1.0〜1.4秒という報告があります。左右の差や、前回との変化を見てください。"
+        steps="部位を選び、1問に何秒かかるかを予想してから「はじめる」。画像が出たら、右か左かをボタン（パソコンは ← / → キーでも可）でできるだけ速く答えます。慣れないうちは「練習する」から。"
+        read="正答率と、正解したときの平均反応時間が出ます。反応時間は予想と並べ、手の画像なら研究で報告されている健康な若い成人の幅（約1.0〜1.4秒）のどこに入るかに印を付けます。左右の差も見てください。"
       />
 
       <div className="position-notice">
@@ -385,14 +394,37 @@ export function LateralityLab() {
                       setPart(pt);
                       setPhase('intro');
                       setResults([]);
+                      setPrediction(undefined);
                     }}
                   >
                     {PARTS[pt].label}
                   </button>
                 ))}
               </div>
-              <button className="start-btn position-main-btn" onClick={() => start(false)}>
-                {phase === 'result' && !practice ? `もう一度（${total}問）` : `はじめる（${total}問）`}
+              {!(phase === 'result' && !practice) && (
+                <Predict
+                  question="1問に何秒くらいかかると思いますか？"
+                  hint="画像が出てから、右か左かを答えるまでの平均の時間を予想します。"
+                  min={0.3}
+                  max={3}
+                  step={0.1}
+                  initial={1}
+                  format={fmtSec}
+                  value={prediction}
+                  onChange={setPrediction}
+                />
+              )}
+              <button
+                className="start-btn position-main-btn"
+                onClick={() => {
+                  if (phase === 'result' && !practice) {
+                    setPrediction(undefined);
+                    setResults([]);
+                    setPhase('intro');
+                  } else start(false);
+                }}
+              >
+                {phase === 'result' && !practice ? 'もう一度（予想からやり直す）' : `はじめる（${total}問）`}
               </button>
               <button className="lr-sub-btn" onClick={() => start(true)}>練習する（4問）</button>
             </>
@@ -413,7 +445,27 @@ export function LateralityLab() {
                 <p className="lr-note">練習が終わりました。慣れたら「はじめる」で挑戦してください。</p>
               ) : (
                 <>
-                  <p className="lr-note">目安：手の画像では、健康な18〜35歳で正答率 約87〜89%、平均 約1.0〜1.4秒という報告があります（手以外の部位や、画面・答え方の条件で変わります）。</p>
+                  {Number.isFinite(s.rt) && (
+                    <InsightResult
+                      title="予想と結果（正解したときの平均）"
+                      result={s.rt / 1000}
+                      prediction={prediction}
+                      previous={previous && Number.isFinite(previous.rt) ? previous.rt / 1000 : null}
+                      format={fmtSec}
+                      min={0.3}
+                      max={3}
+                      ticks={[0.5, 1, 1.5, 2, 2.5, 3]}
+                      tickFormat={(v) => `${v}秒`}
+                      band={part === 'hand' ? { from: 1.0, to: 1.4, label: '健康な18〜35歳の平均（約1.0〜1.4秒）' } : undefined}
+                      gap={prediction != null ? lrGap(prediction, s.rt / 1000) : undefined}
+                      lowerIsCloser="左ほど速い"
+                      caption={
+                        part === 'hand'
+                          ? '帯：手の画像を使い、健康な18〜35歳の100人を測った研究では、平均反応時間は約1.0〜1.4秒、正答率は約87〜89%でした（2024年のプレプリント）。年齢が上がると遅くなる傾向があり、くり返すと速くなります。画面や答え方でも変わるので、目安としてご覧ください。'
+                          : 'この部位は、同じ方法で比べられる研究の値がまだそろっていないため、帯は出していません。前回の自分や、ほかの部位と比べてみてください。'
+                      }
+                    />
+                  )}
                   {previous && (
                     <p className="lr-note">前回：正答率 {fmtP(previous.acc)}／平均 {fmtS(previous.rt)}（くり返すと速くなる「練習効果」があります）</p>
                   )}
@@ -467,4 +519,13 @@ export function LateralityLab() {
       </p>
     </section>
   );
+}
+
+/** 予想とのずれについての一言（良い悪いの判定はしない） */
+function lrGap(pred: number, result: number) {
+  const d = result - pred;
+  if (Math.abs(d) < 0.15) return '予想とほぼ同じでした。';
+  if (d > 0)
+    return '予想より時間がかかりました。画像の手足の左右を決めるとき、頭の中で自分の手足をその向きに動かすイメージを使うため、時間がかかると考えられています。';
+  return '予想より速く答えられました。親指の位置などの形の手がかりだけで、すぐに分かる画像もあります。';
 }

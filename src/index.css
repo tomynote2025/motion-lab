@@ -5460,6 +5460,345 @@ body.has-custom-cursor input[type='range'] {
   line-height: 1.7;
 }
 
+/* ---------- 気づきの部品: 予想 → 結果 → 目安の帯 ---------- */
+.predict {
+  display: grid;
+  gap: 8px;
+  padding: 18px 18px 16px;
+  border: 1.5px solid var(--green);
+  border-radius: 16px;
+  background: var(--bg);
+}
+
+.predict-tag,
+.insight-tag {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #f3f0e7;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.predict-q {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.predict-hint {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.predict-value {
+  justify-self: center;
+  margin-top: 4px;
+  color: var(--green);
+  font-family: var(--font-en);
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.predict input[type='range'] {
+  width: 100%;
+  accent-color: var(--green);
+}
+
+.predict-scale {
+  display: flex;
+  justify-content: space-between;
+  color: var(--faint);
+  font-family: var(--font-en);
+  font-size: 11px;
+}
+
+.predict-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.predict-actions button,
+.predict-done button {
+  padding: 9px 16px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.predict-lock {
+  border: 1px solid var(--green);
+  background: var(--green);
+  color: #f3f0e7;
+}
+
+.predict-skip,
+.predict-done button {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.predict-done {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 12px 16px;
+  border: 1px dashed var(--green);
+  border-radius: 14px;
+  background: var(--bg);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.predict-done b {
+  color: var(--green);
+  font-family: var(--font-en);
+  font-size: 18px;
+}
+
+.predict-done button {
+  margin-left: auto;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.insight {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+}
+
+.insight-compare {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.insight-compare > div {
+  display: grid;
+  gap: 2px;
+}
+
+.insight-compare small {
+  color: var(--faint);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.insight-compare b {
+  font-family: var(--font-en);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.insight-compare b.is-pred {
+  color: var(--muted);
+}
+
+.insight-compare b.is-result {
+  color: var(--coral);
+}
+
+.insight-compare i {
+  color: var(--faint);
+  font-style: normal;
+  font-size: 20px;
+}
+
+.insight-gap {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+/* 目安の帯 */
+.rb {
+  position: relative;
+  padding: 0 10px;
+}
+
+.rb-above {
+  position: relative;
+  height: 26px;
+}
+
+.rb-pin {
+  position: absolute;
+  bottom: 4px;
+  translate: -50% 0;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--coral);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.rb-pin::after {
+  content: '';
+  position: absolute;
+  left: var(--arrow, 50%);
+  top: 100%;
+  translate: -50% 0;
+  border: 4px solid transparent;
+  border-top-color: var(--coral);
+}
+
+.rb-track {
+  position: relative;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.rb-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: rgba(36, 82, 62, 0.28);
+  box-shadow: inset 0 0 0 1.5px rgba(36, 82, 62, 0.55);
+}
+
+.rb-dot {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  translate: -50% -50%;
+  border-radius: 50%;
+}
+
+.rb-dot.is-result {
+  width: 18px;
+  height: 18px;
+  background: var(--coral);
+  box-shadow: 0 0 0 3px #fff;
+}
+
+.rb-dot.is-pred {
+  border: 2.5px solid var(--text);
+  background: #fff;
+}
+
+.rb-dot.is-prev {
+  width: 10px;
+  height: 10px;
+  background: var(--blue);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.rb-ticks {
+  position: relative;
+  height: 20px;
+  margin-top: 4px;
+}
+
+.rb-ticks span {
+  position: absolute;
+  translate: -50% 0;
+  white-space: nowrap;
+  color: var(--faint);
+  font-family: var(--font-en);
+  font-size: 10.5px;
+}
+
+.rb-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.rb-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rb-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.rb-legend i.is-result {
+  background: var(--coral);
+}
+
+.rb-legend i.is-pred {
+  border: 2px solid var(--text);
+  background: #fff;
+}
+
+.rb-legend i.is-prev {
+  background: var(--blue);
+}
+
+.rb-legend i.is-band {
+  width: 18px;
+  border-radius: 999px;
+  background: rgba(36, 82, 62, 0.28);
+  box-shadow: inset 0 0 0 1.5px rgba(36, 82, 62, 0.55);
+}
+
+.rb-legend em {
+  width: 100%;
+  color: var(--faint);
+  font-style: normal;
+}
+
+.insight-caption {
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.neuro-predict {
+  max-width: 560px;
+  margin: 0 auto 16px;
+}
+
+.neuro-insight {
+  max-width: 640px;
+  margin: 16px auto 0;
+}
+
+.pos-trials {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  font-size: 13px;
+}
+
+.pos-trials p {
+  color: var(--text);
+  line-height: 1.8;
+}
+
 /* ラボ一覧のグループ */
 .lab-index-list {
   border-top: none;

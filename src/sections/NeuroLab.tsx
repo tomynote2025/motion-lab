@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { InsightResult, Predict } from '../components/Insight';
 
 type Tab = 'saccade' | 'pursuit' | 'vestibular';
 
@@ -10,7 +11,7 @@ export function NeuroLab() {
       <LabHead
         id="neuro"
         lead="動きには、筋力だけでなく、目・耳の奥の平衡感覚・体からの感覚と、それをまとめる脳の働きが関わっています。眼の動きや平衡感覚は、医療でも神経の働きを調べる手がかりとして診察されます。3つのミニラボで、その仕組みを体験してみましょう（検査や診断ではありません）。"
-        steps="上のタブから「すばやく見つける」「なめらかに追う」「視線を保つ」のどれかを選んで試します。"
+        steps="上のタブから「すばやく見つける」「なめらかに追う」「視線を保つ」のどれかを選びます。測るテストでは、先に結果を予想してから始めます。"
         read="反応時間や追えた割合は、画面の大きさ・指かマウスか・慣れで大きく変わります。良い悪いの判定ではなく、同じ条件でくり返したときの「前回との比較」に使ってください。"
       />
 
@@ -57,21 +58,6 @@ function saveLast(key: string, value: number) {
   }
 }
 
-function Compare({ prev, now, unit, lowerIsBetter }: { prev: number | null; now: number; unit: string; lowerIsBetter: boolean }) {
-  if (prev == null || !Number.isFinite(prev)) {
-    return <div className="neuro-compare">次回からは、前回の結果と並べて表示します。</div>;
-  }
-  const diff = Math.round(now - prev);
-  const same = Math.abs(diff) < (unit === 'ms' ? 15 : 3);
-  const better = lowerIsBetter ? diff < 0 : diff > 0;
-  return (
-    <div className="neuro-compare">
-      前回 <b>{Math.round(prev)}{unit}</b> → 今回 <b>{Math.round(now)}{unit}</b>
-      <span>{same ? '（ほぼ同じ）' : `（${diff > 0 ? '+' : ''}${diff}${unit}・${better ? '前回より良い' : '前回より低め'}）`}</span>
-    </div>
-  );
-}
-
 /* ---------------- サッケード反応テスト ---------------- */
 
 const SACCADE_ROUNDS = 8;
@@ -82,6 +68,7 @@ function SaccadeTest() {
   const [times, setTimes] = useState<number[]>([]);
   const [pos, setPos] = useState({ x: 50, y: 50 });
   const [prev, setPrev] = useState<number | null>(null);
+  const [prediction, setPrediction] = useState<number | null | undefined>(undefined);
   const shownAt = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -103,6 +90,11 @@ function SaccadeTest() {
     setTimes([]);
     setRound(0);
     scheduleNext();
+  };
+  const again = () => {
+    setPrediction(undefined);
+    setTimes([]);
+    setPhase('idle');
   };
 
   const hit = () => {
@@ -132,6 +124,21 @@ function SaccadeTest() {
           サッケード（衝動性眼球運動）は、視線を目標へ一瞬で飛ばす眼球運動で、前頭葉の眼球運動の領域や脳幹（上丘）などが関わります。このテストで測るのは、光点が見えてから指やマウスで押すまでの「反応時間」です。目の動きそのものではなく、見つける時間や手を動かす時間も含まれます。現れた光点をできるだけ速くタップ — {SACCADE_ROUNDS}回の平均を出します。
         </p>
       </div>
+      {phase === 'idle' && (
+        <div className="neuro-predict">
+          <Predict
+            question="光点が出てから押すまで、何ミリ秒くらいだと思いますか？"
+            hint="1000ミリ秒 = 1秒。8回の平均を予想します。"
+            min={150}
+            max={1200}
+            step={10}
+            initial={400}
+            format={fmtMs}
+            value={prediction}
+            onChange={setPrediction}
+          />
+        </div>
+      )}
       <div className="saccade-field">
         {phase === 'idle' && (
           <div className="neuro-idle">
@@ -158,10 +165,9 @@ function SaccadeTest() {
           <div className="lab-result">
             <div className="result-big">{avg}ms</div>
             <div className="result-sub">平均反応時間(最速 {best}ms)</div>
-            <Compare prev={prev} now={avg} unit="ms" lowerIsBetter />
             <div className="result-rating">{rating}</div>
-            <button className="start-btn" onClick={start}>
-              もう一度
+            <button className="start-btn" onClick={again}>
+              もう一度（予想からやり直す）
             </button>
           </div>
         )}
@@ -171,6 +177,23 @@ function SaccadeTest() {
           </div>
         )}
       </div>
+      {phase === 'done' && (
+        <div className="neuro-insight">
+          <InsightResult
+            title="予想と結果（8回の平均）"
+            result={avg}
+            prediction={prediction}
+            previous={prev}
+            format={fmtMs}
+            min={150}
+            max={1200}
+            ticks={[200, 400, 600, 800, 1000, 1200]}
+            gap={prediction != null ? saccadeGap(prediction, avg) : undefined}
+            lowerIsCloser="左ほど速い"
+            caption="この測り方（画面のどこかに出る光点を指やマウスで押す）は、画面の大きさや機器で大きく変わるため、比べられる研究の値がありません。帯は出さず、予想と前回の自分だけを並べています。"
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -184,6 +207,7 @@ function PursuitTest() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<number | null>(null);
   const [prev, setPrev] = useState<number | null>(null);
+  const [prediction, setPrediction] = useState<number | null | undefined>(undefined);
   const pointer = useRef({ x: -999, y: -999 });
 
   useEffect(() => {
@@ -270,6 +294,21 @@ function PursuitTest() {
           秒間、頭は動かさずに目で追いながら操作してみてください。
         </p>
       </div>
+      {!running && result === null && (
+        <div className="neuro-predict">
+          <Predict
+            question="動く光点に、何%くらい重ねていられると思いますか？"
+            hint="15秒のうち、光点の円の中にカーソル（指）があった時間の割合を予想します。"
+            min={0}
+            max={100}
+            step={5}
+            initial={60}
+            format={fmtPct}
+            value={prediction}
+            onChange={setPrediction}
+          />
+        </div>
+      )}
       <div className="pursuit-field">
         {running ? (
           <canvas ref={canvasRef} className="pursuit-canvas" />
@@ -287,22 +326,42 @@ function PursuitTest() {
               <>
                 <div className="result-big">{result}%</div>
                 <div className="result-sub">光点に重ねられていた時間の割合</div>
-                <Compare prev={prev} now={result} unit="%" lowerIsBetter={false} />
                 <div className="result-rating">{rating}</div>
               </>
             )}
             <button
               className="start-btn"
               onClick={() => {
-                setResult(null);
+                if (result !== null) {
+                  setResult(null);
+                  setPrediction(undefined);
+                  return;
+                }
                 setRunning(true);
               }}
             >
-              {result === null ? 'テスト開始' : 'もう一度'}
+              {result === null ? 'テスト開始' : 'もう一度（予想からやり直す）'}
             </button>
           </div>
         )}
       </div>
+      {!running && result !== null && (
+        <div className="neuro-insight">
+          <InsightResult
+            title="予想と結果"
+            result={result}
+            prediction={prediction}
+            previous={prev}
+            format={fmtPct}
+            min={0}
+            max={100}
+            ticks={[0, 25, 50, 75, 100]}
+            gap={prediction != null ? pursuitGap(prediction, result) : undefined}
+            lowerIsCloser="右ほど、光点に重ねていられた"
+            caption="手の操作の慣れや画面の大きさで大きく変わるため、比べられる研究の値がありません。帯は出さず、予想と前回の自分だけを並べています。"
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -437,4 +496,23 @@ function VestibularLab() {
       </div>
     </div>
   );
+}
+
+const fmtMs = (v: number) => `${Math.round(v)}ms`;
+const fmtPct = (v: number) => `${Math.round(v)}%`;
+
+/** 予想とのずれについての一言（良い悪いの判定はしない） */
+function saccadeGap(pred: number, result: number) {
+  const d = result - pred;
+  if (Math.abs(d) < 60) return '予想とほぼ同じでした。';
+  if (d > 0)
+    return '予想より時間がかかりました。視線を飛ばすこと自体は一瞬ですが、光点を見つけて、手を動かして押すまでにも時間がかかります。';
+  return '予想より速く押せました。目が光点をとらえる動きは、0.2秒ほどで始まるといわれます。';
+}
+
+function pursuitGap(pred: number, result: number) {
+  const d = result - pred;
+  if (Math.abs(d) < 10) return '予想とほぼ同じでした。';
+  if (d > 0) return '予想より長く重ねていられました。';
+  return '予想より短い結果でした。動きの向きが変わるところで、目と手が遅れやすくなります。';
 }

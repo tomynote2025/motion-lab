@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
 import { OpenOnPhone } from '../components/OpenOnPhone';
+import { InsightResult, Predict, readPrevious, savePrevious } from '../components/Insight';
 
 /**
  * POSITION LAB — 関節位置覚テスト(ひざ・ひじ・肩)
@@ -122,6 +123,9 @@ export function ProprioceptionLab() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [angle, setAngle] = useState<number | null>(null);
   const [errors, setErrors] = useState<number[]>([]);
+  // 測る前の予想（undefined = まだ / null = 予想しない）と、同じ関節の前回の結果
+  const [prediction, setPrediction] = useState<number | null | undefined>(undefined);
+  const [previous, setPrevious] = useState<number | null>(null);
   const phaseRef = useRef<Phase>('idle');
   const grav = useRef<[number, number, number] | null>(null);
   const hist = useRef<{ t: number; a: number }[]>([]);
@@ -200,6 +204,9 @@ export function ProprioceptionLab() {
       setErrors(next);
       beep(audio.current, 880, 2);
       if (next.length >= TRIALS) {
+        const mean = next.reduce((s, x) => s + Math.abs(x), 0) / next.length;
+        setPrevious(readPrevious(`pos-${jointRef.current}`));
+        savePrevious(`pos-${jointRef.current}`, mean);
         phaseRef.current = 'done';
         setPhase('done');
         setStep(3);
@@ -279,8 +286,8 @@ export function ProprioceptionLab() {
       <LabHead
         id="proprioception"
         lead="目を閉じていても、手足がどの位置にあるかはある程度分かります。筋肉や腱、関節から脳へ届く「固有感覚」のおかげです。目を開けて決めた角度を覚え、目を閉じたまま同じ角度に戻せるかを試します。"
-        steps="関節を選び、スマホを手足に当てて「はじめる」。音声の合図に合わせて、目を閉じたまま同じ角度で止めます（3回）。スマホがなければ「目で見て確かめる」でも試せます。"
-        read="目標とのずれ（°）が小さいほど、同じ位置に戻せています。健康な人でも、ひざで平均約4°、肩で3〜6°ほどずれるのがふつうです。"
+        steps="関節を選び、何度くらいずれるかを予想してから、スマホを手足に当てて「はじめる」。音声の合図に合わせて、目を閉じたまま同じ角度で止めます（3回）。スマホがなければ「目で見て確かめる」でも試せます。"
+        read="3回の平均のずれ（°）を予想と並べ、研究で報告されている健康な人の幅（ひざ・肩は約3〜6°）のどこに入るかに印を付けます。ずれる向きのくせも分かります。"
       />
 
       <div className="position-notice">
@@ -291,7 +298,7 @@ export function ProprioceptionLab() {
       <div className="pos-toolbar">
         <div className="region-chips" role="radiogroup" aria-label="関節">
           {(Object.keys(JOINTS) as Joint[]).map((j) => (
-            <button key={j} className={`chip ${joint === j ? 'chip-active' : ''}`} disabled={running} onClick={() => { setJoint(j); setStep(0); setErrors([]); errorsRef.current = []; setPhase('idle'); }}>
+            <button key={j} className={`chip ${joint === j ? 'chip-active' : ''}`} disabled={running} onClick={() => { setJoint(j); setStep(0); setErrors([]); setPrediction(undefined); errorsRef.current = []; setPhase('idle'); }}>
               {JOINTS[j].label}
             </button>
           ))}
@@ -333,8 +340,32 @@ export function ProprioceptionLab() {
                 {phase === 'idle' && (
                   <OpenOnPhone id="proprioception" text="角度はスマホの傾きセンサーで測ります。パソコンでは「目で見て確かめる」を使うか、スマホでQRコードを読み取ってください。" />
                 )}
-                <button className="start-btn position-main-btn" onClick={startMeasure}>
-                  {phase === 'done' ? 'もう一度（3回）' : 'はじめる（3回）'}
+                {phase !== 'done' && (
+                  <Predict
+                    question={`目を閉じて戻すと、${def.label}は何度くらいずれると思いますか？`}
+                    hint="3回の平均のずれ（目標の角度との差）を予想します。0°ならぴったり。"
+                    min={0}
+                    max={20}
+                    step={0.5}
+                    initial={3}
+                    format={fmtDeg}
+                    value={prediction}
+                    onChange={setPrediction}
+                  />
+                )}
+                <button
+                  className="start-btn position-main-btn"
+                  onClick={() => {
+                    if (phase === 'done') {
+                      setPrediction(undefined);
+                      setErrors([]);
+                      errorsRef.current = [];
+                      phaseRef.current = 'idle';
+                      setPhase('idle');
+                    } else startMeasure();
+                  }}
+                >
+                  {phase === 'done' ? 'もう一度（予想からやり直す）' : 'はじめる（3回）'}
                 </button>
                 </>
               )}
@@ -345,7 +376,37 @@ export function ProprioceptionLab() {
                   <b>{Math.round(angle)}°</b>
                 </div>
               )}
-              {errors.length > 0 && (
+              {phase === 'done' && Number.isFinite(meanAbs) && (
+                <InsightResult
+                  title="予想と結果（3回の平均のずれ）"
+                  result={meanAbs}
+                  prediction={prediction}
+                  previous={previous}
+                  format={fmtDeg}
+                  min={0}
+                  max={15}
+                  ticks={[0, 5, 10, 15]}
+                  tickFormat={(v) => `${v}°`}
+                  band={BANDS[joint]}
+                  gap={prediction != null ? posGap(prediction, meanAbs) : undefined}
+                  lowerIsCloser="左ほど、目標の位置に近い"
+                  caption={CAPTIONS[joint]}
+                />
+              )}
+              {phase === 'done' && errors.length > 0 && (
+                <div className="pos-trials">
+                  <b>3回のずれ方</b>
+                  <ul className="pos-errors">
+                    {errors.map((e, i) => (
+                      <li key={i}>
+                        {i + 1}回目：{Math.abs(e).toFixed(1)}°{Math.abs(e) < 1 ? '（ほぼぴったり）' : e > 0 ? '（行き過ぎ）' : '（手前で止まった）'}
+                      </li>
+                    ))}
+                  </ul>
+                  <p>{directionNote(errors)}</p>
+                </div>
+              )}
+              {running && errors.length > 0 && (
                 <div className="position-result">
                   <span>目標とのずれ（{errors.length} / {TRIALS} 回）</span>
                   <strong>{Number.isFinite(meanAbs) ? meanAbs.toFixed(1) : '—'}<small>° 平均</small></strong>
@@ -356,9 +417,6 @@ export function ProprioceptionLab() {
                       </li>
                     ))}
                   </ul>
-                  {phase === 'done' && (
-                    <p>目安：健康な人でも、座ったひざの再現で平均約4°、肩で3〜6°ほどずれます。同じ人でも日によって数度変わる（ひざでは約7°までは測定のばらつきの範囲）ので、くり返して比べるときは、同じ姿勢・同じスマホの当て方で行ってください。</p>
-                  )}
                 </div>
               )}
               <div className="lr-howto">
@@ -403,8 +461,41 @@ export function ProprioceptionLab() {
         </div>
       </div>
       <p className="neuro-caution">
-        参考: Factors that influence the angular error in active knee angle reproduction tests: a systematic review and meta-analysis (2024)／Test–retest reliability of a knee joint position sense measurement method in sitting and prone position／Reliability of the active knee joint position sense test and influence of limb dominance and sex (Sci Rep, 2023)／Variability of shoulder girdle proprioception in 44 healthy volunteers (2019)／Test–retest reliability of an iPhone inclinometer application to assess the lumbar joint repositioning error (2021)。画像は MakeHuman（MPFB 2、CC0）で作成。
+        参考: Factors that influence the angular error in active knee angle reproduction tests: a systematic review and meta-analysis (2024)／Test–retest reliability of a knee joint position sense measurement method in sitting and prone position／Busch A ら, Reliability of the active knee joint position sense test and influence of limb dominance and sex (Sci Rep, 2023)／Variability of shoulder girdle proprioception in 44 healthy volunteers (2019)／Test–retest reliability of an iPhone inclinometer application to assess the lumbar joint repositioning error (2021)。画像は MakeHuman（MPFB 2、CC0）で作成。
       </p>
     </section>
   );
+}
+
+const fmtDeg = (v: number) => `${v.toFixed(1)}°`;
+
+/** 論文で報告されている、健康な成人の平均のずれの幅（ひじは同じ方法で比べられる値がそろっていないので出さない） */
+const BANDS: Record<Joint, { from: number; to: number; label: string } | undefined> = {
+  knee: { from: 3, to: 6, label: '健康な成人の平均（約3〜6°）' },
+  elbow: undefined,
+  shoulder: { from: 3, to: 6, label: '健康な人の報告（約3〜6°）' },
+};
+
+const CAPTIONS: Record<Joint, string> = {
+  knee: '帯：健康な成人がひざの角度を再現するテストでは、研究によって平均約3〜6°のずれが報告されています。同じ人でも日によって数度変わり、約7°までの差は測定のばらつきの範囲とされています（Busch ら 2023）。スマホの当て方でも変わるので、目安としてご覧ください。帯の外でも、異常という意味ではありません。',
+  elbow: 'ひじは、同じ方法で比べられる研究の値がまだそろっていないため、帯は出していません。前回の自分と比べてください。',
+  shoulder: '帯：健康な人の肩の再現では、3〜6°ほどのずれが報告されています（44人の研究, 2019）。年齢とともに大きくなる傾向があります。スマホの当て方でも変わるので、目安としてご覧ください。',
+};
+
+/** 予想とのずれについての一言（良い悪いの判定はしない） */
+function posGap(pred: number, result: number) {
+  const d = result - pred;
+  if (Math.abs(d) < 1.5) return '予想とほぼ同じでした。';
+  if (d > 0)
+    return '予想よりずれていました。目を閉じると、手足の位置は思っているほど正確には分かりません。健康な人でも数度ずれるのがふつうです。';
+  return '予想より正確に戻せました。目で見なくても、筋肉や腱、関節からの感覚が、手足の位置を脳に伝えています。';
+}
+
+/** 3回のずれの向きに、くせがあるかどうか */
+function directionNote(errors: number[]) {
+  const over = errors.filter((e) => e >= 1).length;
+  const under = errors.filter((e) => e <= -1).length;
+  if (over === errors.length) return `${errors.length}回とも行き過ぎていました。動かす向きによって、ずれ方にくせが出ることがあります。`;
+  if (under === errors.length) return `${errors.length}回とも手前で止まっていました。動かす向きによって、ずれ方にくせが出ることがあります。`;
+  return 'ずれる向きは回によって違いました。';
 }
