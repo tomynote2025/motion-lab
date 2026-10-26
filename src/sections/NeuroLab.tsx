@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 import { InsightResult, Predict } from '../components/Insight';
 
 type Tab = 'saccade' | 'pursuit' | 'vestibular';
@@ -33,6 +34,12 @@ export function NeuroLab() {
         {tab === 'vestibular' && <VestibularLab />}
       </div>
 
+      <WhyQuiz
+        question="頭を左右に振っても、見ている文字がぶれずに見えるのはなぜ？"
+        choices={["まばたきでごまかしているから", "耳の奥が頭の動きを感じ、目を反対向きに動かしているから", "ピントを合わせ直しているから"]}
+        answer={1}
+        explain="耳の奥の前庭が頭の動きを感じ取り、目を頭と反対の向きへすばやく動かして、視線を保っています（前庭動眼反射）。歩いたり走ったりしても景色がぶれにくいのは、この働きのおかげです。"
+      />
       <p className="neuro-caution">
         ⚠ 体験中にめまい・吐き気・強い不快感が出た場合はすぐに中止してください。本コンテンツは学習用の体験であり、医学的診断ではありません。
       </p>
@@ -180,6 +187,8 @@ function SaccadeTest() {
       {phase === 'done' && (
         <div className="neuro-insight">
           <InsightResult
+            labId="neuro"
+            cardSub="すばやく見つける・8回の平均"
             title="予想と結果（8回の平均）"
             result={avg}
             prediction={prediction}
@@ -348,6 +357,8 @@ function PursuitTest() {
       {!running && result !== null && (
         <div className="neuro-insight">
           <InsightResult
+            labId="neuro"
+            cardSub="なめらかに追う・光点に重ねていられた割合"
             title="予想と結果"
             result={result}
             prediction={prediction}

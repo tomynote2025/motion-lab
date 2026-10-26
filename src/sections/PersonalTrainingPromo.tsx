@@ -5,7 +5,7 @@ export function PersonalTrainingPromo() {
     <section className="personal-promo" aria-labelledby="personal-promo-title">
       <div className="personal-promo-topline">
         <span>VISITING PERSONAL TRAINING</span>
-        <span>理学療法士による個別サポート</span>
+        <span>一人ひとりに合わせた個別サポート</span>
       </div>
 
       <div className="personal-promo-grid">

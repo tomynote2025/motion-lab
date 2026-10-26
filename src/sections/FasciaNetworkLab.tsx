@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { FasciaNetworkModel, DENSITY_POINTS, type DensityPointId } from '../three/FasciaNetworkModel';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
  * FASCIA NETWORK — 筋膜は全身をつなぐ一枚のシート、を「前屈」という
@@ -166,6 +167,12 @@ export function FasciaNetworkLab() {
         </div>
       </div>
 
+      <WhyQuiz
+        question="このモデルの考え方では、痛む場所と、動きを乱す原因の候補は同じ？"
+        choices={["必ず同じ場所", "同じとは限らない", "必ず離れた場所"]}
+        answer={1}
+        explain="筋膜を体全体のつながりとして考える立場では、痛む場所から離れた所も原因の候補に入れます。ただし、これは提唱者らの考え方で、検証はまだ限られています。実際には、問診や動きの検査で一つずつ確かめていきます。"
+      />
       <p className="neuro-caution">
         参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「高密度化」「全身を多因子的に評価する」方法論を単純化しています。これらは提唱者らによる考え方で、検証はまだ限られています。表示している点は正式なCCマップではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。3D骨格: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（抜き出し・軽量化して使用）。
       </p>

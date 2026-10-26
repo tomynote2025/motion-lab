@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { IapAnatomy3D, type IapFocus } from '../three/IapAnatomy3D';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
  * 腹腔内圧(IAP)シミュレーター
@@ -440,6 +441,12 @@ export function IapLab() {
           </p>
         </div>
       </div>
+      <WhyQuiz
+        question="息を吸うとき、骨盤の底（骨盤底）はどちらへ動く？"
+        choices={["上がる", "下がる", "動かない"]}
+        answer={1}
+        explain="息を吸うと、横隔膜が下がり、骨盤底も同じ向きに下がることが、画像を使った研究で示されています（Talasz ら 2011）。息を吐くと、どちらも元の位置へ戻ります。天井と床が一緒に動くイメージです。"
+      />
     </section>
   );
 }

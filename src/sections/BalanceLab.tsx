@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 import { OpenOnPhone } from '../components/OpenOnPhone';
 import { InsightResult, Predict, readPrevious, savePrevious } from '../components/Insight';
 
@@ -268,6 +269,8 @@ export function BalanceLab() {
 
           {phase === 'result' && result && Number.isFinite(ratio) && (
             <InsightResult
+              labId="balance"
+              cardSub="目を閉じたとき ÷ 開けたときの揺れ"
               title="予想と結果"
               result={ratio}
               prediction={prediction}
@@ -315,6 +318,12 @@ export function BalanceLab() {
           <p>センサーの値は、この画面の中で計算するだけです。どこにも送信・保存しません。</p>
         </div>
       </div>
+      <WhyQuiz
+        question="目を閉じると、ふつうは揺れが増えます。なぜ？"
+        choices={["目を閉じると筋力が落ちるから", "目からの手がかりがなくなり、残りの感覚だけで立つから", "目を閉じると血圧が下がるから"]}
+        answer={1}
+        explain="立っているときは、目・足裏などの感覚・耳の奥の平衡感覚を組み合わせてバランスをとっています。目を閉じると、そのうちの目からの手がかりがなくなるため、揺れが増えるのはふつうの反応です。"
+      />
       <p className="neuro-caution">
         参考: Silva PJG, Nadal J, Infantosi AFC (2012) Investigating the center of pressure velocity Romberg's quotient for assessing the visual role on the body sway. Rev Bras Eng Biomed 28(4)（目安の帯）／Saunders NW ら (2015) Reliability and validity of a wireless accelerometer for the assessment of postural sway／Inertial sensor reliability and validity for static and dynamic balance in healthy adults: a systematic review (Sensors, 2021)。ふらつきやめまいが続く場合は、医療機関にご相談ください。
       </p>

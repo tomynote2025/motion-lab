@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
  * HOMUNCULUS LAB — 脳の中の体の地図(体性感覚)
@@ -216,6 +217,12 @@ export function HomunculusLab() {
           <p>触覚を感じ分ける練習を痛みのケアに取り入れる試みがあります。10件の臨床試験をまとめた報告では、慢性腰痛では結果が食い違い、ほかの痛みでは質の低い研究しかありませんでした。今のところ、効果について確かなことは言えません。</p>
         </div>
       </div>
+      <WhyQuiz
+        question="脳の地図で手が広く描かれるのは、手の皮膚に神経が多いから…だけで説明できる？"
+        choices={["神経の多さだけで説明できる", "神経の多さだけでは説明しきれない", "手が体の中で大きいから"]}
+        answer={1}
+        explain="手の皮膚には触覚の神経が多く集まっていますが、全身で調べた研究では、神経の密度だけでは手や顔の地図の広さを説明しきれませんでした（Corniani & Saal 2020）。細かく使う経験など、ほかの要因も関わると考えられています。"
+      />
       <p className="neuro-caution">
         参考: Penfield W, Boldrey E (1937) Brain 60:389-443／Corniani G, Saal HP (2020) Tactile innervation densities across the whole body. J Neurophysiol 124(4):1229-1240／Gordon EM ら (2023) Nature 617:351-359／Di Pietro F ら (2013) J Pain 14(10)（CRPS と一次体性感覚野）／Catley MJ ら (2014) J Pain（慢性痛と触覚の鋭さ）／Graham A ら (2022) 慢性筋骨格系疼痛への感覚識別トレーニングの系統的レビュー／Tong J ら (2013) Front Hum Neurosci（2点の向き当てと従来の2点識別）。図の大きさは説明のための目安で、実際の脳の面積の比率を正確に表すものではありません。3Dの人体は MakeHuman（MPFB 2、CC0）で作成しました。
       </p>

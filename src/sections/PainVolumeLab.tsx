@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
  * PAIN VOLUME LAB — 痛みのボリュームつまみ
@@ -167,6 +168,12 @@ export function PainVolumeLab() {
           <p>痛みが強い日は「今日はどんな手がかりが多いか」を振り返ってみてください。睡眠や不安など、体以外に整えられることが見つかるかもしれません。</p>
         </div>
       </div>
+      <WhyQuiz
+        question="同じ冷たい刺激でも、赤い合図のときのほうが「熱い・痛い」と感じられた実験。どう説明される？"
+        choices={["赤い光で皮膚の温度が上がったから", "脳が「危なそう」という手がかりも合わせて痛みを調整しているから", "気のせいで、実際は何も感じていないから"]}
+        answer={1}
+        explain="脳は、体からの信号だけでなく、目に入る手がかりや過去の経験も合わせて、どのくらい守る必要があるかを判断していると考えられています（Moseley & Arntz 2007）。気のせいではなく、本当に感じ方が変わります。"
+      />
       <p className="neuro-caution">
         参考: Moseley GL, Arntz A (2007) The context of a noxious stimulus affects the pain it evokes. Pain／Moseley GL, Butler DS (2015) Fifteen years of explaining pain: the past, present, and future. J Pain／Watson JA ら (2019) Pain neuroscience education for adults with chronic musculoskeletal pain: a mixed-methods systematic review and meta-analysis. J Pain。
       </p>

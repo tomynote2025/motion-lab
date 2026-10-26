@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
  * 食事バランスのラボ
@@ -33,6 +34,12 @@ export function NutriLab() {
 
       {tab === 'pfc' ? <PfcLab /> : <ProcessedLab />}
 
+      <WhyQuiz
+        question="カロリーや栄養素をそろえた食事を自由に食べてもらった入院研究で、超加工食品中心のときに起きたことは？"
+        choices={["1日あたり約500kcal多く食べた", "食べる量が減った", "食べる量は変わらなかった"]}
+        answer={0}
+        explain="20人が2週間ずつ、超加工食品中心の食事と未加工中心の食事を食べた研究では、超加工食品中心のときに1日あたり約500kcal多く食べ、体重も増えました（Hall ら 2019）。食べる速さが速くなったことも関係すると考えられています。"
+      />
       <p className="neuro-caution">
         目安値は日本人の食事摂取基準（2025年版）等を参考にした一般的な範囲で、必要量は年齢・活動量・目的で変わります。本コンテンツは概念を体感するための教育用モデルです。
       </p>

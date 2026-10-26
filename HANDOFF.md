@@ -1,3 +1,16 @@
+## 2026-10-26 Claude → ユーザー｜「なぜそうなる？」・結果カード・サロンへの入口・共有用の画像
+- 状態: 未着手
+- やったこと:
+  - 11ラボすべての最後に「なぜそうなる？」の3択の問いを追加（`src/components/WhyQuiz.tsx`）。先に選んでから解説が開く。解説は各ラボの参考文献の範囲で書いた
+  - 「試して測る」の結果に、結果カードの保存・共有ボタンを追加（1080×1350 の画像を端末の中で作るだけで、送信はしない）。予想・結果・目安の帯・日付・URL が入る
+  - 結果の下にサロンへの入口（出張パーソナルの案内 /personal-training へ）。診断や改善を約束する言い方はしていない
+  - 共有用の画像（OGP）を11ラボ＋トップ分作成（public/og/）。各ラボに「つい試したくなる問いかけ」を付け、`src/data/labs.ts` の `hook` に一本化
+  - ビルド後に `scripts/ogp-pages.mjs` が dist/lab/<id>/index.html を書き出し、ラボごとの題名・説明・画像が LINE や X に出るようにした（package.json の build に追加）
+  - 出張パーソナルの案内文「理学療法士の視点を活かし」を「からだのしくみをふまえ」に変更（サービスの説明に資格を使わない方針に合わせた）。未使用の PersonalTrainingPromo の同様の表記も変更
+- 次にやること: push 後に、LINE などで https://lab.health-football.com/lab/balance を送って、画像と説明が出るか確認（Vercel が dist/lab/<id>/index.html を返すかの確認）
+- 注意点: ラボを足したら labs.ts に hook を書き、public/og/<id>.png を作る（scripts/og-images/README.md）。ogp-pages.mjs はラボが11件でないと止まるので、件数を変えたら数字も直す
+- 関連ファイル: src/components/WhyQuiz.tsx, src/components/Insight.tsx, src/data/labs.ts, scripts/ogp-pages.mjs, scripts/og-images/, public/og/, package.json
+
 ## 2026-10-26 Claude → ユーザー｜「試して測る」に予想と目安の帯を追加
 - 状態: 未着手
 - やったこと:

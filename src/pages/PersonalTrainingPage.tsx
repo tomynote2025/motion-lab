@@ -46,7 +46,7 @@ export function PersonalTrainingPage() {
         <span className="section-index">VISITING PERSONAL TRAINING</span>
         <h1>あなたの場所で、<br /><em>からだと向き合う。</em></h1>
         <p>
-          理学療法士の視点を活かし、目的と身体の状態に合わせて行う
+          からだのしくみをふまえ、目的と身体の状態に合わせて行う
           完全予約制のパーソナルトレーニングです。
         </p>
         <Link to="/personal-training/apply" className="cta-primary">申し込みフォームへ →</Link>

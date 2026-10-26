@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 import { InsightResult, Predict } from '../components/Insight';
 
 /**
@@ -447,6 +448,8 @@ export function LateralityLab() {
                 <>
                   {Number.isFinite(s.rt) && (
                     <InsightResult
+                      labId="laterality"
+                      cardSub={`${def.label}・正解したときの平均`}
                       title="予想と結果（正解したときの平均）"
                       result={s.rt / 1000}
                       prediction={prediction}
@@ -514,6 +517,12 @@ export function LateralityLab() {
           <p>左右判断の練習は、「段階的運動イメージ」という方法の最初の段階として使われます。方法全体には痛みを和らげる可能性が示されていますが研究の質は高くなく、左右判断の練習だけで痛みが減る効果は確認されていません。</p>
         </div>
       </div>
+      <WhyQuiz
+        question="手のひらの画像で、指先が体の外側を向いているほうが、答えるのに時間がかかりやすいのはなぜ？"
+        choices={["画像が暗くて見にくいから", "実際に自分の手をその向きへ回しにくいから", "利き手ではないから"]}
+        answer={1}
+        explain="左右を決めるとき、脳の中で自分の手をその向きに動かすイメージを使うと考えられています。実際に回しにくい向き（関節の動きの制約がある向き）ほど、イメージにも時間がかかりやすいことが知られています。"
+      />
       <p className="neuro-caution">
         参考: Parsons LM (1987, 1994) 手の左右判断と運動イメージ／Breckenridge JD ら (2019) J Pain 20(2):119-132／Bowering KJ ら (2013) J Pain 14(1):3-13／Development and validation of an open-source Hand Laterality Judgement Task (bioRxiv, 2024)。画像は MakeHuman（MPFB 2、CC0）で作成。痛みやしびれが続く場合は、医療機関や専門家にご相談ください。
       </p>

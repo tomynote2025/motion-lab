@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
  * BREATH LAB — 呼吸と自律神経(ゆっくり呼吸のガイド)
@@ -162,6 +163,12 @@ export function BreathLab() {
           <p>ゆっくり呼吸は、気持ちを落ち着けたいときに手軽に試せる方法のひとつです。ただし病気の治療の代わりにはなりません。息苦しさや動悸が続く場合は、医療機関にご相談ください。</p>
         </div>
       </div>
+      <WhyQuiz
+        question="心拍のゆらぎが大きくなりやすいのは、1分間に何回くらいの呼吸？"
+        choices={["約6回", "約15回", "約30回"]}
+        answer={0}
+        explain="ふだんの呼吸は1分間に12〜20回ほどですが、1分間に6回前後のゆっくりした呼吸では、吸う・吐くに合わせた心拍の揺れが大きくなることが知られています。体のリズムと呼吸のリズムが重なるためと考えられています。"
+      />
       <p className="neuro-caution">
         参考: Laborde S ら (2022) Effects of voluntary slow breathing on heart rate and heart rate variability: a systematic review and a meta-analysis. Neurosci Biobehav Rev 138:104711／Sevoz-Couche C, Laborde S (2022) Heart rate variability and slow-paced breathing: when coherence meets resonance. Neurosci Biobehav Rev 135:104576。
       </p>

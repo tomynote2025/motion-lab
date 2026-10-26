@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead } from '../components/LabHead';
+import { WhyQuiz } from '../components/WhyQuiz';
 import { OpenOnPhone } from '../components/OpenOnPhone';
 import { InsightResult, Predict, readPrevious, savePrevious } from '../components/Insight';
 
@@ -378,6 +379,8 @@ export function ProprioceptionLab() {
               )}
               {phase === 'done' && Number.isFinite(meanAbs) && (
                 <InsightResult
+                  labId="proprioception"
+                  cardSub={`${def.label}・3回の平均のずれ`}
                   title="予想と結果（3回の平均のずれ）"
                   result={meanAbs}
                   prediction={prediction}
@@ -460,6 +463,12 @@ export function ProprioceptionLab() {
           <p>スマホの傾きセンサーで再現のずれを測る方法は、腰や首では信頼性が高いという報告があります。ひざやひじは中程度で、肩の研究はまだ少ない段階です。ここでの数値は、同じ人がくり返し比べるための目安です。</p>
         </div>
       </div>
+      <WhyQuiz
+        question="目を閉じていても、手足の位置がだいたい分かるのは、主にどこからの情報があるから？"
+        choices={["皮膚が感じる温度", "筋肉・腱・関節にあるセンサー", "耳の奥の平衡感覚だけ"]}
+        answer={1}
+        explain="筋肉の伸び縮みや腱にかかる力、関節の動きを感じるセンサーが、手足の位置や動きを脳に伝えています（固有感覚）。それでも完全ではないので、健康な人でも目を閉じると数度ずれます。"
+      />
       <p className="neuro-caution">
         参考: Factors that influence the angular error in active knee angle reproduction tests: a systematic review and meta-analysis (2024)／Test–retest reliability of a knee joint position sense measurement method in sitting and prone position／Busch A ら, Reliability of the active knee joint position sense test and influence of limb dominance and sex (Sci Rep, 2023)／Variability of shoulder girdle proprioception in 44 healthy volunteers (2019)／Test–retest reliability of an iPhone inclinometer application to assess the lumbar joint repositioning error (2021)。画像は MakeHuman（MPFB 2、CC0）で作成。
       </p>
