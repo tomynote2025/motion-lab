@@ -2,7 +2,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
-import { LabHead } from '../components/LabHead';
+import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
@@ -188,44 +188,46 @@ export function HomunculusLab() {
             <p>{part.text}</p>
           </div>
 
-          <div className="lr-howto">
-            <p><b>家で試せる「2点の向き当て」</b></p>
+          <details className="lr-howto lab-more">
+            <summary>家で試せる「2点の向き当て」</summary>
             <ol>
               <li>クリップを広げて、2本の先の間を決めた幅（たとえば指先なら5ミリ、背中なら4センチ）にします。</li>
               <li>目を閉じてもらい、2本の先を「縦向き」か「横向き」にそろえて、皮膚に軽く当てます。</li>
               <li>縦か横かを答えてもらい、10回中何回当たるかを数えます。幅を変えて、指先と背中で比べてみましょう。</li>
 </ol>
             <p className="lr-mini">「1点か2点か」を答える昔ながらの方法は、押される感じの違いなど、距離以外の手がかりでも答えられてしまうことが分かっています。向きを当てる方法のほうが、感じ分ける力をより正しく調べられます。強く押さない・とがった物を使わないでください。</p>
-          </div>
+          </details>
         </div>
       </div>
 
-      <div className="lr-evidence">
-        <div>
-          <span>MAP</span>
-          <b>この図は「単純化した地図」</b>
-          <p>体の地図は、1930年代に、目を覚ました状態で脳の手術を受けた患者さんの脳表面を電気で刺激し、どこが反応するかを調べて描かれました。実際の脳は図ほどきれいに区切られてはいません。また、手や顔が広いのは皮膚の神経の多さだけでは説明しきれず、使い方なども関わると考えられています。2023年には、すぐ前にある「運動の地図」で、手や足の領域の間に全身の動きをまとめる別の領域が挟まっていることも示されました。</p>
-        </div>
-        <div>
-          <span>PAIN</span>
-          <b>痛みと地図の関係</b>
-          <p>手や足に起こる複合性局所疼痛症候群（CRPS）では、痛む手の地図が小さくなっているという結果が比較的そろっています。ただし研究の数は少なく、質にも課題があります。慢性腰痛では、触覚の鋭さが低下しているという報告はあるものの、研究の質に課題があり、地図が変わるかどうかは結果が分かれています。</p>
-        </div>
-        <div>
-          <span>TRAINING</span>
-          <b>感覚の練習で痛みは減る？</b>
-          <p>触覚を感じ分ける練習を痛みのケアに取り入れる試みがあります。10件の臨床試験をまとめた報告では、慢性腰痛では結果が食い違い、ほかの痛みでは質の低い研究しかありませんでした。今のところ、効果について確かなことは言えません。</p>
-        </div>
-      </div>
       <WhyQuiz
         question="脳の地図で手が広く描かれるのは、手の皮膚に神経が多いから…だけで説明できる？"
         choices={["神経の多さだけで説明できる", "神経の多さだけでは説明しきれない", "手が体の中で大きいから"]}
         answer={1}
         explain="手の皮膚には触覚の神経が多く集まっていますが、全身で調べた研究では、神経の密度だけでは手や顔の地図の広さを説明しきれませんでした（Corniani & Saal 2020）。細かく使う経験など、ほかの要因も関わると考えられています。"
       />
-      <p className="neuro-caution">
-        参考: Penfield W, Boldrey E (1937) Brain 60:389-443／Corniani G, Saal HP (2020) Tactile innervation densities across the whole body. J Neurophysiol 124(4):1229-1240／Gordon EM ら (2023) Nature 617:351-359／Di Pietro F ら (2013) J Pain 14(10)（CRPS と一次体性感覚野）／Catley MJ ら (2014) J Pain（慢性痛と触覚の鋭さ）／Graham A ら (2022) 慢性筋骨格系疼痛への感覚識別トレーニングの系統的レビュー／Tong J ら (2013) Front Hum Neurosci（2点の向き当てと従来の2点識別）。図の大きさは説明のための目安で、実際の脳の面積の比率を正確に表すものではありません。3Dの人体は MakeHuman（MPFB 2、CC0）で作成しました。
-      </p>
+      <LabMore>
+        <div className="lr-evidence">
+          <div>
+            <span>MAP</span>
+            <b>この図は「単純化した地図」</b>
+            <p>体の地図は、1930年代に、目を覚ました状態で脳の手術を受けた患者さんの脳表面を電気で刺激し、どこが反応するかを調べて描かれました。実際の脳は図ほどきれいに区切られてはいません。また、手や顔が広いのは皮膚の神経の多さだけでは説明しきれず、使い方なども関わると考えられています。2023年には、すぐ前にある「運動の地図」で、手や足の領域の間に全身の動きをまとめる別の領域が挟まっていることも示されました。</p>
+          </div>
+          <div>
+            <span>PAIN</span>
+            <b>痛みと地図の関係</b>
+            <p>手や足に起こる複合性局所疼痛症候群（CRPS）では、痛む手の地図が小さくなっているという結果が比較的そろっています。ただし研究の数は少なく、質にも課題があります。慢性腰痛では、触覚の鋭さが低下しているという報告はあるものの、研究の質に課題があり、地図が変わるかどうかは結果が分かれています。</p>
+          </div>
+          <div>
+            <span>TRAINING</span>
+            <b>感覚の練習で痛みは減る？</b>
+            <p>触覚を感じ分ける練習を痛みのケアに取り入れる試みがあります。10件の臨床試験をまとめた報告では、慢性腰痛では結果が食い違い、ほかの痛みでは質の低い研究しかありませんでした。今のところ、効果について確かなことは言えません。</p>
+          </div>
+        </div>
+        <p className="neuro-caution">
+          参考: Penfield W, Boldrey E (1937) Brain 60:389-443／Corniani G, Saal HP (2020) Tactile innervation densities across the whole body. J Neurophysiol 124(4):1229-1240／Gordon EM ら (2023) Nature 617:351-359／Di Pietro F ら (2013) J Pain 14(10)（CRPS と一次体性感覚野）／Catley MJ ら (2014) J Pain（慢性痛と触覚の鋭さ）／Graham A ら (2022) 慢性筋骨格系疼痛への感覚識別トレーニングの系統的レビュー／Tong J ら (2013) Front Hum Neurosci（2点の向き当てと従来の2点識別）。図の大きさは説明のための目安で、実際の脳の面積の比率を正確に表すものではありません。3Dの人体は MakeHuman（MPFB 2、CC0）で作成しました。
+        </p>
+      </LabMore>
     </section>
   );
 }

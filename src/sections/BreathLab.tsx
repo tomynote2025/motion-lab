@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { LabHead } from '../components/LabHead';
+import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
@@ -135,43 +135,45 @@ export function BreathLab() {
               はじめる（{minutes}分）
             </button>
           )}
-          <div className="lr-howto">
-            <p><b>やり方のコツ</b></p>
+          <details className="lr-howto lab-more">
+            <summary>やり方のコツ</summary>
             <ol>
               <li>楽な姿勢で座り、肩の力を抜きます。</li>
               <li>大きく吸い込みすぎず、おなかや胸の下の方が広がるのを感じながら、ゆっくり呼吸します。</li>
               <li>苦しい・頭がふらつくと感じたら、すぐにふだんの呼吸に戻してください。</li>
             </ol>
-          </div>
+          </details>
         </div>
       </div>
 
-      <div className="lr-evidence">
-        <div>
-          <span>RESONANCE</span>
-          <b>なぜ1分6回？</b>
-          <p>心拍と血圧には、およそ10秒（0.1Hz）周期の自然なリズムがあります。呼吸をこのリズムに合わせると、吸う・吐くに伴う心拍の揺れが重なって大きくなり、心拍変動が高まると考えられています。最適な回数には個人差があります。</p>
-        </div>
-        <div>
-          <span>EVIDENCE</span>
-          <b>どのくらい効果がある？</b>
-          <p>223の研究をまとめた報告では、ゆっくり呼吸をしている最中は、副交感神経の働きを表す心拍変動が中程度に増えていました。一方、終わった後や練習を重ねた後の増加は小さく、多くの研究で質に課題がありました。</p>
-        </div>
-        <div>
-          <span>NOTE</span>
-          <b>大切なこと</b>
-          <p>ゆっくり呼吸は、気持ちを落ち着けたいときに手軽に試せる方法のひとつです。ただし病気の治療の代わりにはなりません。息苦しさや動悸が続く場合は、医療機関にご相談ください。</p>
-        </div>
-      </div>
       <WhyQuiz
         question="心拍のゆらぎが大きくなりやすいのは、1分間に何回くらいの呼吸？"
         choices={["約6回", "約15回", "約30回"]}
         answer={0}
         explain="ふだんの呼吸は1分間に12〜20回ほどですが、1分間に6回前後のゆっくりした呼吸では、吸う・吐くに合わせた心拍の揺れが大きくなることが知られています。体のリズムと呼吸のリズムが重なるためと考えられています。"
       />
-      <p className="neuro-caution">
-        参考: Laborde S ら (2022) Effects of voluntary slow breathing on heart rate and heart rate variability: a systematic review and a meta-analysis. Neurosci Biobehav Rev 138:104711／Sevoz-Couche C, Laborde S (2022) Heart rate variability and slow-paced breathing: when coherence meets resonance. Neurosci Biobehav Rev 135:104576。
-      </p>
+      <LabMore>
+        <div className="lr-evidence">
+          <div>
+            <span>RESONANCE</span>
+            <b>なぜ1分6回？</b>
+            <p>心拍と血圧には、およそ10秒（0.1Hz）周期の自然なリズムがあります。呼吸をこのリズムに合わせると、吸う・吐くに伴う心拍の揺れが重なって大きくなり、心拍変動が高まると考えられています。最適な回数には個人差があります。</p>
+          </div>
+          <div>
+            <span>EVIDENCE</span>
+            <b>どのくらい効果がある？</b>
+            <p>223の研究をまとめた報告では、ゆっくり呼吸をしている最中は、副交感神経の働きを表す心拍変動が中程度に増えていました。一方、終わった後や練習を重ねた後の増加は小さく、多くの研究で質に課題がありました。</p>
+          </div>
+          <div>
+            <span>NOTE</span>
+            <b>大切なこと</b>
+            <p>ゆっくり呼吸は、気持ちを落ち着けたいときに手軽に試せる方法のひとつです。ただし病気の治療の代わりにはなりません。息苦しさや動悸が続く場合は、医療機関にご相談ください。</p>
+          </div>
+        </div>
+        <p className="neuro-caution">
+          参考: Laborde S ら (2022) Effects of voluntary slow breathing on heart rate and heart rate variability: a systematic review and a meta-analysis. Neurosci Biobehav Rev 138:104711／Sevoz-Couche C, Laborde S (2022) Heart rate variability and slow-paced breathing: when coherence meets resonance. Neurosci Biobehav Rev 135:104576。
+        </p>
+      </LabMore>
     </section>
   );
 }

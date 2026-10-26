@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { LabHead } from '../components/LabHead';
+import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 import { OpenOnPhone } from '../components/OpenOnPhone';
 import { InsightResult, Predict, readPrevious, savePrevious } from '../components/Insight';
@@ -293,7 +293,7 @@ export function ProprioceptionLab() {
 
       <div className="position-notice">
         <b>はじめる前に</b>
-        <p>病気やけがの診断ではありません。ひざや肩に痛みがある場合は、無理のない範囲で行い、痛みが強くなるときは中止してください。</p>
+        <p>痛みがあるときは無理のない範囲で行い、強くなったら中止してください。診断ではありません。</p>
       </div>
 
       <div className="pos-toolbar">
@@ -344,7 +344,7 @@ export function ProprioceptionLab() {
                 {phase !== 'done' && (
                   <Predict
                     question={`目を閉じて戻すと、${def.label}は何度くらいずれると思いますか？`}
-                    hint="3回の平均のずれ（目標の角度との差）を予想します。0°ならぴったり。"
+                    hint="0°ならぴったり"
                     min={0}
                     max={20}
                     step={0.5}
@@ -352,8 +352,10 @@ export function ProprioceptionLab() {
                     format={fmtDeg}
                     value={prediction}
                     onChange={setPrediction}
+                    onStart={startMeasure}
                   />
                 )}
+                {(phase === 'done' || prediction !== undefined) && (
                 <button
                   className="start-btn position-main-btn"
                   onClick={() => {
@@ -368,6 +370,7 @@ export function ProprioceptionLab() {
                 >
                   {phase === 'done' ? 'もう一度（予想からやり直す）' : 'はじめる（3回）'}
                 </button>
+                )}
                 </>
               )}
               {status && <p className={`pos-status ${phase === 'unsupported' || phase === 'denied' ? 'warn' : ''}`}>{status}</p>}
@@ -422,15 +425,15 @@ export function ProprioceptionLab() {
                   </ul>
                 </div>
               )}
-              <div className="lr-howto">
-                <p><b>測り方のポイント</b></p>
+              <details className="lr-howto lab-more">
+                <summary>測り方のポイント</summary>
                 <ol>
                   <li>「はじめる」を押したら、画面の指示と音声に合わせて動かします。止めると自動で記録され、音が鳴ります。</li>
                   <li>目を閉じている間は、音と読み上げで次の動作を知らせます。音が出るようにしておいてください。</li>
                   <li>スマホは、手足の向きに沿わせてずれないように当てます。測っているのはスマホの傾きなので、当て方が変わると数値も変わります。</li>
                 </ol>
                 <p className="lr-mini">センサーの値は画面の中で計算するだけで、どこにも送信・保存しません。</p>
-              </div>
+              </details>
             </>
           ) : (
             <div className="lr-howto">
@@ -446,32 +449,34 @@ export function ProprioceptionLab() {
         </div>
       </div>
 
-      <div className="lr-evidence">
-        <div>
-          <span>SENSE</span>
-          <b>固有感覚とは</b>
-          <p>筋肉や腱、関節にあるセンサーが、手足の位置や動きを脳に伝えています。目を閉じても自分の手足の位置がだいたい分かるのは、この感覚のおかげです。</p>
-        </div>
-        <div>
-          <span>REFERENCE</span>
-          <b>結果の目安</b>
-          <p>座ってひざの角度を再現するテストでは、健康な人でも平均で約4°ずれました。肩でも3〜6°ほどずれ、年齢とともに大きくなる傾向があります。日によっても変わり、ある研究ではひざで約7°までの差は測定のばらつきの範囲とされています。</p>
-        </div>
-        <div>
-          <span>SMARTPHONE</span>
-          <b>スマホで測れるの？</b>
-          <p>スマホの傾きセンサーで再現のずれを測る方法は、腰や首では信頼性が高いという報告があります。ひざやひじは中程度で、肩の研究はまだ少ない段階です。ここでの数値は、同じ人がくり返し比べるための目安です。</p>
-        </div>
-      </div>
       <WhyQuiz
         question="目を閉じていても、手足の位置がだいたい分かるのは、主にどこからの情報があるから？"
         choices={["皮膚が感じる温度", "筋肉・腱・関節にあるセンサー", "耳の奥の平衡感覚だけ"]}
         answer={1}
         explain="筋肉の伸び縮みや腱にかかる力、関節の動きを感じるセンサーが、手足の位置や動きを脳に伝えています（固有感覚）。それでも完全ではないので、健康な人でも目を閉じると数度ずれます。"
       />
-      <p className="neuro-caution">
-        参考: Factors that influence the angular error in active knee angle reproduction tests: a systematic review and meta-analysis (2024)／Test–retest reliability of a knee joint position sense measurement method in sitting and prone position／Busch A ら, Reliability of the active knee joint position sense test and influence of limb dominance and sex (Sci Rep, 2023)／Variability of shoulder girdle proprioception in 44 healthy volunteers (2019)／Test–retest reliability of an iPhone inclinometer application to assess the lumbar joint repositioning error (2021)。画像は MakeHuman（MPFB 2、CC0）で作成。
-      </p>
+      <LabMore>
+        <div className="lr-evidence">
+          <div>
+            <span>SENSE</span>
+            <b>固有感覚とは</b>
+            <p>筋肉や腱、関節にあるセンサーが、手足の位置や動きを脳に伝えています。目を閉じても自分の手足の位置がだいたい分かるのは、この感覚のおかげです。</p>
+          </div>
+          <div>
+            <span>REFERENCE</span>
+            <b>結果の目安</b>
+            <p>座ってひざの角度を再現するテストでは、健康な人でも平均で約4°ずれました。肩でも3〜6°ほどずれ、年齢とともに大きくなる傾向があります。日によっても変わり、ある研究ではひざで約7°までの差は測定のばらつきの範囲とされています。</p>
+          </div>
+          <div>
+            <span>SMARTPHONE</span>
+            <b>スマホで測れるの？</b>
+            <p>スマホの傾きセンサーで再現のずれを測る方法は、腰や首では信頼性が高いという報告があります。ひざやひじは中程度で、肩の研究はまだ少ない段階です。ここでの数値は、同じ人がくり返し比べるための目安です。</p>
+          </div>
+        </div>
+        <p className="neuro-caution">
+          参考: Factors that influence the angular error in active knee angle reproduction tests: a systematic review and meta-analysis (2024)／Test–retest reliability of a knee joint position sense measurement method in sitting and prone position／Busch A ら, Reliability of the active knee joint position sense test and influence of limb dominance and sex (Sci Rep, 2023)／Variability of shoulder girdle proprioception in 44 healthy volunteers (2019)／Test–retest reliability of an iPhone inclinometer application to assess the lumbar joint repositioning error (2021)。画像は MakeHuman（MPFB 2、CC0）で作成。
+        </p>
+      </LabMore>
     </section>
   );
 }

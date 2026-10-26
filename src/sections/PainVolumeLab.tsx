@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LabHead } from '../components/LabHead';
+import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
@@ -87,7 +87,7 @@ export function PainVolumeLab() {
 
       <div className="position-notice">
         <b>大切な前提</b>
-        <p>痛みは「気のせい」ではなく、本当に感じている体験です。また、体の状態が大事でないという意味でもありません。しびれや力の入りにくさ、発熱、夜も続く痛み、けがのあとの強い痛みなどがある場合は、医療機関を受診してください。</p>
+        <p>痛みは「気のせい」ではありません。しびれ・力の入りにくさ・発熱・夜も続く痛み・けがのあとの強い痛みがあるときは、医療機関を受診してください。</p>
       </div>
 
       <div className="position-grid">
@@ -151,32 +151,34 @@ export function PainVolumeLab() {
         </div>
       </div>
 
-      <div className="lr-evidence">
-        <div>
-          <span>MODEL</span>
-          <b>危険と安全の手がかり</b>
-          <p>痛みの教育では、体の状態だけでなく、経験・考え方・環境なども「危険の手がかり」や「安全の手がかり」として痛みを調整する、と説明します。このつまみは、その考え方を体験するための図です。</p>
-        </div>
-        <div>
-          <span>EVIDENCE</span>
-          <b>知ると痛みは減る？</b>
-          <p>痛みの仕組みを学ぶ教育をまとめた研究では、動くことへの怖さや、痛みを悪く考えすぎる傾向は改善しました。一方、痛みの強さや生活の支障への効果は小さいとされています。運動など、ほかの方法と組み合わせることが大切です。</p>
-        </div>
-        <div>
-          <span>USE</span>
-          <b>日常での使い方</b>
-          <p>痛みが強い日は「今日はどんな手がかりが多いか」を振り返ってみてください。睡眠や不安など、体以外に整えられることが見つかるかもしれません。</p>
-        </div>
-      </div>
       <WhyQuiz
         question="同じ冷たい刺激でも、赤い合図のときのほうが「熱い・痛い」と感じられた実験。どう説明される？"
         choices={["赤い光で皮膚の温度が上がったから", "脳が「危なそう」という手がかりも合わせて痛みを調整しているから", "気のせいで、実際は何も感じていないから"]}
         answer={1}
         explain="脳は、体からの信号だけでなく、目に入る手がかりや過去の経験も合わせて、どのくらい守る必要があるかを判断していると考えられています（Moseley & Arntz 2007）。気のせいではなく、本当に感じ方が変わります。"
       />
-      <p className="neuro-caution">
-        参考: Moseley GL, Arntz A (2007) The context of a noxious stimulus affects the pain it evokes. Pain／Moseley GL, Butler DS (2015) Fifteen years of explaining pain: the past, present, and future. J Pain／Watson JA ら (2019) Pain neuroscience education for adults with chronic musculoskeletal pain: a mixed-methods systematic review and meta-analysis. J Pain。
-      </p>
+      <LabMore>
+        <div className="lr-evidence">
+          <div>
+            <span>MODEL</span>
+            <b>危険と安全の手がかり</b>
+            <p>痛みの教育では、体の状態だけでなく、経験・考え方・環境なども「危険の手がかり」や「安全の手がかり」として痛みを調整する、と説明します。このつまみは、その考え方を体験するための図です。</p>
+          </div>
+          <div>
+            <span>EVIDENCE</span>
+            <b>知ると痛みは減る？</b>
+            <p>痛みの仕組みを学ぶ教育をまとめた研究では、動くことへの怖さや、痛みを悪く考えすぎる傾向は改善しました。一方、痛みの強さや生活の支障への効果は小さいとされています。運動など、ほかの方法と組み合わせることが大切です。</p>
+          </div>
+          <div>
+            <span>USE</span>
+            <b>日常での使い方</b>
+            <p>痛みが強い日は「今日はどんな手がかりが多いか」を振り返ってみてください。睡眠や不安など、体以外に整えられることが見つかるかもしれません。</p>
+          </div>
+        </div>
+        <p className="neuro-caution">
+          参考: Moseley GL, Arntz A (2007) The context of a noxious stimulus affects the pain it evokes. Pain／Moseley GL, Butler DS (2015) Fifteen years of explaining pain: the past, present, and future. J Pain／Watson JA ら (2019) Pain neuroscience education for adults with chronic musculoskeletal pain: a mixed-methods systematic review and meta-analysis. J Pain。
+        </p>
+      </LabMore>
     </section>
   );
 }

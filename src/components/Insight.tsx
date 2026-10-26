@@ -22,6 +22,7 @@ export function Predict({
   value,
   onChange,
   disabled,
+  onStart,
 }: {
   question: string;
   hint?: string;
@@ -33,6 +34,8 @@ export function Predict({
   value: number | null | undefined;
   onChange: (v: number | null | undefined) => void;
   disabled?: boolean;
+  /** 渡すと「この予想ではじめる」1回で予想を決めて測定を始める */
+  onStart?: () => void;
 }) {
   const [draft, setDraft] = useState(initial);
 
@@ -70,11 +73,25 @@ export function Predict({
         <span>{format(max)}</span>
       </div>
       <div className="predict-actions">
-        <button type="button" className="predict-lock" onClick={() => onChange(draft)}>
-          この予想で決める
+        <button
+          type="button"
+          className="predict-lock"
+          onClick={() => {
+            onChange(draft);
+            onStart?.();
+          }}
+        >
+          {onStart ? 'この予想ではじめる' : 'この予想で決める'}
         </button>
-        <button type="button" className="predict-skip" onClick={() => onChange(null)}>
-          予想しないで測る
+        <button
+          type="button"
+          className="predict-skip"
+          onClick={() => {
+            onChange(null);
+            onStart?.();
+          }}
+        >
+          {onStart ? '予想せずにはじめる' : '予想しないで測る'}
         </button>
       </div>
     </div>

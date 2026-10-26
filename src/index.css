@@ -5112,7 +5112,7 @@ body.has-custom-cursor input[type='range'] {
 }
 
 .lab-page .section-head .section-index {
-  grid-row: 1 / span 4;
+  grid-row: 1 / span 5;
 }
 
 .footer {
@@ -6073,6 +6073,126 @@ body.has-custom-cursor input[type='range'] {
   }
 }
 
+/* ---------- シンプルな見せ方: 最初は題名と問いかけだけ ---------- */
+.lab-hook {
+  margin: 4px 0 16px;
+  color: var(--green);
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.lab-more {
+  max-width: 920px;
+  border-top: 1px solid var(--line);
+}
+
+.lab-more > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lab-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lab-more > summary::before {
+  content: '+';
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--green);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.lab-more[open] > summary::before {
+  content: '−';
+}
+
+.lab-more > summary:hover {
+  color: var(--text);
+}
+
+.lab-more[open] {
+  padding-bottom: 8px;
+}
+
+.lab-head .lab-more .section-lead {
+  margin-top: 4px;
+}
+
+.lab-head .lab-more .lab-flow {
+  margin-top: 14px;
+}
+
+.lab-more-evidence {
+  margin-top: 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.lab-more-evidence .lr-evidence {
+  margin-top: 4px;
+}
+
+.lab-more-evidence .neuro-caution {
+  margin-top: 14px;
+}
+
+.lab-page .section-head .lab-hook,
+.lab-page .section-head .lab-more {
+  grid-column: 2;
+}
+
+/* 注意書きは小さく1行で（安全のための内容は残す） */
+.position-notice {
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  padding: 10px 16px;
+  margin-bottom: 18px;
+  align-items: baseline;
+}
+
+.position-notice b {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.position-notice p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+details.lr-howto.lab-more {
+  border-top: 1px solid var(--line);
+  padding: 0;
+  background: none;
+}
+
+details.lr-howto.lab-more > summary {
+  padding: 12px 0;
+}
+
+details.lr-howto.lab-more ol {
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .lab-detail > .section {
+    padding-top: 24px;
+  }
+}
+
 /* ラボ一覧のグループ */
 .lab-index-list {
   border-top: none;
@@ -6313,7 +6433,9 @@ a.lab-promo-item:hover {
   .lab-page .section-head .section-index,
   .lab-page .section-head .section-lead,
   .lab-page .section-head .lab-tags,
-  .lab-page .section-head .lab-flow {
+  .lab-page .section-head .lab-flow,
+  .lab-page .section-head .lab-hook,
+  .lab-page .section-head .lab-more {
     grid-column: 1;
     grid-row: auto;
   }

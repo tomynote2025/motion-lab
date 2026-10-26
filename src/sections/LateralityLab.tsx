@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LabHead } from '../components/LabHead';
+import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 import { InsightResult, Predict } from '../components/Insight';
 
@@ -344,21 +344,17 @@ export function LateralityLab() {
     <section id="laterality" className="section">
       <LabHead
         id="laterality"
-        lead="画面に出る手足が「右」か「左」かを判断するとき、脳の中では自分の手足を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり、間違えやすくなったりすることが報告されています。"
+        lead="画面に出る手足が「右」か「左」かを判断するとき、脳の中では自分の手足を同じ向きに動かすイメージ（運動イメージ）が使われていると考えられています。痛みが長く続いている人では、この判断が遅くなったり、間違えやすくなったりすることが報告されています。ただし、親指の位置などの見た目の手がかりだけで判断できる場合もあり、運動イメージだけを測っているわけではありません。病気や痛みの原因を調べる検査ではありません。"
         steps="部位を選び、1問に何秒かかるかを予想してから「はじめる」。画像が出たら、右か左かをボタン（パソコンは ← / → キーでも可）でできるだけ速く答えます。慣れないうちは「練習する」から。"
         read="正答率と、正解したときの平均反応時間が出ます。反応時間は予想と並べ、手の画像なら研究で報告されている健康な若い成人の幅（約1.0〜1.4秒）のどこに入るかに印を付けます。左右の差も見てください。"
       />
 
-      <div className="position-notice">
-        <b>この体験で測るもの</b>
-        <p>手足の左右を判断する速さと正確さです。運動イメージが関わると考えられていますが、見た目の手がかり（親指の位置や爪など）だけで判断できる場合もあり、運動イメージだけを測っているわけではありません。病気や痛みの原因を調べる検査ではありません。</p>
-      </div>
 
       <div className="position-grid">
         <div className="position-stage lr-stage">
           <div className="position-stage-head">
             <span>{running ? `${practice ? 'PRACTICE' : 'TRIAL'} ${index + 1} / ${trials.length}` : 'LEFT OR RIGHT ?'}</span>
-            <b>{running ? def.question : phase === 'result' ? 'おつかれさまでした' : '「はじめる」で開始'}</b>
+            <b>{running ? def.question : phase === 'result' ? 'おつかれさまでした' : '予想を決めるとスタート'}</b>
           </div>
 
           <div className="lr-canvas lr-stim">
@@ -405,7 +401,6 @@ export function LateralityLab() {
               {!(phase === 'result' && !practice) && (
                 <Predict
                   question="1問に何秒くらいかかると思いますか？"
-                  hint="画像が出てから、右か左かを答えるまでの平均の時間を予想します。"
                   min={0.3}
                   max={3}
                   step={0.1}
@@ -413,8 +408,10 @@ export function LateralityLab() {
                   format={fmtSec}
                   value={prediction}
                   onChange={setPrediction}
+                  onStart={() => start(false)}
                 />
               )}
+              {((phase === 'result' && !practice) || prediction !== undefined) && (
               <button
                 className="start-btn position-main-btn"
                 onClick={() => {
@@ -427,6 +424,7 @@ export function LateralityLab() {
               >
                 {phase === 'result' && !practice ? 'もう一度（予想からやり直す）' : `はじめる（${total}問）`}
               </button>
+              )}
               <button className="lr-sub-btn" onClick={() => start(true)}>練習する（4問）</button>
             </>
           )}
@@ -487,45 +485,47 @@ export function LateralityLab() {
           )}
 
           {phase === 'intro' && (
-            <div className="lr-howto">
-              <p><b>やり方</b></p>
+            <details className="lr-howto lab-more">
+              <summary>やり方</summary>
               <ol>
                 <li>中央に「＋」が出たあと、画像が表示されます。</li>
                 <li>{def.left}か{def.right}かを、ボタンか ← / → キー（F / J キーでも可）で答えます。</li>
                 <li>{def.howto}全部で{total}問です。5秒で時間切れになります。</li>
               </ol>
               <p className="lr-mini">自分の手足を動かさず、画面だけを見て判断するのが基本です。</p>
-            </div>
+            </details>
           )}
         </div>
       </div>
 
-      <div className="lr-evidence">
-        <div>
-          <span>REFERENCE</span>
-          <b>結果の目安</b>
-          <p>手の画像を使い、健康な18〜35歳の100人を対象にした研究では、正答率は約87〜89%、平均反応時間は約1.0〜1.4秒でした。年齢が上がると遅く・間違えやすくなる傾向があり、くり返すと速くなります。テストの条件（画面や答え方）や部位でも変わるため、あくまで目安です。</p>
-        </div>
-        <div>
-          <span>PAIN</span>
-          <b>痛みとの関係</b>
-          <p>25の研究をまとめた報告では、手足や顔の慢性的な痛みがある人で成績の低下が一貫して見られました。一方、首や腰など体幹の痛みでは結果が一貫していません。左右差や遅さがあっても、それだけで痛みの原因は分かりません。</p>
-        </div>
-        <div>
-          <span>TRAINING</span>
-          <b>練習すると痛みは減る？</b>
-          <p>左右判断の練習は、「段階的運動イメージ」という方法の最初の段階として使われます。方法全体には痛みを和らげる可能性が示されていますが研究の質は高くなく、左右判断の練習だけで痛みが減る効果は確認されていません。</p>
-        </div>
-      </div>
       <WhyQuiz
         question="手のひらの画像で、指先が体の外側を向いているほうが、答えるのに時間がかかりやすいのはなぜ？"
         choices={["画像が暗くて見にくいから", "実際に自分の手をその向きへ回しにくいから", "利き手ではないから"]}
         answer={1}
         explain="左右を決めるとき、脳の中で自分の手をその向きに動かすイメージを使うと考えられています。実際に回しにくい向き（関節の動きの制約がある向き）ほど、イメージにも時間がかかりやすいことが知られています。"
       />
-      <p className="neuro-caution">
-        参考: Parsons LM (1987, 1994) 手の左右判断と運動イメージ／Breckenridge JD ら (2019) J Pain 20(2):119-132／Bowering KJ ら (2013) J Pain 14(1):3-13／Development and validation of an open-source Hand Laterality Judgement Task (bioRxiv, 2024)。画像は MakeHuman（MPFB 2、CC0）で作成。痛みやしびれが続く場合は、医療機関や専門家にご相談ください。
-      </p>
+      <LabMore>
+        <div className="lr-evidence">
+          <div>
+            <span>REFERENCE</span>
+            <b>結果の目安</b>
+            <p>手の画像を使い、健康な18〜35歳の100人を対象にした研究では、正答率は約87〜89%、平均反応時間は約1.0〜1.4秒でした。年齢が上がると遅く・間違えやすくなる傾向があり、くり返すと速くなります。テストの条件（画面や答え方）や部位でも変わるため、あくまで目安です。</p>
+          </div>
+          <div>
+            <span>PAIN</span>
+            <b>痛みとの関係</b>
+            <p>25の研究をまとめた報告では、手足や顔の慢性的な痛みがある人で成績の低下が一貫して見られました。一方、首や腰など体幹の痛みでは結果が一貫していません。左右差や遅さがあっても、それだけで痛みの原因は分かりません。</p>
+          </div>
+          <div>
+            <span>TRAINING</span>
+            <b>練習すると痛みは減る？</b>
+            <p>左右判断の練習は、「段階的運動イメージ」という方法の最初の段階として使われます。方法全体には痛みを和らげる可能性が示されていますが研究の質は高くなく、左右判断の練習だけで痛みが減る効果は確認されていません。</p>
+          </div>
+        </div>
+        <p className="neuro-caution">
+          参考: Parsons LM (1987, 1994) 手の左右判断と運動イメージ／Breckenridge JD ら (2019) J Pain 20(2):119-132／Bowering KJ ら (2013) J Pain 14(1):3-13／Development and validation of an open-source Hand Laterality Judgement Task (bioRxiv, 2024)。画像は MakeHuman（MPFB 2、CC0）で作成。痛みやしびれが続く場合は、医療機関や専門家にご相談ください。
+        </p>
+      </LabMore>
     </section>
   );
 }

@@ -135,7 +135,7 @@ function SaccadeTest() {
         <div className="neuro-predict">
           <Predict
             question="光点が出てから押すまで、何ミリ秒くらいだと思いますか？"
-            hint="1000ミリ秒 = 1秒。8回の平均を予想します。"
+            hint="1000ミリ秒 = 1秒"
             min={150}
             max={1200}
             step={10}
@@ -143,6 +143,7 @@ function SaccadeTest() {
             format={fmtMs}
             value={prediction}
             onChange={setPrediction}
+            onStart={start}
           />
         </div>
       )}
@@ -154,9 +155,11 @@ function SaccadeTest() {
               <span className="neuro-idle-dot saccade" />
             </div>
             <p>「＋」のあと、どこかに光点が出ます。見つけたら、すぐにタップ（クリック）します。</p>
-            <button className="start-btn" onClick={start}>
-              テスト開始
-            </button>
+            {prediction !== undefined && (
+              <button className="start-btn" onClick={start}>
+                テスト開始
+              </button>
+            )}
           </div>
         )}
         {phase === 'wait' && <div className="saccade-fixation">+</div>}
@@ -307,7 +310,7 @@ function PursuitTest() {
         <div className="neuro-predict">
           <Predict
             question="動く光点に、何%くらい重ねていられると思いますか？"
-            hint="15秒のうち、光点の円の中にカーソル（指）があった時間の割合を予想します。"
+            hint="15秒のうち、重ねていられた時間の割合"
             min={0}
             max={100}
             step={5}
@@ -315,6 +318,7 @@ function PursuitTest() {
             format={fmtPct}
             value={prediction}
             onChange={setPrediction}
+            onStart={() => setRunning(true)}
           />
         </div>
       )}
@@ -338,6 +342,7 @@ function PursuitTest() {
                 <div className="result-rating">{rating}</div>
               </>
             )}
+            {(result !== null || prediction !== undefined) && (
             <button
               className="start-btn"
               onClick={() => {
@@ -351,6 +356,7 @@ function PursuitTest() {
             >
               {result === null ? 'テスト開始' : 'もう一度（予想からやり直す）'}
             </button>
+            )}
           </div>
         )}
       </div>

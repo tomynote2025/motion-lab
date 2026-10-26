@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SuperficialFasciaModel3D, DeepFasciaModel3D } from '../three/FasciaModels';
-import { LabHead } from '../components/LabHead';
+import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
@@ -68,9 +68,11 @@ export function FasciaLab() {
         answer={1}
         explain="筋膜の層の間にあるヒアルロン酸は、温度が上がると粘りが下がることが試験管の実験で示されています（Matteini ら 2009）。ただし、体の中で同じことが起きて滑りがよくなるかは、まだ確かめられていません。"
       />
-      <p className="neuro-caution">
-        参考: Fascial Manipulation® Institute by Stecco の方法論、およびC. &amp; A. Steccoらの筋膜解剖研究／Matteini P ら (2009) Biomacromolecules（ヒアルロン酸の温度による変化）。「高密度化」は Stecco らが提唱する考え方で、体の中での検証はまだ限られています。本コンテンツは概念を体感する教育用モデルで、触診・評価・治療を再現するものではありません。
-      </p>
+      <LabMore>
+        <p className="neuro-caution">
+          参考: Fascial Manipulation® Institute by Stecco の方法論、およびC. &amp; A. Steccoらの筋膜解剖研究／Matteini P ら (2009) Biomacromolecules（ヒアルロン酸の温度による変化）。「高密度化」は Stecco らが提唱する考え方で、体の中での検証はまだ限られています。本コンテンツは概念を体感する教育用モデルで、触診・評価・治療を再現するものではありません。
+        </p>
+      </LabMore>
     </section>
   );
 }

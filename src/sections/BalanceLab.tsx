@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { LabHead } from '../components/LabHead';
+import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 import { OpenOnPhone } from '../components/OpenOnPhone';
 import { InsightResult, Predict, readPrevious, savePrevious } from '../components/Insight';
@@ -243,7 +243,7 @@ export function BalanceLab() {
           {!running && phase !== 'result' && (
             <Predict
               question="目を閉じると、揺れは何倍になると思いますか？"
-              hint="1.0倍なら「変わらない」。目を開けているときの揺れと比べた大きさで予想します。"
+              hint="1.0倍なら「変わらない」"
               min={1}
               max={4}
               step={0.1}
@@ -251,11 +251,12 @@ export function BalanceLab() {
               format={fmtRatio}
               value={prediction}
               onChange={setPrediction}
+              onStart={start}
             />
           )}
           {running ? (
             <button className="lr-sub-btn" onClick={stop}>中止する</button>
-          ) : (
+          ) : prediction === undefined && phase !== 'result' ? null : (
             <button
               className="start-btn position-main-btn"
               onClick={() => {
@@ -290,43 +291,45 @@ export function BalanceLab() {
             />
           )}
 
-          <div className="lr-howto">
-            <p><b>この測定で分かること・分からないこと</b></p>
+          <details className="lr-howto lab-more">
+            <summary>この測定で分かること・分からないこと</summary>
             <ol>
               <li>目を開けたとき・閉じたときの揺れの違い（視覚にどれくらい頼っているかの目安）が分かります。</li>
               <li>スマホの持ち方・立ち方・床の硬さで数値は変わります。比べるときは同じやり方で。</li>
               <li>病気の診断や転倒しやすさの判定はできません。</li>
             </ol>
-          </div>
+          </details>
         </div>
       </div>
 
-      <div className="lr-evidence">
-        <div>
-          <span>ROMBERG</span>
-          <b>目を閉じて比べる理由</b>
-          <p>目を閉じると、足裏などの感覚と耳の奥の平衡感覚だけでバランスをとることになります。目を開けたときと比べることで、立つときに視覚がどれくらい役立っているかが見えてきます。医療で使われるロンベルグ検査も同じ考え方です。</p>
-        </div>
-        <div>
-          <span>SENSOR</span>
-          <b>スマホで測れるの？</b>
-          <p>体に付けた加速度センサーで静かに立ったときの揺れを測る方法は、小規模な研究で一定の信頼性が示されています。ただしスマホでの研究は数が少なく、質も高くありません。決まった基準値もないため、ここでは同じ人の開眼と閉眼の比較だけを示しています。</p>
-        </div>
-        <div>
-          <span>DATA</span>
-          <b>データの扱い</b>
-          <p>センサーの値は、この画面の中で計算するだけです。どこにも送信・保存しません。</p>
-        </div>
-      </div>
       <WhyQuiz
         question="目を閉じると、ふつうは揺れが増えます。なぜ？"
         choices={["目を閉じると筋力が落ちるから", "目からの手がかりがなくなり、残りの感覚だけで立つから", "目を閉じると血圧が下がるから"]}
         answer={1}
         explain="立っているときは、目・足裏などの感覚・耳の奥の平衡感覚を組み合わせてバランスをとっています。目を閉じると、そのうちの目からの手がかりがなくなるため、揺れが増えるのはふつうの反応です。"
       />
-      <p className="neuro-caution">
-        参考: Silva PJG, Nadal J, Infantosi AFC (2012) Investigating the center of pressure velocity Romberg's quotient for assessing the visual role on the body sway. Rev Bras Eng Biomed 28(4)（目安の帯）／Saunders NW ら (2015) Reliability and validity of a wireless accelerometer for the assessment of postural sway／Inertial sensor reliability and validity for static and dynamic balance in healthy adults: a systematic review (Sensors, 2021)。ふらつきやめまいが続く場合は、医療機関にご相談ください。
-      </p>
+      <LabMore>
+        <div className="lr-evidence">
+          <div>
+            <span>ROMBERG</span>
+            <b>目を閉じて比べる理由</b>
+            <p>目を閉じると、足裏などの感覚と耳の奥の平衡感覚だけでバランスをとることになります。目を開けたときと比べることで、立つときに視覚がどれくらい役立っているかが見えてきます。医療で使われるロンベルグ検査も同じ考え方です。</p>
+          </div>
+          <div>
+            <span>SENSOR</span>
+            <b>スマホで測れるの？</b>
+            <p>体に付けた加速度センサーで静かに立ったときの揺れを測る方法は、小規模な研究で一定の信頼性が示されています。ただしスマホでの研究は数が少なく、質も高くありません。決まった基準値もないため、ここでは同じ人の開眼と閉眼の比較だけを示しています。</p>
+          </div>
+          <div>
+            <span>DATA</span>
+            <b>データの扱い</b>
+            <p>センサーの値は、この画面の中で計算するだけです。どこにも送信・保存しません。</p>
+          </div>
+        </div>
+        <p className="neuro-caution">
+          参考: Silva PJG, Nadal J, Infantosi AFC (2012) Investigating the center of pressure velocity Romberg's quotient for assessing the visual role on the body sway. Rev Bras Eng Biomed 28(4)（目安の帯）／Saunders NW ら (2015) Reliability and validity of a wireless accelerometer for the assessment of postural sway／Inertial sensor reliability and validity for static and dynamic balance in healthy adults: a systematic review (Sensors, 2021)。ふらつきやめまいが続く場合は、医療機関にご相談ください。
+        </p>
+      </LabMore>
     </section>
   );
 }

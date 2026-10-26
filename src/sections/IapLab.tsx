@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { IapAnatomy3D, type IapFocus } from '../three/IapAnatomy3D';
-import { LabHead } from '../components/LabHead';
+import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
@@ -432,13 +432,15 @@ export function IapLab() {
                     : '吸気では横隔膜と骨盤底が下降し、腹壁が広がります。呼気では3つが一緒に元の位置へ戻ります。'}
             </div>
           )}
-          <p className="iap-disclaimer">
-            ※ 表示は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません（健康な成人の安静時の腹腔内圧は、おおむね 7 mmHg 未満とされます）。
-            <br />
-            参考: Hodges PW, Gandevia SC (2000) J Appl Physiol 89(3):967-976（姿勢と呼吸での横隔膜と腹腔内圧）／Talasz H ら (2011) Int Urogynecol J（呼吸で横隔膜と骨盤底が同じ向きに動く）／Hagins M ら (2004) Spine 29(4):464-469（呼吸の仕方と持ち上げ動作時の腹腔内圧）。
-            <br />
-            3Dモデル: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International（腹圧の説明用に一部を抜き出し、改変して使用。腹壁は外腹斜筋のデータで表示）
-          </p>
+          <LabMore title="注意と参考文献">
+            <p className="iap-disclaimer">
+              ※ 表示は仕組みを理解するための教育用モデルで、実測値や医学的診断を示すものではありません（健康な成人の安静時の腹腔内圧は、おおむね 7 mmHg 未満とされます）。
+              <br />
+              参考: Hodges PW, Gandevia SC (2000) J Appl Physiol 89(3):967-976（姿勢と呼吸での横隔膜と腹腔内圧）／Talasz H ら (2011) Int Urogynecol J（呼吸で横隔膜と骨盤底が同じ向きに動く）／Hagins M ら (2004) Spine 29(4):464-469（呼吸の仕方と持ち上げ動作時の腹腔内圧）。
+              <br />
+              3Dモデル: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International（腹圧の説明用に一部を抜き出し、改変して使用。腹壁は外腹斜筋のデータで表示）
+            </p>
+          </LabMore>
         </div>
       </div>
       <WhyQuiz
