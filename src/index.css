@@ -6188,8 +6188,13 @@ details.lr-howto.lab-more ol {
 }
 
 @media (max-width: 640px) {
-  .lab-detail > .section {
-    padding-top: 24px;
+  .lab-page.lab-detail > .section {
+    padding-top: 20px;
+  }
+
+  .lab-page.lab-detail .section-head {
+    margin-bottom: 18px;
+    padding-bottom: 4px;
   }
 }
 
@@ -6274,7 +6279,7 @@ details.lr-howto.lab-more ol {
   color: var(--faint);
 }
 
-.lab-detail > .section {
+.lab-page.lab-detail > .section {
   padding-top: 40px;
 }
 
