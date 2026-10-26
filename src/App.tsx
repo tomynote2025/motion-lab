@@ -39,8 +39,8 @@ export default function App() {
           <NavLink to="/" end>
             ホーム
           </NavLink>
-          <NavLink to="/lab">LAB MENU</NavLink>
-          <NavLink to="/profile">PROFILE</NavLink>
+          <NavLink to="/lab">体験ラボ</NavLink>
+          <NavLink to="/profile">プロフィール</NavLink>
         </div>
       </nav>
 

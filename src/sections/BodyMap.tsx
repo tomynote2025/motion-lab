@@ -18,7 +18,7 @@ export function BodyMap() {
       <div className="section-head">
         <span className="section-index">01</span>
         <h2>
-          BODY MAP<span className="jp-sub">気になる部位から読む</span>
+          3D骨格マップ<span className="jp-sub">BODY MAP</span>
         </h2>
         <p className="section-lead">
           骨格モデルの光る点をタップすると、その部位で起きやすい不調のしくみと、関連する記事が表示されます。ドラッグで回転できます。

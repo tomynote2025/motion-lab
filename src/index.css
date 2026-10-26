@@ -3157,14 +3157,15 @@ body.has-custom-cursor input[type='range'] {
 }
 
 .lr-evidence > div {
-  padding: 20px;
+  padding: 20px 22px;
   border: 1px solid var(--line);
+  border-radius: 14px;
   background: var(--panel);
 }
 
 .lr-evidence span {
   font-family: var(--font-en);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.16em;
   color: var(--green);
 }
@@ -3172,13 +3173,13 @@ body.has-custom-cursor input[type='range'] {
 .lr-evidence b {
   display: block;
   margin: 6px 0 8px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .lr-evidence p {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.85;
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.9;
 }
 
 
@@ -5987,6 +5988,91 @@ body.has-custom-cursor input[type='range'] {
   border-bottom: 1px solid rgba(243, 240, 231, 0.5);
 }
 
+/* トップ右側のラボの例（幅 1280px 以上のみ。狭いと文章と重なるため） */
+.hero-labs {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .hero-labs {
+    display: block;
+    position: absolute;
+    right: max(40px, calc((100vw - 1280px) / 2 + 20px));
+    top: 50%;
+    width: 480px;
+    height: 600px;
+    translate: 0 -48%;
+    z-index: 1;
+  }
+
+  .hero-lab {
+    position: absolute;
+    width: 230px;
+    border: 1px solid rgba(239, 234, 220, 0.14);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--stage-2);
+    color: var(--stage-text);
+    text-decoration: none;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+
+  .hero-lab:hover {
+    transform: translateY(-6px) rotate(0deg) !important;
+    border-color: var(--green-soft);
+    z-index: 3;
+  }
+
+  .hero-lab img {
+    display: block;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .hero-lab span {
+    display: grid;
+    gap: 3px;
+    padding: 12px 14px 14px;
+    color: var(--stage-muted);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+
+  .hero-lab b {
+    color: var(--stage-text);
+    font-size: 14px;
+  }
+
+  .hero-lab-1 {
+    left: 0;
+    top: 30px;
+    transform: rotate(-3deg);
+  }
+
+  .hero-lab-2 {
+    left: 250px;
+    top: 0;
+    transform: rotate(2.5deg);
+  }
+
+  .hero-lab-3 {
+    left: 125px;
+    top: 318px;
+    transform: rotate(-1deg);
+  }
+
+  .lab-home-hero .hero-inner > * {
+    max-width: 720px;
+  }
+
+  .lab-home-hero::after {
+    opacity: 0.4;
+  }
+}
+
 /* ラボ一覧のグループ */
 .lab-index-list {
   border-top: none;
@@ -6253,7 +6339,7 @@ a.lab-promo-item:hover {
   }
 
   .nav-links a {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .nav-links a:first-child {
@@ -6269,9 +6355,6 @@ a.lab-promo-item:hover {
     font-size: 8px;
   }
 
-  .nav-links a:nth-child(3) {
-    display: none;
-  }
 
   .personal-promo {
     padding: 0 18px;
