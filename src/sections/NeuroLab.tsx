@@ -126,35 +126,36 @@ function SaccadeTest() {
   return (
     <div className="lab">
       <div className="lab-desc">
-        <h3>すばやく見つける（サッケード反応テスト）</h3>
-        <p>
-          サッケード（衝動性眼球運動）は、視線を目標へ一瞬で飛ばす眼球運動で、前頭葉の眼球運動の領域や脳幹（上丘）などが関わります。このテストで測るのは、光点が見えてから指やマウスで押すまでの「反応時間」です。目の動きそのものではなく、見つける時間や手を動かす時間も含まれます。現れた光点をできるだけ速くタップ — {SACCADE_ROUNDS}回の平均を出します。
-        </p>
+        <h3>すばやく見つける</h3>
+        <p>光点が出たら、できるだけ速くタップ。{SACCADE_ROUNDS}回の平均を出します。</p>
+        <details className="lab-more">
+          <summary>くわしく</summary>
+          <p>
+            サッケード（衝動性眼球運動）は、視線を目標へ一瞬で飛ばす眼球運動で、前頭葉の眼球運動の領域や脳幹（上丘）などが関わります。このテストで測るのは、光点が見えてから指やマウスで押すまでの「反応時間」です。目の動きそのものではなく、見つける時間や手を動かす時間も含まれます。
+          </p>
+        </details>
       </div>
-      {phase === 'idle' && (
-        <div className="neuro-predict">
-          <Predict
-            question="光点が出てから押すまで、何ミリ秒くらいだと思いますか？"
-            hint="1000ミリ秒 = 1秒"
-            min={150}
-            max={1200}
-            step={10}
-            initial={400}
-            format={fmtMs}
-            value={prediction}
-            onChange={setPrediction}
-            onStart={start}
-          />
-        </div>
-      )}
-      <div className="saccade-field">
+      <div className={`saccade-field ${phase === 'idle' ? 'is-idle' : ''}`}>
         {phase === 'idle' && (
           <div className="neuro-idle">
             <div className="neuro-idle-demo" aria-hidden="true">
               <span className="neuro-idle-cross">+</span>
               <span className="neuro-idle-dot saccade" />
             </div>
-            <p>「＋」のあと、どこかに光点が出ます。見つけたら、すぐにタップ（クリック）します。</p>
+            <div className="neuro-predict">
+              <Predict
+                question="光点が出てから押すまで、何ミリ秒くらい？"
+                hint="1000ミリ秒 = 1秒"
+                min={150}
+                max={1200}
+                step={10}
+                initial={400}
+                format={fmtMs}
+                value={prediction}
+                onChange={setPrediction}
+                onStart={start}
+              />
+            </div>
             {prediction !== undefined && (
               <button className="start-btn" onClick={start}>
                 テスト開始
@@ -300,29 +301,16 @@ function PursuitTest() {
   return (
     <div className="lab">
       <div className="lab-desc">
-        <h3>なめらかに追う（追従眼球運動）</h3>
-        <p>
-          動く物を滑らかに追う眼球運動（滑動性追従）には、小脳や大脳の視覚・眼球運動の領域などが関わります。このテストでは、動く光点にカーソル（指）を重ね続けられた割合を測ります。目の動きだけでなく、手の操作の正確さも含まれます。{PURSUIT_SECONDS}
-          秒間、頭は動かさずに目で追いながら操作してみてください。
-        </p>
+        <h3>なめらかに追う</h3>
+        <p>動く光点に、{PURSUIT_SECONDS}秒間カーソル（指）を重ね続けます。頭は動かさず、目で追います。</p>
+        <details className="lab-more">
+          <summary>くわしく</summary>
+          <p>
+            動く物を滑らかに追う眼球運動（滑動性追従）には、小脳や大脳の視覚・眼球運動の領域などが関わります。このテストでは、動く光点にカーソル（指）を重ね続けられた割合を測ります。目の動きだけでなく、手の操作の正確さも含まれます。
+          </p>
+        </details>
       </div>
-      {!running && result === null && (
-        <div className="neuro-predict">
-          <Predict
-            question="動く光点に、何%くらい重ねていられると思いますか？"
-            hint="15秒のうち、重ねていられた時間の割合"
-            min={0}
-            max={100}
-            step={5}
-            initial={60}
-            format={fmtPct}
-            value={prediction}
-            onChange={setPrediction}
-            onStart={() => setRunning(true)}
-          />
-        </div>
-      )}
-      <div className="pursuit-field">
+      <div className={`pursuit-field ${!running && result === null ? 'is-idle' : ''}`}>
         {running ? (
           <canvas ref={canvasRef} className="pursuit-canvas" />
         ) : (
@@ -332,7 +320,20 @@ function PursuitTest() {
                 <div className="neuro-idle-demo" aria-hidden="true">
                   <span className="neuro-idle-dot pursuit" />
                 </div>
-                <p>ゆっくり動く光点に、カーソル（指）を重ね続けます。頭は動かさず、目で追いながら操作します。</p>
+                <div className="neuro-predict">
+                  <Predict
+                    question="動く光点に、何%くらい重ねていられる？"
+                    hint="15秒のうち、重ねていられた時間の割合"
+                    min={0}
+                    max={100}
+                    step={5}
+                    initial={60}
+                    format={fmtPct}
+                    value={prediction}
+                    onChange={setPrediction}
+                    onStart={() => setRunning(true)}
+                  />
+                </div>
               </div>
             )}
             {result !== null && (
@@ -468,10 +469,12 @@ function VestibularLab() {
   return (
     <div className="lab lab-vestibular">
       <div className="lab-desc">
-        <h3>視線を保つ（耳の奥の平衡感覚）</h3>
-        <p>
-          耳の奥にある前庭は頭の動きを感じ取り、視線を安定させたり、姿勢を保ったりするのに役立っています。下の2つは、前庭リハビリで使われる刺激や運動を、体験用にしたものです。
-        </p>
+        <h3>視線を保つ</h3>
+        <p>耳の奥の平衡感覚が、視線をどう保っているかを2つの体験で試します。</p>
+        <details className="lab-more">
+          <summary>くわしく</summary>
+          <p>耳の奥にある前庭は頭の動きを感じ取り、視線を安定させたり、姿勢を保ったりするのに役立っています。下の2つは、前庭リハビリで使われる刺激や運動を、体験用にしたものです。</p>
+        </details>
       </div>
 
       <div className="vestibular-grid">

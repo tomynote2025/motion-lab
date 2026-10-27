@@ -233,60 +233,6 @@ export function IapLab() {
         read="背骨がまっすぐ保たれ、「背骨の支え」が「しっかり」なら、圧がうまく受け止められている状態です。背骨が丸まる・反るのは、支えきれないときの一例として表しています。"
       />
 
-      <div className="iap-canister" aria-label="腹圧を作る3つの要素">
-        <div><span>01 / CEILING</span><b>横隔膜</b><p>吸気で収縮・下降し、呼気で上昇する「天井」</p></div>
-        <i>＋</i>
-        <div><span>02 / WALL</span><b>腹壁</b><p>吸気で前・側方・後方へ広がり、呼気で戻る「壁」</p></div>
-        <i>＋</i>
-        <div><span>03 / FLOOR</span><b>骨盤底</b><p>吸気で下降、呼気で上昇し、負荷時は支持する「床」</p></div>
-        <strong>＝ 360°の支持</strong>
-      </div>
-
-      <div className="iap-compare">
-        <div className="iap-compare-head"><span>COMPARE</span><b>3つの状態を切り替えて比べる</b></div>
-        <div className="iap-presets">
-          <button className={preset === 'balance' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('balance'); }}><span>◎</span><b>呼吸と支持が協調</b><small>3つが同じリズムで動く</small></button>
-          <button className={preset === 'brace' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('brace'); }}><span>△</span><b>お腹だけ固める</b><small>横隔膜と骨盤底が追従しない</small></button>
-          <button className={preset === 'leak' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('leak'); }}><span>△</span><b>協調が崩れる</b><small>壁と床が圧を受け止めない</small></button>
-        </div>
-        <p className="iap-compare-note">
-          ※ 背骨の崩れ方（丸まる／反る）は一例です。どの方向に崩れるかは、姿勢のくせ・関節や筋の状態・動作の内容によって人それぞれで、決まっているわけではありません。
-        </p>
-      </div>
-
-      {advanced && (
-      <div className="iap-compare iap-parts">
-        <div className="iap-compare-head"><span>PARTS</span><b>部位を選んで、動きだけを見る</b></div>
-        <div className="region-chips" role="tablist" aria-label="表示する部位">
-          {PARTS.map((part) => (
-            <button
-              key={part.id}
-              className={`chip ${focus === part.id ? 'chip-active' : ''}`}
-              onClick={() => {
-                stopDemo();
-                setFocus(part.id);
-              }}
-            >
-              {part.label}
-            </button>
-          ))}
-        </div>
-        {focus !== 'all' && (
-          <>
-            <div className="iap-mode-toggle">
-              <button className={focusMode === 'good' ? 'active good' : ''} onClick={() => setFocusMode('good')}>◎ 良い動き</button>
-              <button className={focusMode === 'bad' ? 'active bad' : ''} onClick={() => setFocusMode('bad')}>△ 内圧が崩れたとき</button>
-            </div>
-            <p className="iap-part-caption">
-              <b>{PARTS.find((p) => p.id === focus)?.label}｜{focusMode === 'good' ? '良い動き' : '内圧が崩れたとき'}</b>
-              {FOCUS_TEXT[focus][focusMode]}
-              <span>数秒おきに自動で負荷がかかります。負荷を受けた瞬間の動きを見てください。</span>
-            </p>
-          </>
-        )}
-      </div>
-      )}
-
       <div className="iap-grid">
         <div className="iap-stage iap-stage-3d">
           <div className="iap-canvas" aria-label="腹腔内圧の3D解剖モデル">
@@ -316,6 +262,12 @@ export function IapLab() {
             {demoRunning ? '■ 止める' : '▶ まず見る（約17秒）'}
           </button>
           {demo && <div className={`iap-verdict ${demo.tone}`}>{demo.caption}</div>}
+          <div className="iap-control-label">3つの状態を比べる</div>
+          <div className="iap-presets">
+            <button className={preset === 'balance' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('balance'); }}><span>◎</span><b>呼吸と支持が協調</b><small>3つが同じリズムで動く</small></button>
+            <button className={preset === 'brace' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('brace'); }}><span>△</span><b>お腹だけ固める</b><small>横隔膜と骨盤底が追従しない</small></button>
+            <button className={preset === 'leak' && focus === 'all' ? 'active' : ''} onClick={() => { stopDemo(); setFocus('all'); applyPreset('leak'); }}><span>△</span><b>協調が崩れる</b><small>壁と床が圧を受け止めない</small></button>
+          </div>
 
           <div className="iap-gauges">
             <div className="gauge">
@@ -390,11 +342,11 @@ export function IapLab() {
               setAdvanced(!advanced);
             }}
           >
-            {advanced ? '詳しい操作を閉じる ▲' : '詳しく動かす（部位ごとの動き・数値） ▼'}
+            {advanced ? '詳しい操作を閉じる ▲' : '詳しく動かす（部位ごと・数値） ▼'}
           </button>
           {advanced && (
             <div className="iap-sliders">
-              <p className="iap-sliders-note">3つの動きの大きさを変えると、腹圧と背骨の支えがどう変わるかを確かめられます。部位ごとの動きは、3Dの上の「部位を選んで、動きだけを見る」で切り替えます。</p>
+              <p className="iap-sliders-note">3つの動きの大きさを変えると、腹圧と背骨の支えがどう変わるかを確かめられます。部位ごとの動きは、3Dの下の「部位を選んで、動きだけを見る」で切り替えます。</p>
               <label className="slider-row">
                 <span className="slider-name" style={{ color: '#5E8BA8' }}>
                   横隔膜の下降
@@ -443,6 +395,51 @@ export function IapLab() {
           </LabMore>
         </div>
       </div>
+      {advanced && (
+      <div className="iap-compare iap-parts">
+        <div className="iap-compare-head"><span>PARTS</span><b>部位を選んで、動きだけを見る</b></div>
+        <div className="region-chips" role="tablist" aria-label="表示する部位">
+          {PARTS.map((part) => (
+            <button
+              key={part.id}
+              className={`chip ${focus === part.id ? 'chip-active' : ''}`}
+              onClick={() => {
+                stopDemo();
+                setFocus(part.id);
+              }}
+            >
+              {part.label}
+            </button>
+          ))}
+        </div>
+        {focus !== 'all' && (
+          <>
+            <div className="iap-mode-toggle">
+              <button className={focusMode === 'good' ? 'active good' : ''} onClick={() => setFocusMode('good')}>◎ 良い動き</button>
+              <button className={focusMode === 'bad' ? 'active bad' : ''} onClick={() => setFocusMode('bad')}>△ 内圧が崩れたとき</button>
+            </div>
+            <p className="iap-part-caption">
+              <b>{PARTS.find((p) => p.id === focus)?.label}｜{focusMode === 'good' ? '良い動き' : '内圧が崩れたとき'}</b>
+              {FOCUS_TEXT[focus][focusMode]}
+              <span>数秒おきに自動で負荷がかかります。負荷を受けた瞬間の動きを見てください。</span>
+            </p>
+          </>
+        )}
+      </div>
+      )}
+      <LabMore title="3つの部位と、背骨の崩れ方について">
+        <div className="iap-canister" aria-label="腹圧を作る3つの要素">
+          <div><span>01 / CEILING</span><b>横隔膜</b><p>吸気で収縮・下降し、呼気で上昇する「天井」</p></div>
+          <i>＋</i>
+          <div><span>02 / WALL</span><b>腹壁</b><p>吸気で前・側方・後方へ広がり、呼気で戻る「壁」</p></div>
+          <i>＋</i>
+          <div><span>03 / FLOOR</span><b>骨盤底</b><p>吸気で下降、呼気で上昇し、負荷時は支持する「床」</p></div>
+          <strong>＝ 360°の支持</strong>
+        </div>
+          <p className="iap-compare-note">
+          ※ 背骨の崩れ方（丸まる／反る）は一例です。どの方向に崩れるかは、姿勢のくせ・関節や筋の状態・動作の内容によって人それぞれで、決まっているわけではありません。
+          </p>
+      </LabMore>
       <WhyQuiz
         question="息を吸うとき、骨盤の底（骨盤底）はどちらへ動く？"
         choices={["上がる", "下がる", "動かない"]}
