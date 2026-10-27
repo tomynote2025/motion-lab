@@ -1,6 +1,6 @@
 homunculus.glb（脳の中の体の地図の人体モデル）
 
-元データ: MakeHuman / MPFB 2（人体・服・髪・眉・眼・肌の画像は MakeHuman のシステム素材, CC0）
-改変: 服の胸のロゴを消し、腕を下ろした形（real）と、感覚の地図の広さで手・顔・足を大きく、
+元データ: MakeHuman / MPFB 2（人体と服の形は MakeHuman のシステム素材, CC0）
+改変: 粘土の人形風の単色にし、腕を下ろした形（real）と、感覚の地図の広さで手・顔・足を大きく、
 体幹と手足を細くした形（brain）の2つをモーフとして持たせた。部位ごとに材質を分けている。
 作り方: scripts/homunculus-model/build_homunculus.py

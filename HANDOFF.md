@@ -1,3 +1,13 @@
+## 2026-10-28 Claude → ユーザー｜人物を「粘土の人形風」に統一
+- 状態: 未着手
+- やったこと:
+  - MakeHuman の写真風の人物がサイトに合わないため、全身クリーム1色・髪や顔立ちなしの「粘土の人形風」に統一（ユーザー決定）
+  - 描き直したもの: 関節位置覚の12枚（比較画像は、目標の位置にだけ体がある部分を琥珀色で重ねる形に作り直し）、左右判断の手足12枚（形・位置は前と同じ）、脳の中の体の地図の3D（public/models/homunculus.glb。画像を使わなくなり 2.3MB → 1.3MB）、トップのカード2枚、共有用画像3枚
+  - 材質の共通設定 `scripts/clay_style.py` を追加し、各描画スクリプトから使うようにした
+  - 3D の素材を `~/Library/Application Support/motion-lab-assets/` に移した（一時フォルダは数日で消えるため）。AGENTS.md と各 README に記載
+- 次にやること: 画面を確認 → GitHub Desktop で push
+- 関連ファイル: scripts/clay_style.py, scripts/*/README.md, public/images/position/, public/images/laterality/, public/images/hero/, public/og/, public/models/homunculus.glb, AGENTS.md
+
 ## 2026-10-28 Claude → ユーザー｜眼と反応・腹圧もシンプルに
 - 状態: 未着手
 - やったこと:

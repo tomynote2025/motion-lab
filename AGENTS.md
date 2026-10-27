@@ -9,3 +9,5 @@
 - スマホ幅（375px）で横溢れゼロを維持（`@media (max-width:640px)` が末尾にある）。
 - dev サーバーは親の `.claude/launch.json` の `motion-lab`（port 5188）。canvas 系はスクリーンショットで確認する。
 - DNS は Xserver の**サーバーパネル側**（ns1-5.xserver.jp）で編集する。アカウント側のドメインDNS画面は使われていない。
+- 人物の画像・3D は「粘土の人形風」（全身クリーム1色・髪や顔立ちなし）に統一（2026-10-28 ユーザー決定）。MakeHuman の写真風の肌・服はサイトに合わないため使わない。共通設定は `scripts/clay_style.py`。
+- 3D の素材（MPFB・MakeHuman 素材・BodyParts3D）は `~/Library/Application Support/motion-lab-assets/` に置いてある（一時フォルダは数日で消えるため）。

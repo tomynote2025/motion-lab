@@ -6,7 +6,8 @@ blender -b -P render_jps.py -- <out_dir> <skin_name>
 """
 import bpy, sys, os, math
 from mathutils import Vector, Quaternion, Matrix
-from bl_ext.user_default.mpfb.services import HumanService, LocationService
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from clay_style import HumanService, LocationService, restyle  # 粘土の人形風（../clay_style.py）
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT, SKIN = argv[0], argv[1]
@@ -142,6 +143,7 @@ def shoot(target, cam_dir, name, ortho):
     area(pos + Vector((0, 2, 0.5)), target, 120)
     area(target + Vector((-2, 1, 2.5)), target, 160)
     sc.render.filepath = os.path.join(OUT, name)
+    restyle()
     bpy.ops.render.render(write_still=True)
 
 

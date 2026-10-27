@@ -1,6 +1,6 @@
 # 骨格マップの 3D モデルの作り方
 
-1. BodyParts3D の `isa_BP3D_4.0_obj_99.zip`（約143MB）を https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/ から取得して展開
+1. BodyParts3D の `isa_BP3D_4.0_obj_99.zip`（約143MB）を https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/ から取得して展開（展開済みのものが `~/Library/Application Support/motion-lab-assets/bodyparts3d/` にある）
 2. `blender -b --factory-startup -P build_skeleton.py -- <OBJフォルダ> parts.json ../../public/models/skeleton.glb 90000`
 
 - `parts.json` は OBJ 先頭の「English name」から骨・肋軟骨・歯を選んだ一覧（bone 203 / cart 14 / tooth 28）。

@@ -5,7 +5,8 @@ blender -b -P render_parts.py -- <out_dir> <skin_name>
 """
 import bpy, bmesh, sys, os, math
 from mathutils import Vector
-from bl_ext.user_default.mpfb.services import LocationService, HumanService
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from clay_style import HumanService, LocationService, restyle  # 粘土の人形風（../clay_style.py）
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT, SKIN = argv[0], argv[1]
@@ -95,6 +96,7 @@ def shoot(target, normal, up, dist, name, ortho):
     side = fwd.cross(want).normalized()
     ls = [light(pos + want * 0.5 + side * 0.4, 60), light(pos - side * 0.6, 25)]
     sc.render.filepath = os.path.join(OUT, name)
+    restyle()
     bpy.ops.render.render(write_still=True)
     for o in ls + [cam]:
         bpy.data.objects.remove(o)

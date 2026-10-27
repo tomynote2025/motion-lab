@@ -1,6 +1,8 @@
 """脳の中の体の地図（ホムンクルス）用の人体モデル(.glb)を MakeHuman(MPFB 2, CC0) から作る。
 
-BLENDER_USER_RESOURCES=<MPFBを入れたフォルダ> blender -b -P build_homunculus.py -- <out.glb> <skin.jpg> <cloth.jpg>
+BLENDER_USER_RESOURCES=<MPFBを入れたフォルダ> blender -b -P build_homunculus.py -- <out.glb>
+
+- 見た目は「粘土の人形風」（2026-10-28 決定）: 肌・服とも画像を使わない単色。髪・眉・目は付けない。
 
 - 2つのモーフ（形）を持たせる: real = 腕を下ろした実際の体 / brain = 感覚の地図の広さで描き直した体。
   three.js 側で real と brain の重みを入れ替えて、なめらかに変形させる。
@@ -8,10 +10,13 @@ BLENDER_USER_RESOURCES=<MPFBを入れたフォルダ> blender -b -P build_homunc
   分け方は、各面でいちばん重みの大きい骨で決める。
 """
 import bpy, sys, os, math
-from bl_ext.user_default.mpfb.services import HumanService, LocationService
+try:
+    from bl_ext.blender_org.mpfb.services import HumanService, LocationService
+except ImportError:
+    from bl_ext.user_default.mpfb.services import HumanService, LocationService
 
 argv = sys.argv[sys.argv.index("--") + 1:]
-OUT, SKIN_JPG, CLOTH_JPG = argv
+OUT = argv[0]
 D = LocationService.get_user_data()
 
 # 「脳の中の体」にしたときの拡大率（HomunculusLab.tsx の SCALE と同じ）
@@ -35,10 +40,7 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 h = HumanService.create_human()
 rig = HumanService.add_builtin_rig(h, "default")
 assets = {}
-for kind, name in [("Clothes", "clothes/male_casualsuit04/male_casualsuit04.mhclo"),
-                   ("Hair", "hair/short02/short02.mhclo"),
-                   ("Eyebrows", "eyebrows/eyebrow001/eyebrow001.mhclo"),
-                   ("Eyes", "eyes/high-poly/high-poly.mhclo")]:
+for kind, name in [("Clothes", "clothes/male_casualsuit04/male_casualsuit04.mhclo")]:
     assets[kind] = HumanService.add_mhclo_asset(os.path.join(D, name), h, asset_type=kind, subdiv_levels=0)
 
 
@@ -79,10 +81,11 @@ for o in meshes:
 
 # 2) 部位ごとに材質を分ける（体と服）
 CATS = ["hand", "face", "foot", "trunk", "limb"]
-for o, prefix, path in [(h, "skin", SKIN_JPG), (assets["Clothes"], "cloth", CLOTH_JPG)]:
+CLAY = {"skin": (0.815, 0.761, 0.651), "cloth": (0.694, 0.637, 0.509)}  # #e9e2d2 / #d9d1bd（リニア値）
+for o, prefix in [(h, "skin"), (assets["Clothes"], "cloth")]:
     o.data.materials.clear()
     for c in CATS:
-        o.data.materials.append(image_mat(f"{prefix}_{c}", path))
+        o.data.materials.append(flat_mat(f"{prefix}_{c}", CLAY[prefix], 0.9))
     # 体の頂点には骨以外の補助グループ(joint-… など)もあるので、骨の名前のグループだけを見る
     bone_names = {b.name for b in rig.data.bones}
     gname = {g.index: g.name for g in o.vertex_groups if g.name in bone_names}
@@ -103,18 +106,6 @@ for o, prefix, path in [(h, "skin", SKIN_JPG), (assets["Clothes"], "cloth", CLOT
         p.material_index = CATS.index(max(acc, key=acc.get)) if acc else CATS.index("trunk")
     for p in o.data.polygons:
         p.use_smooth = True
-
-hair = flat_mat("hair", (0.03, 0.022, 0.018), 0.55)
-for kind in ("Hair", "Eyebrows"):
-    o = assets.get(kind)
-    if o is not None:
-        o.data.materials.clear()
-        o.data.materials.append(hair)
-eyes = assets.get("Eyes")
-if eyes is not None:
-    for i, m in enumerate(eyes.data.materials):
-        if m:
-            m.name = "eyes"
 
 # 3) 姿勢: 腕を下ろす → real
 def pose(ops):
@@ -182,5 +173,5 @@ for o in meshes:
     o.select_set(True)
 bpy.ops.export_scene.gltf(filepath=OUT, export_format="GLB", use_selection=True, export_apply=False,
                           export_morph=True, export_morph_normal=True, export_skins=False,
-                          export_image_format="JPEG", export_materials="EXPORT", export_yup=True)
+                          export_materials="EXPORT", export_yup=True)
 print("EXPORTED", OUT)
