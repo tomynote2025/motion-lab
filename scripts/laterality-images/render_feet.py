@@ -6,7 +6,7 @@ blender -b -P render_parts.py -- <out_dir> <skin_name>
 import bpy, bmesh, sys, os, math
 from mathutils import Vector
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-from clay_style import HumanService, LocationService, restyle  # 粘土の人形風（../clay_style.py）
+from clay_style import HumanService, LocationService, restyle, nail_digits, mark_nails  # 粘土の人形風（../clay_style.py）
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT, SKIN = argv[0], argv[1]
@@ -126,11 +126,13 @@ shoot(center, Vector((0, 0, -1)), fwd_dir, 1.2, "foot-plantar.png", 0.36)
 
 # 足の甲: すねを長めに残し、つま先の前・斜め上から見る(すねは画面の上へ抜ける)
 h2 = build()
+_digits = nail_digits(h2, "foot")
 setup_render()
 keep_region(h2, lambda c: c.x > 0.05 and (c - ankle).dot(leg) > -0.4 and (c - ankle).length < 0.6)
 smooth(h2)
 view = (fwd_dir * 0.55 + Vector((0, 0, 1))).normalized()
 target = ankle + (toe - ankle) * 0.35
 target.z = ankle.z * 0.6 + 0.02
+mark_nails(h2, _digits, Vector((0, 0, 1)))  # 甲側に爪
 shoot(target, view, Vector((0, 0, 1)), 1.4, "foot-dorsal.png", 0.34)
 print("DONE")

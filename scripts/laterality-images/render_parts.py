@@ -6,7 +6,7 @@ blender -b -P render_parts.py -- <out_dir> <skin_name>
 import bpy, bmesh, sys, os, math
 from mathutils import Vector
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-from clay_style import HumanService, LocationService, restyle  # 粘土の人形風（../clay_style.py）
+from clay_style import HumanService, LocationService, restyle, nail_digits, mark_nails  # 粘土の人形風（../clay_style.py）
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT, SKIN = argv[0], argv[1]
@@ -104,6 +104,7 @@ def shoot(target, normal, up, dist, name, ortho):
 
 # ---------- 手 ----------
 h = build()
+_digits = nail_digits(h, "hand")
 wrist = jc(h, "joint-l-hand")
 elbow = jc(h, "joint-l-elbow")
 tip = jc(h, "joint-l-finger-3-4")
@@ -117,6 +118,7 @@ keep_region(h, lambda c: c.x > 0.15 and (c - wrist).dot(arm) > -0.05 and (c - ha
 center = wrist + (tip - wrist) * 0.45
 setup_render()
 up = (tip - wrist).normalized()
+mark_nails(h, _digits, n)  # 甲側に爪
 shoot(center, n, up, 1.0, "hand-a.png", 0.32)
 shoot(center, -n, up, 1.0, "hand-b.png", 0.32)
 print("HAND", tuple(wrist), tuple(tip), tuple(n))

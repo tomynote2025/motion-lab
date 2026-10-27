@@ -6,7 +6,7 @@ blender -b -P render_parts.py -- <out_dir> <skin_name>
 import bpy, bmesh, sys, os, math
 from mathutils import Vector
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-from clay_style import HumanService, LocationService, restyle  # 粘土の人形風（../clay_style.py）
+from clay_style import HumanService, LocationService, restyle, nail_digits, mark_nails  # 粘土の人形風（../clay_style.py）
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT, SKIN = argv[0], argv[1]
@@ -117,6 +117,7 @@ def smooth(h, levels=2):
 
 def limb(name, proximal_joint, margin, radius, ortho):
     h = build()
+    _digits = nail_digits(h, "hand")
     shoulder = jc(h, "joint-l-shoulder")
     elbow = jc(h, "joint-l-elbow")
     wrist = jc(h, "joint-l-hand")
@@ -127,6 +128,7 @@ def limb(name, proximal_joint, margin, radius, ortho):
     prox = {"elbow": elbow, "shoulder": shoulder}[proximal_joint]
     axis = (tip - prox).normalized()
     keep_region(h, lambda c: c.x > 0.12 and (c - prox).dot(axis) > -margin and seg_dist(c, prox, tip) < radius)
+    mark_nails(h, _digits, n)  # 甲側に爪
     smooth(h)
     setup_render()
     center = prox + (tip - prox) * 0.5
@@ -140,6 +142,7 @@ limb("forearm", "elbow", 0.02, 0.09, 0.56)
 def upper_limb(ortho=0.86):
     """腕全体: 姿勢は変えず(手のひらは下向き)、腕の軸に直角な方向から、手の甲側・手のひら側を描く"""
     h = build()
+    _digits = nail_digits(h, "hand")
     shoulder = jc(h, "joint-l-shoulder")
     wrist = jc(h, "joint-l-hand")
     tip = jc(h, "joint-l-finger-3-4")
@@ -154,6 +157,7 @@ def upper_limb(ortho=0.86):
         # 肩→ひじ→手首→指先の折れ線からの距離(腕はひじで少し折れているため)
         return min(seg_dist(c, shoulder, elbow), seg_dist(c, elbow, wrist), seg_dist(c, wrist, tip))
     keep_region(h, lambda c: c.x > 0.12 and (c - shoulder).dot(axis) > cut and near_arm(c) < 0.1)
+    mark_nails(h, _digits, n)  # 甲側に爪
     smooth(h)
     setup_render()
     center = shoulder + (tip - shoulder) * 0.58

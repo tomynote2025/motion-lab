@@ -1,3 +1,9 @@
+## 2026-10-28 Claude → ユーザー｜左右判断の手足に爪を追加
+- 状態: 未着手
+- やったこと: 爪がないと左右の判断が難しすぎるため（ユーザー指摘）、甲側が写る画像（手の甲・前腕・腕全体・足の甲・すね・脚全体の前から）に爪と縁を付けた。手のひら・足の裏・内側からの画像は変えていない。処理は scripts/clay_style.py の nail_digits / mark_nails（関節の目印から第1関節〜指先の甲側に楕円の爪）
+- 次にやること: 画面を確認 → GitHub Desktop で push
+- 関連ファイル: scripts/clay_style.py, scripts/laterality-images/*.py, public/images/laterality/
+
 ## 2026-10-28 Claude → ユーザー｜人物を「粘土の人形風」に統一
 - 状態: 未着手
 - やったこと:

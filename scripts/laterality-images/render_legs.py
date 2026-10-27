@@ -6,7 +6,7 @@ blender -b -P render_parts.py -- <out_dir> <skin_name>
 import bpy, bmesh, sys, os, math
 from mathutils import Vector
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-from clay_style import HumanService, LocationService, restyle  # 粘土の人形風（../clay_style.py）
+from clay_style import HumanService, LocationService, restyle, nail_digits, mark_nails  # 粘土の人形風（../clay_style.py）
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 OUT, SKIN = argv[0], argv[1]
@@ -117,6 +117,7 @@ def smooth(h, levels=2):
 
 def leg(name, whole, ortho):
     h = build()
+    _digits = nail_digits(h, "foot")
     hip = jc(h, "joint-l-upper-leg")
     knee = jc(h, "joint-l-knee")
     ankle = jc(h, "joint-l-ankle")
@@ -135,6 +136,7 @@ def leg(name, whole, ortho):
             return min(seg_dist(c, knee, ankle), seg_dist(c, ankle, toe), seg_dist(c, ankle, heel_floor))
         radius = 0.09
     keep_region(h, lambda c: c.x > 0.03 and (c - cut_from).dot(axis) > cut and near(c) < radius)
+    mark_nails(h, _digits, Vector((0, 0, 1)))  # 甲側に爪
     smooth(h)
     setup_render()
     top = cut_from + axis * cut
