@@ -135,6 +135,11 @@ function makeTrials(part: Part, practice: boolean): Trial[] {
     );
   }
   const order = shuffle(all);
+  // 1問目は必ず手の甲側（足は足の甲・前から）にする。爪などの手がかりがあり、最初の1問として分かりやすいため。
+  // 回転のある部位では、回していない向き（0°）を優先する
+  const upright = order.findIndex((t) => t.stim === def.stims[0] && t.angle === 0);
+  const first = upright >= 0 ? upright : order.findIndex((t) => t.stim === def.stims[0]);
+  if (first > 0) [order[0], order[first]] = [order[first], order[0]];
   // 同じ画像・同じ左右が2問続かないように入れ替える
   const same = (a: Trial, b: Trial) => a.side === b.side && a.stim === b.stim && a.angle === b.angle;
   for (let i = 1; i < order.length; i++) {
