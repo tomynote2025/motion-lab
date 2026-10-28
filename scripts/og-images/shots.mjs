@@ -1,6 +1,6 @@
 // 各ラボの見どころの要素だけを切り抜いて撮る（OGP画像の素材）
 import { spawn } from 'node:child_process';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { rmSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const OUT = process.argv[2];
@@ -43,4 +43,4 @@ for (const [name, url, sel, acts] of jobs) {
   writeFileSync(`${OUT}/${name}.png`, Buffer.from(shot.result.data, 'base64'));
   console.log('shot', name, Math.round(r.w), Math.round(r.h));
 }
-ws.close(); proc.kill();
+ws.close(); proc.kill(); setTimeout(() => rmSync(prof, { recursive: true, force: true }), 1500); // 撮影用 Chrome の作業フォルダを残さない

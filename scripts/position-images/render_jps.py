@@ -182,16 +182,18 @@ def arm_scene(label, ops, center_z, ortho, prefix):
     shoot(Vector((0.1, -0.1, center_z)), CAM, f"{prefix}-{label}.png", ortho)
 
 
-# ひざ: 直角(90) → 目標 45°曲げ(=伸ばす) → 再現 53°
-if "knee" in ONLY: knee_scene("start", 90)
-if "knee" in ONLY: knee_scene("target", 45)
-if "knee" in ONLY: knee_scene("repro", 53)
-# ひじ: 下ろした腕 → 目標 前腕が水平(骨の回転45°。元の姿勢でひじが少し曲がっているため) → 再現 8°少なく
-if "elbow" in ONLY: arm_scene("start", DOWN, 1.15, 1.45, "elbow")
-if "elbow" in ONLY: arm_scene("target", DOWN + [("lowerarm01.L", "X", 45)], 1.15, 1.45, "elbow")
-if "elbow" in ONLY: arm_scene("repro", DOWN + [("lowerarm01.L", "X", 37)], 1.15, 1.45, "elbow")
-# 肩: 腕を下ろす → 目標 前へ90°(水平) → 再現 82°
-if "shoulder" in ONLY: arm_scene("start", DOWN, 1.15, 1.7, "shoulder")
-if "shoulder" in ONLY: arm_scene("target", [("upperarm01.R", "Z", 38), ("upperarm01.L", "Z", -38), ("upperarm01.L", "X", 78)], 1.15, 1.7, "shoulder")
-if "shoulder" in ONLY: arm_scene("repro", [("upperarm01.R", "Z", 38), ("upperarm01.L", "Z", -38), ("upperarm01.L", "X", 70)], 1.15, 1.7, "shoulder")
-print("DONE")
+# 動画用スクリプト(render_jps_video.py)から部品として読み込んだときは、画像の描画はしない
+if __name__ == "__main__":
+    # ひざ: 直角(90) → 目標 45°曲げ(=伸ばす) → 再現 53°
+    if "knee" in ONLY: knee_scene("start", 90)
+    if "knee" in ONLY: knee_scene("target", 45)
+    if "knee" in ONLY: knee_scene("repro", 53)
+    # ひじ: 下ろした腕 → 目標 前腕が水平(骨の回転45°。元の姿勢でひじが少し曲がっているため) → 再現 8°少なく
+    if "elbow" in ONLY: arm_scene("start", DOWN, 1.15, 1.45, "elbow")
+    if "elbow" in ONLY: arm_scene("target", DOWN + [("lowerarm01.L", "X", 45)], 1.15, 1.45, "elbow")
+    if "elbow" in ONLY: arm_scene("repro", DOWN + [("lowerarm01.L", "X", 37)], 1.15, 1.45, "elbow")
+    # 肩: 腕を下ろす → 目標 前へ90°(水平) → 再現 82°
+    if "shoulder" in ONLY: arm_scene("start", DOWN, 1.15, 1.7, "shoulder")
+    if "shoulder" in ONLY: arm_scene("target", [("upperarm01.R", "Z", 38), ("upperarm01.L", "Z", -38), ("upperarm01.L", "X", 78)], 1.15, 1.7, "shoulder")
+    if "shoulder" in ONLY: arm_scene("repro", [("upperarm01.R", "Z", 38), ("upperarm01.L", "Z", -38), ("upperarm01.L", "X", 70)], 1.15, 1.7, "shoulder")
+    print("DONE")

@@ -1,3 +1,14 @@
+## 2026-10-29 Claude → ユーザー｜関節位置覚のやり方の動画・左右判断の1問目
+- 状態: 未着手
+- やったこと:
+  - 関節位置覚テストのやり方を、粘土の人形で見せる動画を作成（ひざ・ひじ・肩、各約10秒の繰り返し再生、音なし、各 60〜70KB）。①目を開けて目標へ ②目を閉じて戻す ③目を閉じたまま同じ位置へ ④目を開けてずれを確かめる（目標の位置を琥珀色で重ねる）。始める前は動画を流し、「ステップごとに見る」で今までの静止画と説明に切り替えられる
+  - 作り方: scripts/position-images/render_jps_video.py（Blender, EEVEE）→ make_jps_video.py（字幕・印・ffmpeg）。README に記載
+  - 左右判断: 1問目は必ず手の甲側（足は足の甲・前から）、回転なしを優先
+  - 撮影用スクリプトが Chrome の作業フォルダを残してディスクを圧迫していたため（約6GB）、片付けて、終わるたびに消すようにした（scripts/og-images も）
+- 次にやること: 画面を確認 → GitHub Desktop で push
+- 注意点: Mac 全体の空き容量が少ない（460GB 中、空き約6.5GB）
+- 関連ファイル: public/videos/position/, src/sections/ProprioceptionLab.tsx, src/sections/LateralityLab.tsx, scripts/position-images/, scripts/og-images/
+
 ## 2026-10-28 Claude → ユーザー｜左右判断の手足に爪を追加
 - 状態: 未着手
 - やったこと: 爪がないと左右の判断が難しすぎるため（ユーザー指摘）、甲側が写る画像（手の甲・前腕・腕全体・足の甲・すね・脚全体の前から）に爪と縁を付けた。手のひら・足の裏・内側からの画像は変えていない。処理は scripts/clay_style.py の nail_digits / mark_nails（関節の目印から第1関節〜指先の甲側に楕円の爪）

@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
+import { rmSync, writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const [dir, out] = process.argv.slice(2);
@@ -25,4 +25,4 @@ for (const lid of ids) {
   writeFileSync(`${out}/${lid}.png`, Buffer.from(r.result.data, 'base64'));
   console.log('og', lid);
 }
-ws.close(); proc.kill();
+ws.close(); proc.kill(); setTimeout(() => rmSync(prof, { recursive: true, force: true }), 1500); // 撮影用 Chrome の作業フォルダを残さない

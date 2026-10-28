@@ -6255,6 +6255,34 @@ details.lr-howto.lab-more ol {
   line-height: 1.7;
 }
 
+/* 関節位置覚: やり方の動画と、静止画への切り替え */
+.pos-video {
+  display: block;
+  width: min(100%, 460px);
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: var(--stage);
+}
+
+.pos-view-toggle {
+  justify-self: center;
+  align-self: center;
+  margin: 14px auto 4px;
+  padding: 8px 18px;
+  border: 1px solid rgba(239, 234, 220, 0.3);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--stage-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pos-view-toggle:hover {
+  background: rgba(239, 234, 220, 0.08);
+}
+
 /* ラボ一覧のグループ */
 .lab-index-list {
   border-top: none;

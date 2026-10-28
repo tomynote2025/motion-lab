@@ -23,6 +23,8 @@ type Mode = 'phone' | 'visual';
 type Phase = 'idle' | 'start' | 'target' | 'return' | 'repro' | 'rest' | 'done' | 'unsupported' | 'denied';
 
 const IMG = '/images/position/';
+/** やり方の動画（粘土の人形で動きを見せる。scripts/position-images/render_jps_video.py → make_jps_video.py） */
+const VIDEO = '/videos/position/';
 const TRIALS = 3;
 
 const JOINTS: Record<
@@ -121,6 +123,8 @@ export function ProprioceptionLab() {
   const [joint, setJoint] = useState<Joint>('knee');
   const [mode, setMode] = useState<Mode>('phone');
   const [step, setStep] = useState(0);
+  // 始める前は、やり方の動画を流す（「ステップごとに見る」で静止画と説明に切り替え）
+  const [showVideo, setShowVideo] = useState(true);
   const [phase, setPhase] = useState<Phase>('idle');
   const [angle, setAngle] = useState<number | null>(null);
   const [errors, setErrors] = useState<number[]>([]);
@@ -312,6 +316,33 @@ export function ProprioceptionLab() {
 
       <div className="position-grid">
         <div className="position-stage pos-stage">
+          {showVideo && !running ? (
+            <>
+              <div className="position-stage-head">
+                <span>HOW TO</span>
+                <b>やり方（{def.label}）</b>
+              </div>
+              <div className="pos-img-wrap">
+                <video
+                  key={joint}
+                  className="pos-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  poster={`${VIDEO}${joint}-poster.webp`}
+                  aria-label={`${def.label}の関節位置覚テストのやり方の動画`}
+                >
+                  <source src={`${VIDEO}${joint}.webm`} type="video/webm" />
+                  <source src={`${VIDEO}${joint}.mp4`} type="video/mp4" />
+                </video>
+              </div>
+              <button className="pos-view-toggle" onClick={() => setShowVideo(false)}>
+                ステップごとに見る（説明つき）
+              </button>
+            </>
+          ) : (
+            <>
           <div className="position-stage-head">
             <span>STEP {step + 1} / 4</span>
             <b>{cur.title}</b>
@@ -329,6 +360,13 @@ export function ProprioceptionLab() {
               </button>
             ))}
           </div>
+          {!running && (
+            <button className="pos-view-toggle" onClick={() => setShowVideo(true)}>
+              ▶ 動画で見る
+            </button>
+          )}
+            </>
+          )}
         </div>
 
         <div className="position-controls">

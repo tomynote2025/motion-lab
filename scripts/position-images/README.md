@@ -15,3 +15,9 @@
 - 素材は消えない場所に置いてある: `~/Library/Application Support/motion-lab-assets/`
   - `mpfb-user/`（`BLENDER_USER_RESOURCES` にこのフォルダを指定。MPFB 本体と MakeHuman のシステム素材入り）
   - `bodyparts3d/isa_BP3D_4.0_obj_99/`（BodyParts3D の OBJ）と `names.tsv`（ファイルIDと部位名の一覧）
+
+## やり方の動画（public/videos/position/{knee,elbow,shoulder}.mp4・.webm・-poster.webp）
+
+1. `BLENDER_USER_RESOURCES="$HOME/Library/Application Support/motion-lab-assets/mpfb-user" blender -b -P render_jps_video.py -- <コマの出力先> young_asian_male knee,elbow,shoulder`（EEVEE で 252 コマ、1関節 2分ほど）
+2. `python3 make_jps_video.py <コマの出力先> ../../public/videos/position` — 字幕（①〜④）・「目を閉じる」の印・④で目標の位置を琥珀色で重ね、mp4 と webm にする
+- 動き・角度・カメラ・スマホの位置は説明画像（render_jps.py）と同じ。区切りのフレームは render_jps_video.py の TIMELINE と make_jps_video.py の phases() を合わせてある。
