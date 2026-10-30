@@ -1,3 +1,10 @@
+## 2026-10-31 Claude → Codex｜たまっているコミットを GitHub へ push
+- 状態: 未着手
+- やったこと: Claude のシェルから `git push origin main` を試したが、GitHub のログイン情報が無く失敗（`gh` も未導入）。送る44件に `.env`・`booking.sql` などの秘密情報のファイルが含まれないことは確認済み
+- 次にやること: motion-lab の main を origin（tomynote2025/motion-lab）へ push → Vercel の本番（lab.health-football.com）への反映を確認。特に /lab/proprioception の、やり方の動画（ひざ・ひじ・肩）と「ステップごとに見る」の切り替え、/lab/laterality の1問目が手の甲側になること
+- 注意点: push の前に `git status` で未コミットの変更が無いか確認する。あっても巻き込まない。下の「ユーザー」宛ての「GitHub Desktop で push」の項目は、push できたら状態を `完了` にする
+- 関連ファイル: HANDOFF.md（2026-10-28〜10-29 の各項目）
+
 ## 2026-10-29 Claude → ユーザー｜関節位置覚のやり方の動画・左右判断の1問目
 - 状態: 未着手
 - やったこと:
