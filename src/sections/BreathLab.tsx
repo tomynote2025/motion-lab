@@ -12,6 +12,9 @@ import { WhyQuiz } from '../components/WhyQuiz';
  *  - 223研究のメタ分析: ゆっくり呼吸の最中は迷走神経由来のHRV(RMSSD)が中程度に増える。
  *    終わった直後や数回の練習後の増加は小さい。多くの研究でバイアスのリスクが高い
  *    (Laborde ら 2022, Neurosci Biobehav Rev 138:104711)。
+ *  - 安静時の心拍変動が大きいほど副交感神経の働きが保たれていると考えられ、小さいことは
+ *    心血管の病気の起こりやすさと関係する(観察研究のメタ分析: Hillebrand ら 2013, Europace 15:742-749)。
+ *    ゆっくり呼吸の最中に揺れが大きくなるのは呼吸に合わせた一時的な変化で、安静時の値とは別。
  *  - 画面の心拍の波は、上の仕組みを示すモデル図。実際の心拍は測っていない。
  */
 
@@ -101,11 +104,12 @@ export function BreathLab() {
               <line x1="0" y1="60" x2="400" y2="60" stroke="rgba(239,234,220,0.15)" />
               <polyline points={hrPoints} fill="none" stroke="#e0a95b" strokeWidth="2.2" />
             </svg>
-            <p>吸うと上がり、吐くと下がります。1分6回のときに揺れが大きくなる様子を表した図で、あなたの心拍を測っているわけではありません。</p>
+            <p>吸うと上がり、吐くと下がります。この揺れ（心拍変動）が大きいことは、体を休める副交感神経がよく働いている目安のひとつです。1分6回のときに揺れが大きくなる様子を表した図で、あなたの心拍を測っているわけではありません。</p>
           </div>
         </div>
 
         <div className="position-controls">
+          <div className="iap-control-label">呼吸のペース</div>
           <div className="region-chips breath-patterns" role="radiogroup" aria-label="呼吸のペース">
             {PATTERNS.map((p) => (
               <button key={p.id} className={`chip ${pattern.id === p.id ? 'chip-active' : ''}`} disabled={running} onClick={() => setPattern(p)}>
@@ -114,7 +118,8 @@ export function BreathLab() {
             ))}
           </div>
           <p className="lr-note">{pattern.note}</p>
-          <div className="region-chips" role="radiogroup" aria-label="時間">
+          <div className="iap-control-label">続ける時間（ガイドが流れる長さ）</div>
+          <div className="region-chips" role="radiogroup" aria-label="続ける時間">
             {DURATIONS.map((d) => (
               <button key={d} className={`chip ${minutes === d ? 'chip-active' : ''}`} disabled={running} onClick={() => setMinutes(d)}>
                 {d}分
@@ -153,7 +158,12 @@ export function BreathLab() {
         explain="ふだんの呼吸は1分間に12〜20回ほどですが、1分間に6回前後のゆっくりした呼吸では、吸う・吐くに合わせた心拍の揺れが大きくなることが知られています。体のリズムと呼吸のリズムが重なるためと考えられています。"
       />
       <LabMore>
-        <div className="lr-evidence">
+        <div className="lr-evidence lr-evidence-2col">
+          <div>
+            <span>HRV</span>
+            <b>心拍変動が大きいと？</b>
+            <p>心拍の間隔は一定ではなく、いつも少しずつ揺れています。ふだん（安静時）のこの揺れが大きい人ほど、体を休める副交感神経の働きが保たれていると考えられています。反対に、揺れが小さいことは、心臓や血管の病気の起こりやすさと関係するという報告があります（多くの人を追いかけた研究をまとめた報告）。ゆっくり呼吸の最中に揺れが大きくなるのは、呼吸に合わせた一時的な変化です。続ければふだんの値が上がる、とまでは言えません。</p>
+          </div>
           <div>
             <span>RESONANCE</span>
             <b>なぜ1分6回？</b>
@@ -171,7 +181,7 @@ export function BreathLab() {
           </div>
         </div>
         <p className="neuro-caution">
-          参考: Laborde S ら (2022) Effects of voluntary slow breathing on heart rate and heart rate variability: a systematic review and a meta-analysis. Neurosci Biobehav Rev 138:104711／Sevoz-Couche C, Laborde S (2022) Heart rate variability and slow-paced breathing: when coherence meets resonance. Neurosci Biobehav Rev 135:104576。
+          参考: Hillebrand S ら (2013) Heart rate variability and first cardiovascular event in populations without known cardiovascular disease: meta-analysis and dose-response meta-regression. Europace 15:742-749／Laborde S ら (2022) Effects of voluntary slow breathing on heart rate and heart rate variability: a systematic review and a meta-analysis. Neurosci Biobehav Rev 138:104711／Sevoz-Couche C, Laborde S (2022) Heart rate variability and slow-paced breathing: when coherence meets resonance. Neurosci Biobehav Rev 135:104576。
         </p>
       </LabMore>
     </section>

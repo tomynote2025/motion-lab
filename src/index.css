@@ -6170,6 +6170,13 @@ body.has-custom-cursor input[type='range'] {
   margin-top: 4px;
 }
 
+/* 根拠カードが4枚のとき（呼吸のラボ）は 2×2 に並べる */
+@media (min-width: 641px) {
+  .lr-evidence.lr-evidence-2col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .lab-more-evidence .neuro-caution {
   margin-top: 14px;
 }
