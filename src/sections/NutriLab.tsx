@@ -427,7 +427,7 @@ function ProcessedLab() {
 
         <div className="nutri-bars">
           <MiniBar label="満腹感の続きやすさ" value={satietyWord} pct={clamp((+satiety / 3.2) * 100, 0, 100)} color="#5E8BA8" />
-          <MiniBar label="炎症に傾きやすさ" value={inflammationWord} pct={inflammation} color="#C0562F" />
+          <MiniBar label="慢性炎症のなりやすさ" value={inflammationWord} pct={inflammation} color="#C0562F" />
         </div>
 
         <label className="slider-row">
@@ -444,7 +444,8 @@ function ProcessedLab() {
 
         <div className="fascia-note">
           <b>超加工食品</b>（工業的に作られた菓子パン・スナック菓子・清涼飲料など）には、精製された糖質が多く、食物繊維が少ないものが多くあります。精製された糖質は食後の血糖を上げやすく、入院して食事を管理した研究では、超加工食品の食事でとる量が1日約500kcal増えました。
-          <b>食物繊維</b>が少ないと腸内細菌のえさが減ります。グラフの血糖の動きは、仕組みを伝えるための模式図です。
+          <b>食物繊維</b>が少ないと腸内細菌のえさが減ります。
+          <b>慢性炎症</b>は、ケガのような腫れではなく、自覚のないまま体の中で続く弱い炎症のことです。超加工食品を多く食べる人ほど、血液の炎症の目印が高い傾向があります（食事の量や内容を調べた研究）。グラフの血糖の動きは、仕組みを伝えるための模式図です。
         </div>
 
         <div className={`iap-verdict ${proc <= 0.3 ? 'good' : proc > 0.6 ? 'bad' : ''}`}>{verdict}</div>
