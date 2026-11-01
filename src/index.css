@@ -5437,6 +5437,12 @@ body.has-custom-cursor input[type='range'] {
   line-height: 1.8;
 }
 
+.open-on-phone .open-on-phone-note {
+  margin-top: 4px;
+  color: var(--green);
+  font-weight: 700;
+}
+
 .open-on-phone small {
   display: block;
   margin-top: 4px;

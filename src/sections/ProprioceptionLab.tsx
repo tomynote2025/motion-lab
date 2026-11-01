@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
-import { OpenOnPhone } from '../components/OpenOnPhone';
+import { NO_APP_NOTE, OpenOnPhone, isDesktopDevice } from '../components/OpenOnPhone';
 import { InsightResult, Predict, readPrevious, savePrevious } from '../components/Insight';
 
 /**
@@ -121,7 +121,8 @@ const PROMPT: Record<Exclude<Phase, 'idle' | 'done' | 'unsupported' | 'denied'>,
 
 export function ProprioceptionLab() {
   const [joint, setJoint] = useState<Joint>('knee');
-  const [mode, setMode] = useState<Mode>('phone');
+  // パソコンではスマホのセンサーが使えないので、はじめは「目で見て確かめる」にする
+  const [mode, setMode] = useState<Mode>(() => (isDesktopDevice() ? 'visual' : 'phone'));
   const [step, setStep] = useState(0);
   // 始める前は、やり方の動画を流す（「ステップごとに見る」で静止画と説明に切り替え）
   const [showVideo, setShowVideo] = useState(true);
@@ -291,7 +292,7 @@ export function ProprioceptionLab() {
       <LabHead
         id="proprioception"
         lead="目を閉じていても、手足がどの位置にあるかはある程度分かります。筋肉や腱、関節から脳へ届く「固有感覚」のおかげです。目を開けて決めた角度を覚え、目を閉じたまま同じ角度に戻せるかを試します。"
-        steps="関節を選び、何度くらいずれるかを予想してから、スマホを手足に当てて「はじめる」。音声の合図に合わせて、目を閉じたまま同じ角度で止めます（3回）。スマホがなければ「目で見て確かめる」でも試せます。"
+        steps={`関節を選び、何度くらいずれるかを予想してから、スマホを手足に当てて「はじめる」。音声の合図に合わせて、目を閉じたまま同じ角度で止めます（3回）。スマホがなければ「目で見て確かめる」でも試せます。${NO_APP_NOTE}`}
         read="3回の平均のずれ（°）を予想と並べ、研究で報告されている健康な人の幅（ひざ・肩は約3〜6°）のどこに入るかに印を付けます。ずれる向きのくせも分かります。"
       />
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
-import { OpenOnPhone } from '../components/OpenOnPhone';
+import { NO_APP_NOTE, OpenOnPhone } from '../components/OpenOnPhone';
 import { InsightResult, Predict, readPrevious, savePrevious } from '../components/Insight';
 
 /**
@@ -189,7 +189,7 @@ export function BalanceLab() {
       <LabHead
         id="balance"
         lead="立っているとき、体は目（視覚）・足裏などの感覚・耳の奥の平衡感覚を組み合わせてバランスをとっています。目を閉じると視覚の手がかりがなくなり、残りの感覚だけで立つことになります。スマホの動きセンサーで、その違いを比べます。"
-        steps="まず、目を閉じると揺れが何倍になるかを予想します。次にスマホを両手で胸の中央に当てて立ち、「はじめる」。目を開けて20秒、音の合図で目を閉じて20秒、そのまま静かに立ちます。"
+        steps={`まず、目を閉じると揺れが何倍になるかを予想します。次にスマホを両手で胸の中央に当てて立ち、「はじめる」。目を開けて20秒、音の合図で目を閉じて20秒、そのまま静かに立ちます。${NO_APP_NOTE}`}
         read="目を閉じたときの揺れが、開けたときの何倍かが出ます。予想と並べ、研究で報告されている健康な成人の幅（帯）のどこに入るかに印を付けます。良い悪いの判定ではありません。"
       />
 
