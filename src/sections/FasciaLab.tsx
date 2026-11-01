@@ -158,11 +158,9 @@ function LayerLab({ mode }: { mode: Mode }) {
   const deep = mode === 'deep';
   const [param, setParam] = useState(deep ? 0.25 : 0.2); // 浅: 滑走の悪さ（0=良い）／深: 液のねばり（0=サラサラ）
   const [shift, setShift] = useState(0); // 動かす層のずれ(-1..1)
-  const [warmth, setWarmth] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [auto, setAuto] = useState(false);
   const drag = useRef({ on: false, x0: 0, s0: 0, w: 1 });
-  const warming = useRef(false);
   const autoStart = useRef(0);
   const shiftRef = useRef(0);
   const paramRef = useRef(param);
@@ -186,13 +184,6 @@ function LayerLab({ mode }: { mode: Mode }) {
         // 離すと戻る。浅筋膜の滑走が悪いほど、ゆっくり戻る
         const rate = deep ? 0.1 : 0.16 - paramRef.current * 0.13;
         setShift((s) => (Math.abs(s) < 0.002 ? 0 : s * (1 - rate)));
-      }
-      if (deep) {
-        setWarmth((w) => {
-          const target = warming.current ? 1 : 0;
-          const nw = lerp(w, target, warming.current ? 0.035 : 0.01);
-          return Math.abs(nw - target) < 0.004 ? target : nw;
-        });
       }
       raf = requestAnimationFrame(loop);
     };
@@ -222,7 +213,7 @@ function LayerLab({ mode }: { mode: Mode }) {
   };
 
   // ---- 状態から、各層のずれ(px)を決める ----
-  const visc = deep ? clamp(param * (1 - 0.75 * warmth), 0.03, 1) : 0; // 実際のねばり（温めると一時的に下がる）
+  const visc = deep ? clamp(param, 0.03, 1) : 0; // 層の間の液のねばり
   const D = shift * (deep ? 46 : 40);
   const off = deep
     ? { skin: 0, fatUp: 0, sf: 0, fatLow: 0, dfA: D, dfB: D * visc, muscle: D * visc * 0.6 }
@@ -240,19 +231,17 @@ function LayerLab({ mode }: { mode: Mode }) {
     : { value: Math.abs(shift) / 1, label: '皮膚のずれ', word: Math.abs(shift) > 0.66 ? '大きい' : Math.abs(shift) > 0.33 ? '中くらい' : '小さい' };
 
   const verdict = deep
-    ? warmth > 0.25 && param > 0.45
-      ? '温めると液のねばりが下がり、上の層だけが滑りやすくなっています（試験管の実験をもとにした表現で、体の中では確かめられていません）。'
-      : effLevel === 2
-        ? '⚠ 液がドロドロで、上の層を動かすと下の層や筋肉まで引きずられます。これが、層の滑りが悪い状態のイメージです。'
-        : effLevel === 1
-          ? '○ 液が少しとろっとして、下の層も少し引きずられます。'
-          : '◎ 液がサラサラで、上の層だけがスッと滑ります。'
+    ? effLevel === 2
+      ? '⚠ 液がドロドロで、上の層を動かすと下の層や筋肉まで引きずられます。これが、層の滑りが悪い状態のイメージです。'
+      : effLevel === 1
+        ? '○ 液が少しとろっとして、下の層も少し引きずられます。'
+        : '◎ 液がサラサラで、上の層だけがスッと滑ります。'
     : level === 2
       ? '△ 滑走が悪い状態。同じ力で動かしても皮膚があまり動かず、離したあと戻るのも遅くなります。'
       : level === 1
         ? '○ 滑走はふつう。動き方と戻り方が、少しゆっくりになります。'
         : '◎ 滑走が良い状態。皮膚がなめらかに動き、離すとすぐに戻ります。';
-  const tone = deep ? (effLevel === 0 || (warmth > 0.25 && param > 0.45) ? 'good' : effLevel === 2 ? 'bad' : '') : level === 0 ? 'good' : level === 2 ? 'bad' : '';
+  const tone = deep ? (effLevel === 0 ? 'good' : effLevel === 2 ? 'bad' : '') : level === 0 ? 'good' : level === 2 ? 'bad' : '';
 
   return (
     <div className="fascia-grid">
@@ -283,18 +272,6 @@ function LayerLab({ mode }: { mode: Mode }) {
           <input type="range" min="0" max="1" step="0.01" value={param} disabled={auto} onChange={(e) => setParam(+e.target.value)} aria-label={deep ? '層の間の液（サラサラ〜ドロドロ）' : '浅筋膜の滑走（良い〜悪い）'} />
           <span className="slider-val">{paramWord}</span>
         </label>
-
-        {deep && (
-          <button
-            className="load-btn warm"
-            disabled={auto}
-            onPointerDown={() => (warming.current = true)}
-            onPointerUp={() => (warming.current = false)}
-            onPointerLeave={() => (warming.current = false)}
-          >
-            長押しで「動かして温める」🔥 {warmth > 0.02 ? `(+${Math.round(warmth * 100)}%)` : ''}
-          </button>
-        )}
 
         <div className="iap-gauges">
           <Gauge value={g1.value} label={g1.label} display={g1.word} color={deep && visc > 0.5 ? '#C0562F' : '#86B98C'} />
