@@ -1,3 +1,23 @@
+## 2026-11-01 Claude → Codex｜push と本番の確認（まとめ・急ぎ）
+- 状態: 未着手
+- やったこと:
+  - 本番（lab.health-football.com）は **9月10日の版（origin/main 692ddf8）のまま**。手元の main は **62件先**（push 待ち）。本番には /lab/<ラボ名> のページも QR 画像も無く、QR を読んでもトップが出る状態（ユーザーが「QR が以前のもの」と気づいたのはこれが原因）
+  - QR 画像（public/images/qr/balance.svg・proprioception.svg）を読み取り、`https://lab.health-football.com/lab/balance`・`/lab/proprioception` で正しいことを確認済み。QR は住所を書き込んだ静的な画像なので、push すればそのまま正しく動く
+  - Claude のシェルには GitHub のログイン情報が無く push できない（AGENTS.md のとおり、ふだんは GitHub Desktop で push）。送る62件に `.env`・`booking.sql` などの秘密情報のファイルが無いことは確認済み
+- 次にやること:
+  1. motion-lab の main を origin（tomynote2025/motion-lab）へ push（GitHub Desktop の「Push origin」でよい）
+  2. Vercel のデプロイ完了後、本番で確認:
+     - スマホで QR を読む → /lab/balance・/lab/proprioception が開く（パソコンで開くと QR の欄に「アプリは要りません…」の一文。関節位置覚はパソコンでは「目で見て確かめる」から始まる）
+     - /lab/proprioception: やり方の動画（ひざ・ひじ・肩）と「ステップごとに見る（説明つき）」
+     - /lab/laterality: 1問目が手の甲側
+     - /lab/fascia-network: 「腰・肩・首が痛い」の3パターン、動かすと硬い場所とラインが現れる
+     - /lab/fascia: 腕の輪切りと拡大図（サラサラ／ドロドロ）
+     - /lab/iap: 背骨が崩れても腹壁が肋骨から離れない
+     - /lab/nutri・/lab/breath の文言の追加
+  3. 終わったら、この項目と、下の 2026-10-28〜11-01 の各項目（push 待ちのもの）の状態を `完了` に
+- 注意点: 未コミットの変更があっても巻き込まない（`git add -A` はしない）
+- 関連ファイル: HANDOFF.md（2026-10-28〜11-01 の各項目）, public/images/qr/
+
 ## 2026-11-01 Claude → Codex｜筋膜のつながり: 参考文献の「高密度化」を外し、筋膜の層とそろえた
 - 状態: 未着手
 - やったこと（ユーザー指定）: 参考文献の欄から「高密度化」を外し「筋膜の滑りが悪くなる（硬くなる）という考え方も含め、提唱者らによる考え方で検証は限られている」に。3D の読み上げ用ラベル（aria-label）とコード内の説明も「硬さ（滑りにくさ）」にそろえた。サイト内の文言に「高密度化」は残っていない
@@ -73,7 +93,7 @@
 - 関連ファイル: src/sections/NutriLab.tsx
 
 ## 2026-10-31 Claude → Codex｜たまっているコミットを GitHub へ push
-- 状態: 未着手
+- 状態: 保留（2026-11-01 の「push と本番の確認（まとめ）」に引き継いだ）
 - やったこと: Claude のシェルから `git push origin main` を試したが、GitHub のログイン情報が無く失敗（`gh` も未導入）。送る44件に `.env`・`booking.sql` などの秘密情報のファイルが含まれないことは確認済み
 - 次にやること: motion-lab の main を origin（tomynote2025/motion-lab）へ push → Vercel の本番（lab.health-football.com）への反映を確認。特に /lab/proprioception の、やり方の動画（ひざ・ひじ・肩）と「ステップごとに見る」の切り替え、/lab/laterality の1問目が手の甲側になること
 - 注意点: push の前に `git status` で未コミットの変更が無いか確認する。あっても巻き込まない。下の「ユーザー」宛ての「GitHub Desktop で push」の項目は、push できたら状態を `完了` にする
