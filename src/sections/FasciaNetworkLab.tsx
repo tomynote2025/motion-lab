@@ -19,55 +19,60 @@ const MOVE_DURATION = 1.6; // 秒
 
 const PATTERNS: Record<
   FasciaPattern,
-  { chip: string; pain: string; where: string; move: string; romLabel: string; strainAt: string; note: string; verdict: [string, string, string] }
+  { chip: string; pain: string; short: string; where: string; move: string; romLabel: string; strainAt: string; note: string; verdict: [string, string, string] }
 > = {
   leg: {
     chip: '腰が痛い',
     pain: '腰',
+    short: '太もも裏',
     where: '太もも裏（ハムストリングス）',
     move: '前屈してみる',
     romLabel: '前屈の深さ',
     strainAt: '腰',
-    note: '太ももの裏から殿部・腰までは、筋膜でつながっています。ここが硬いと股関節が曲がりにくく、その分を腰が丸まって補うため、痛みが出やすいのは腰です。',
+    note: '太ももの裏から殿部・腰までは、筋膜でつながっています。ここが硬いと股関節が曲がりにくく、その分を腰が丸まって補うため、腰に負担が集まります。',
     verdict: [
-      '◎ 股関節を中心に、深く前屈できています。',
-      '○ 股関節の動きが少し減り、腰の丸まりが増えています。',
-      '⚠ 股関節があまり曲がらず、腰が大きく丸まって補っています。負担が集まるのは、硬い太もも裏ではなく腰です。',
+      '◎ 太もも裏がやわらかいと、股関節を中心に深く前屈でき、腰に負担は集まりません。',
+      '○ 股関節の動きが少し減り、腰の丸まりが増えています。太もも裏の硬さが、腰に負担をかけ始めています。',
+      '⚠ 股関節があまり曲がらず、腰が大きく丸まって補っています。太もも裏の硬さが、腰の痛みを引き起こしている可能性があります。',
     ],
   },
   abdomen: {
     chip: '肩が痛い',
     pain: '肩',
+    short: 'おなか',
     where: 'おなか（腹部の前面）',
     move: '腕を上げてみる',
     romLabel: '腕の上がり方',
     strainAt: '肩',
     note: 'おなかの前の筋膜は、胸の筋肉（大胸筋）を通って腕までつながっています。おなかが硬いと、腕を上げるときに前が突っ張って上がりきらず、肩に負担が集まります。腰を反らせて補うこともあります。',
     verdict: [
-      '◎ 腕が真上近くまで上がっています。',
-      '○ 腕の上がり方が少し減り、腰を反らせて補い始めています。',
-      '⚠ 腕が上がりきらず、肩に負担が集まっています。硬いのはおなかでも、痛みが出やすいのは肩です。',
+      '◎ おなかがやわらかいと、腕は真上近くまで上がり、肩に負担は集まりません。',
+      '○ 腕の上がり方が少し減り、腰を反らせて補い始めています。おなかの硬さが、肩に負担をかけ始めています。',
+      '⚠ 腕が上がりきらず、肩に負担が集まっています。おなかの硬さが、肩の痛みを引き起こしている可能性があります。',
     ],
   },
   arm: {
     chip: '首が痛い',
     pain: '首',
+    short: '二の腕',
     where: '二の腕（上腕の外側）',
     move: '首を横に倒してみる',
     romLabel: '首の倒れ方',
     strainAt: '首',
     note: '腕の筋膜は、肩の上（僧帽筋）を通って首までつながっています。二の腕が硬いと、首を反対側へ倒すときに引っ張られて倒しにくく、首に負担が集まります。',
     verdict: [
-      '◎ 首を横に、十分に倒せています。',
-      '○ 首の倒れ方が少し小さくなっています。',
-      '⚠ 首があまり倒れず、首に負担が集まっています。硬いのは二の腕でも、痛みが出やすいのは首です。',
+      '◎ 二の腕がやわらかいと、首を横に十分倒せ、首に負担は集まりません。',
+      '○ 首の倒れ方が少し小さくなっています。二の腕の硬さが、首に負担をかけ始めています。',
+      '⚠ 首があまり倒れず、首に負担が集まっています。二の腕の硬さが、首の痛みを引き起こしている可能性があります。',
     ],
   },
 };
 
 export function FasciaNetworkLab() {
   const [pattern, setPattern] = useState<FasciaPattern>('leg');
-  const [densification, setDensification] = useState(0.15); // 健康な状態からスタート
+  const START_STIFFNESS = 0.8; // 「痛い」状態から始め、原因がわかったら硬さを下げて比べる
+  const [densification, setDensification] = useState(START_STIFFNESS);
+  const [revealed, setRevealed] = useState(false); // 一度動かして、硬い場所が見えたか
   const [progress, setProgress] = useState(0);
   const [animPhase, setAnimPhase] = useState<'idle' | 'moving'>('idle');
   const animPhaseRef = useRef(animPhase);
@@ -94,6 +99,7 @@ export function FasciaNetworkLab() {
     controls.current?.reset(); // 動きが見やすい正面のカメラに戻す（向きはパターンごとに体を回して合わせる）
     moveStart.current = performance.now();
     setAnimPhase('moving');
+    setRevealed(true);
   };
   const reset = () => {
     setAnimPhase('idle');
@@ -103,6 +109,8 @@ export function FasciaNetworkLab() {
     if (animPhaseRef.current === 'moving') return;
     reset();
     setPattern(id);
+    setRevealed(false);
+    setDensification(START_STIFFNESS);
   };
 
   const done = progress >= 0.999;
@@ -113,14 +121,14 @@ export function FasciaNetworkLab() {
   const level = densification < 0.25 ? 0 : densification < 0.55 ? 1 : 2;
   const glideWord = ['なめらか', 'やや硬い', '硬い'][level];
   const romWord = ['大きい', 'やや小さい', '小さい'][level];
-  const resistWord = ['弱', '中', '強'][level];
+  const resistWord = ['やわらかい', 'やや硬い', '硬い'][level];
 
   return (
     <section id="fascia-network" className="section">
       <LabHead
         id="fascia-network"
         lead="筋膜の治療法のひとつ（Fascial Manipulation®）では、筋膜を体の各部の張力と動きをつなぐシステムとして考えます。張力が集まるとされる場所を「協調中心」と呼び、痛む場所から離れた所にも原因の候補があると考えます。光る点は、その考え方を理解するための仮の候補点です。"
-        steps="痛む場所（腰・肩・首）を選んで「▶ 動かしてみる」ボタンを押すと、離れた所にある硬い場所と、そこからのつながりが現れます。「滑走抵抗」のスライダーで、硬さを変えて比べられます。"
+        steps="痛む場所（腰・肩・首）を選んで動かすと、離れた所にある硬い場所と、そこからのつながりが現れます。そのあと、硬い場所のスライダーをやわらかくして、もう一度動かすと比べられます。"
         read="離れた場所の硬さが、別の関節の動きにも影響しうる、という考え方を表したモデルです。仮説の段階で、実際の評価は専門家の触診などで行われます。"
       />
 
@@ -142,7 +150,7 @@ export function FasciaNetworkLab() {
             <pointLight position={[-6, -2, 5]} color="#5E8BA8" intensity={30} />
             <pointLight position={[6, 3, -4]} color="#C0562F" intensity={20} />
             <Suspense fallback={null}>
-              <FasciaNetworkModel pattern={pattern} densification={densification} progress={progress} onSelectPattern={choose} />
+              <FasciaNetworkModel pattern={pattern} densification={densification} progress={progress} revealed={revealed} onSelectPattern={choose} />
             </Suspense>
             <OrbitControls
               ref={controls}
@@ -168,36 +176,43 @@ export function FasciaNetworkLab() {
             ))}
           </div>
 
+          <div className="fascia-task-label"><span>STEP 02</span><b>動かして、原因を探す</b></div>
           <button className={`fascia-demo-btn ${moving ? 'playing' : ''}`} onClick={moving || done ? reset : move}>
             {moving ? '■ 動いています…' : done ? '↺ 元に戻す' : `▶ ${P.move}`}
           </button>
 
-          <div className="iap-gauges">
-            <Gauge value={1 - densification} label="層の滑り（モデル）" display={glideWord} color="#86B98C" />
-            <Gauge value={1 - densification * 0.75} label={`${P.romLabel}（モデル）`} display={romWord} color="#5E8BA8" />
-          </div>
+          {revealed && (
+            <>
+              <div className="fascia-task-label"><span>STEP 03</span><b>{P.short}の硬さを変えて、もう一度動かす</b></div>
+              <label className="slider-row">
+                <span className="slider-name" style={{ color: '#C0562F' }}>
+                  {P.short}の硬さ
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={densification}
+                  disabled={moving}
+                  aria-label={`${P.short}の硬さ（筋膜の滑りにくさ）`}
+                  onChange={(e) => {
+                    setDensification(+e.target.value);
+                    reset();
+                  }}
+                />
+                <span className="slider-val">{resistWord}</span>
+              </label>
 
-          <label className="slider-row">
-            <span className="slider-name" style={{ color: '#C0562F' }}>
-              滑走抵抗
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={densification}
-              disabled={moving}
-              onChange={(e) => {
-                setDensification(+e.target.value);
-                reset();
-              }}
-            />
-            <span className="slider-val">{resistWord}</span>
-          </label>
+              <div className="iap-gauges">
+                <Gauge value={1 - densification} label={`${P.short}の筋膜の滑り（モデル）`} display={glideWord} color="#86B98C" />
+                <Gauge value={1 - densification * 0.75} label={`${P.romLabel}（モデル）`} display={romWord} color="#5E8BA8" />
+              </div>
+            </>
+          )}
 
           <div className="fascia-note">
-            {progress === 0 ? (
+            {!revealed ? (
               <>
                 <b>{P.chip}。原因は{P.pain}？</b>
                 <br />

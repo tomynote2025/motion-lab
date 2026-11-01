@@ -319,6 +319,7 @@ export function FasciaNetworkModel({
   pattern,
   densification,
   progress,
+  revealed,
   onSelectPattern,
 }: {
   /** どこが硬いか（硬い場所と、動きが制限される場所の組み合わせ） */
@@ -327,6 +328,8 @@ export function FasciaNetworkModel({
   densification: number;
   /** 0=はじめの姿勢 〜 1=動かしきった状態 */
   progress: number;
+  /** 一度動かして、硬い場所が見えたか（見えたあとは止まっていても硬い場所とラインを出す） */
+  revealed: boolean;
   onSelectPattern: (id: FasciaPattern) => void;
 }) {
   const nodes = useSkeletonParts();
@@ -358,7 +361,8 @@ export function FasciaNetworkModel({
   }
 
   // 動かす前は痛む場所を光らせておき、動かし始めたら負担の大きさに合わせる（柔らかければ消えていく）
-  const painIdle = 0.9 * clamp(1 - p * 3, 0, 1);
+  // 硬い場所がわかったあとは、硬さを下げると止まっているときの痛みの光も弱くなる
+  const painIdle = 0.9 * clamp(1 - p * 3, 0, 1) * (revealed ? clamp((d - 0.15) * 1.4, 0, 1) : 1);
   const painGlow = (id: FasciaPattern, strain: number) => (id === pattern ? Math.max(painIdle, strain) : 0);
 
   const pose: Pose = { hip: rad(hipDeg), lumbarSeg: rad(lumbarDeg) / 5, shoulder: rad(shoulderDeg), neckSeg: rad(neckDeg) / NECK_PIVOTS.length };
@@ -433,7 +437,7 @@ export function FasciaNetworkModel({
       </Pivot>
 
       {/* 硬い場所の光る点とラインは、動かし始めてから現れる（痛む場所とは別の所にあることを見せる） */}
-      {p > 0 && (
+      {(p > 0 || revealed) && (
         <>
           <FasciaLine points={lines[pattern]} tension={tension} />
           <DensityHotspot at={lines[pattern][LINES[pattern].hot]} active onSelect={() => onSelectPattern(pattern)} />
