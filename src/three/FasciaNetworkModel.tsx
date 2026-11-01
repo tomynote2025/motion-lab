@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { Html, useGLTF } from '@react-three/drei';
 
 /**
  * FASCIA NETWORK — 筋膜は全身をつなぐ一枚のシート、を「動き」で体感するモデル。
@@ -48,8 +48,9 @@ type Seg = 'legs' | 'pelvis' | 'thorax' | 'armL' | 'head';
 /** 姿勢（ラジアン）。lumbarSeg・neckSeg は1か所あたりの角度 */
 type Pose = { hip: number; lumbarSeg: number; shoulder: number; neckSeg: number };
 
-/** 筋膜のライン。点の並びと、それぞれが付いているまとまり。hot = 光る点（硬い場所）の番号 */
-const LINES: Record<FasciaPattern, { pts: Vec3[]; segs: Seg[]; hot: number }> = {
+/** 筋膜のライン。点の並びと、それぞれが付いているまとまり。hot = 光る点（硬い場所）の番号。
+ * labels = 「なぜそこ？」がわかるよう、ラインの途中に出す名前（点の番号と文字。'up' は隣と重ならないよう上に出す） */
+const LINES: Record<FasciaPattern, { pts: Vec3[]; segs: Seg[]; hot: number; labels: [number, string, 'up'?][] }> = {
   // かかと → ふくらはぎ → ひざ裏 → 太もも裏 → 坐骨 → 殿部
   leg: {
     pts: [
@@ -62,6 +63,7 @@ const LINES: Record<FasciaPattern, { pts: Vec3[]; segs: Seg[]; hot: number }> = 
     ],
     segs: ['legs', 'legs', 'legs', 'legs', 'pelvis', 'pelvis'],
     hot: 3,
+    labels: [[3, '太もも裏'], [4, 'おしり'], [5, '腰', 'up']],
   },
   // 恥骨 → おなか → 肋骨の前 → 胸（大胸筋） → 上腕の前 → ひじの前
   abdomen: {
@@ -77,6 +79,7 @@ const LINES: Record<FasciaPattern, { pts: Vec3[]; segs: Seg[]; hot: number }> = 
     ],
     segs: ['pelvis', 'pelvis', 'thorax', 'thorax', 'thorax', 'armL', 'armL', 'armL'],
     hot: 2,
+    labels: [[2, 'おなか'], [4, '胸（大胸筋）'], [5, '肩', 'up']],
   },
   // 前腕の後ろ → ひじ → 二の腕 → 肩の上 → 首の付け根 → 首の横 → 後頭部
   arm: {
@@ -91,6 +94,7 @@ const LINES: Record<FasciaPattern, { pts: Vec3[]; segs: Seg[]; hot: number }> = 
     ],
     segs: ['armL', 'armL', 'armL', 'thorax', 'thorax', 'head', 'head'],
     hot: 2,
+    labels: [[2, '二の腕'], [3, '肩の上（僧帽筋）'], [5, '首']],
   },
 };
 
@@ -441,6 +445,11 @@ export function FasciaNetworkModel({
         <>
           <FasciaLine points={lines[pattern]} tension={tension} />
           <DensityHotspot at={lines[pattern][LINES[pattern].hot]} active onSelect={() => onSelectPattern(pattern)} />
+          {LINES[pattern].labels.map(([i, text, up]) => (
+            <Html key={text} position={lines[pattern][i]} center style={{ pointerEvents: 'none' }}>
+              <span className={`iap3d-label fascia3d-label ${up ? 'fascia3d-label-up' : ''}`}>{text}</span>
+            </Html>
+          ))}
         </>
       )}
     </ViewTurn>

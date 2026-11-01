@@ -1725,6 +1725,37 @@ input[type='range']::-webkit-slider-thumb:hover {
   color: var(--text);
 }
 
+/* 「なぜおなか？」: 硬い場所から痛む場所までのつながり */
+.fascia-note .fascia-why {
+  display: block;
+  font-size: 15px;
+}
+
+.fascia-chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 2px 0 8px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.fascia-chain i {
+  margin-right: 6px;
+  color: #c0562f;
+  font-style: normal;
+}
+
+.fascia3d-label {
+  color: #efeadc;
+  border-color: rgba(239, 234, 220, 0.5);
+  transform: translateX(calc(50% + 14px)); /* ラインの点に重ならないよう右へずらす */
+}
+
+.fascia3d-label-up {
+  transform: translate(calc(50% + 10px), -26px);
+}
+
 .load-btn.warm {
   border-color: var(--amber);
   color: var(--amber);

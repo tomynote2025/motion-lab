@@ -19,13 +19,14 @@ const MOVE_DURATION = 1.6; // 秒
 
 const PATTERNS: Record<
   FasciaPattern,
-  { chip: string; pain: string; short: string; where: string; move: string; romLabel: string; strainAt: string; note: string; verdict: [string, string, string] }
+  { chip: string; pain: string; short: string; where: string; chain: string[]; move: string; romLabel: string; strainAt: string; note: string; verdict: [string, string, string] }
 > = {
   leg: {
     chip: '腰が痛い',
     pain: '腰',
     short: '太もも裏',
     where: '太もも裏（ハムストリングス）',
+    chain: ['太もも裏', 'おしり', '腰'],
     move: '前屈してみる',
     romLabel: '前屈の深さ',
     strainAt: '腰',
@@ -41,6 +42,7 @@ const PATTERNS: Record<
     pain: '肩',
     short: 'おなか',
     where: 'おなか（腹部の前面）',
+    chain: ['おなか', '胸（大胸筋）', '腕のつけ根', '肩'],
     move: '腕を上げてみる',
     romLabel: '腕の上がり方',
     strainAt: '肩',
@@ -56,6 +58,7 @@ const PATTERNS: Record<
     pain: '首',
     short: '二の腕',
     where: '二の腕（上腕の外側）',
+    chain: ['二の腕', '肩の上（僧帽筋）', '首'],
     move: '首を横に倒してみる',
     romLabel: '首の倒れ方',
     strainAt: '首',
@@ -181,6 +184,31 @@ export function FasciaNetworkLab() {
             {moving ? '■ 動いています…' : done ? '↺ 元に戻す' : `▶ ${P.move}`}
           </button>
 
+          {done && <div className={`iap-verdict ${level === 2 ? 'bad' : level === 0 ? 'good' : ''}`}>{P.verdict[level]}</div>}
+
+          <div className="fascia-note">
+            {!revealed ? (
+              <>
+                <b>{P.chip}。原因は{P.pain}？</b>
+                <br />
+                「▶ {P.move}」を押して、どこが突っ張るかを見てみましょう。
+              </>
+            ) : (
+              <>
+                <b className="fascia-why">なぜ{P.short}？</b>
+                <span className="fascia-chain">
+                  {P.chain.map((c, i) => (
+                    <span key={c}>
+                      {i > 0 && <i>→</i>}
+                      {c}
+                    </span>
+                  ))}
+                </span>
+                {P.note}
+              </>
+            )}
+          </div>
+
           {revealed && (
             <>
               <div className="fascia-task-label"><span>STEP 03</span><b>{P.short}の硬さを変えて、もう一度動かす</b></div>
@@ -211,23 +239,6 @@ export function FasciaNetworkLab() {
             </>
           )}
 
-          <div className="fascia-note">
-            {!revealed ? (
-              <>
-                <b>{P.chip}。原因は{P.pain}？</b>
-                <br />
-                「▶ {P.move}」を押して、どこが突っ張るかを見てみましょう。
-              </>
-            ) : (
-              <>
-                痛む所: <b>{P.pain}</b>／硬い場所: <b>{P.where}</b>
-                <br />
-                {P.note}
-              </>
-            )}
-          </div>
-
-          {done && <div className={`iap-verdict ${level === 2 ? 'bad' : level === 0 ? 'good' : ''}`}>{P.verdict[level]}</div>}
         </div>
       </div>
 
