@@ -1,41 +1,84 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { FasciaNetworkModel, DENSITY_POINTS, type DensityPointId } from '../three/FasciaNetworkModel';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { FasciaNetworkModel, type FasciaPattern } from '../three/FasciaNetworkModel';
 import { LabHead, LabMore } from '../components/LabHead';
 import { WhyQuiz } from '../components/WhyQuiz';
 
 /**
- * FASCIA NETWORK — 筋膜は全身をつなぐ一枚のシート、を「前屈」という
- * 実際の動きを通じて体感するセクション。
+ * FASCIA NETWORK — 筋膜は全身をつなぐ一枚のシート、を実際の動きを通じて体感するセクション。
  *
- * アキレス腱／ハムストリングス／殿筋・腰背部 の3ポイントから「どこが硬いか」を選べるようにし、
- * 「下肢後面全体が均等に硬い」という単一パターンにならないようにしている。
- * 選んだポイントが高密度化(硬さ)しているほど、
- *   1. 股関節が曲がらなくなり前屈が浅くなる(可動域制限)
- *   2. その分、腰が過剰に丸まって代償する(=腰にストレスが集中する)
- * ことをアニメーションで見せる。
+ * 「硬い場所」と「動きが制限されて負担が集まる場所」が離れている3パターンを選べる:
+ *   太もも裏 → 前屈（腰に負担）／おなか → 腕を上げる（肩に負担）／二の腕 → 首を横に倒す（首に負担）
+ * 選んだ場所が高密度化(硬さ)しているほど、目的の関節が動かず、別の場所が代わりに動いて負担が集まる。
  */
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-const BEND_DURATION = 1.6; // 秒
+const MOVE_DURATION = 1.6; // 秒
+
+const PATTERNS: Record<
+  FasciaPattern,
+  { chip: string; where: string; move: string; romLabel: string; strainAt: string; note: string; verdict: [string, string, string] }
+> = {
+  leg: {
+    chip: '太もも裏 → 前屈',
+    where: '太もも裏（ハムストリングス）',
+    move: '前屈してみる',
+    romLabel: '前屈の深さ',
+    strainAt: '腰',
+    note: '太ももの裏から殿部・腰までは、筋膜でつながっています。ここが硬いと股関節が曲がりにくく、その分を腰が丸まって補うため、痛みが出やすいのは腰です。',
+    verdict: [
+      '◎ 股関節を中心に、深く前屈できています。',
+      '○ 股関節の動きが少し減り、腰の丸まりが増えています。',
+      '⚠ 股関節があまり曲がらず、腰が大きく丸まって補っています。負担が集まるのは、硬い太もも裏ではなく腰です。',
+    ],
+  },
+  abdomen: {
+    chip: 'おなか → 腕を上げる',
+    where: 'おなか（腹部の前面）',
+    move: '腕を上げてみる',
+    romLabel: '腕の上がり方',
+    strainAt: '肩',
+    note: 'おなかの前の筋膜は、胸の筋肉（大胸筋）を通って腕までつながっています。おなかが硬いと、腕を上げるときに前が突っ張って上がりきらず、肩に負担が集まります。腰を反らせて補うこともあります。',
+    verdict: [
+      '◎ 腕が真上近くまで上がっています。',
+      '○ 腕の上がり方が少し減り、腰を反らせて補い始めています。',
+      '⚠ 腕が上がりきらず、肩に負担が集まっています。硬いのはおなかでも、痛みが出やすいのは肩です。',
+    ],
+  },
+  arm: {
+    chip: '二の腕 → 首を倒す',
+    where: '二の腕（上腕の外側）',
+    move: '首を横に倒してみる',
+    romLabel: '首の倒れ方',
+    strainAt: '首',
+    note: '腕の筋膜は、肩の上（僧帽筋）を通って首までつながっています。二の腕が硬いと、首を反対側へ倒すときに引っ張られて倒しにくく、首に負担が集まります。',
+    verdict: [
+      '◎ 首を横に、十分に倒せています。',
+      '○ 首の倒れ方が少し小さくなっています。',
+      '⚠ 首があまり倒れず、首に負担が集まっています。硬いのは二の腕でも、痛みが出やすいのは首です。',
+    ],
+  },
+};
 
 export function FasciaNetworkLab() {
-  const [selectedPoint, setSelectedPoint] = useState<DensityPointId>('hamstring');
+  const [pattern, setPattern] = useState<FasciaPattern>('leg');
   const [densification, setDensification] = useState(0.15); // 健康な状態からスタート
-  const [bendProgress, setBendProgress] = useState(0);
-  const [animPhase, setAnimPhase] = useState<'idle' | 'bending'>('idle');
+  const [progress, setProgress] = useState(0);
+  const [animPhase, setAnimPhase] = useState<'idle' | 'moving'>('idle');
   const animPhaseRef = useRef(animPhase);
-  const bendStart = useRef(0);
+  const moveStart = useRef(0);
+  const controls = useRef<OrbitControlsImpl>(null);
   animPhaseRef.current = animPhase;
 
   useEffect(() => {
     let raf = 0;
     const loop = () => {
-      if (animPhaseRef.current === 'bending') {
-        const t = (performance.now() - bendStart.current) / 1000;
-        const p = clamp(t / BEND_DURATION, 0, 1);
-        setBendProgress(p);
+      if (animPhaseRef.current === 'moving') {
+        const t = (performance.now() - moveStart.current) / 1000;
+        const p = clamp(t / MOVE_DURATION, 0, 1);
+        setProgress(p);
         if (p >= 1) setAnimPhase('idle');
       }
       raf = requestAnimationFrame(loop);
@@ -44,40 +87,37 @@ export function FasciaNetworkLab() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  const bend = () => {
-    bendStart.current = performance.now();
-    setAnimPhase('bending');
+  const move = () => {
+    controls.current?.reset(); // 動きが見やすい正面のカメラに戻す（向きはパターンごとに体を回して合わせる）
+    moveStart.current = performance.now();
+    setAnimPhase('moving');
   };
-  const standUp = () => {
+  const reset = () => {
     setAnimPhase('idle');
-    setBendProgress(0);
+    setProgress(0);
+  };
+  const choose = (id: FasciaPattern) => {
+    if (animPhaseRef.current === 'moving') return;
+    reset();
+    setPattern(id);
   };
 
-  const bent = bendProgress >= 0.999;
-  const bending = animPhase === 'bending';
-  const pointLabel = DENSITY_POINTS.find((p) => p.id === selectedPoint)!.label;
+  const done = progress >= 0.999;
+  const moving = animPhase === 'moving';
+  const P = PATTERNS[pattern];
 
-  // 見た目の指標(スライダーと連動する説明用の数値)
-  const romPct = Math.round(lerpPct(78, 20, densification));
   // 数字だと測定値に見えるので、状態は言葉で示す
-  const glideWord = densification < 0.25 ? 'なめらか' : densification < 0.55 ? 'やや硬い' : '硬い';
-  const bendWord = romPct >= 60 ? '股関節' : romPct >= 40 ? '股関節＋腰' : '腰が多め';
-  const resistWord = densification < 0.25 ? '弱' : densification < 0.55 ? '中' : '強';
-
-  const verdict = bent
-    ? densification > 0.55
-      ? `⚠ この仮想モデルでは股関節の動きが小さく、腰の動きが増えています。選択点が実際の原因だと確定するものではありません。`
-      : densification > 0.25
-        ? '○ この仮想モデルでは、股関節と腰の運動配分が少し変化しています。'
-        : '◎ この仮想モデルでは、股関節を中心に前屈しています。'
-    : '';
+  const level = densification < 0.25 ? 0 : densification < 0.55 ? 1 : 2;
+  const glideWord = ['なめらか', 'やや硬い', '硬い'][level];
+  const romWord = ['大きい', 'やや小さい', '小さい'][level];
+  const resistWord = ['弱', '中', '強'][level];
 
   return (
     <section id="fascia-network" className="section">
       <LabHead
         id="fascia-network"
         lead="筋膜の治療法のひとつ（Fascial Manipulation®）では、筋膜を体の各部の張力と動きをつなぐシステムとして考えます。張力が集まるとされる場所を「協調中心」と呼び、痛む場所から離れた所にも原因の候補があると考えます。光る点は、その考え方を理解するための仮の候補点です。"
-        steps="候補点を選んで「滑走抵抗」のスライダーを動かし、「▶ 前屈してみる」で前屈の動きがどう変わるかを3Dで観察します。"
+        steps="硬い場所（3パターン）を選んで「滑走抵抗」のスライダーを動かし、「▶ 動かしてみる」ボタンで、動きと負担の集まる場所がどう変わるかを3Dで観察します。"
         read="離れた場所の硬さが、別の関節の動きにも影響しうる、という考え方を表したモデルです。仮説の段階で、実際の評価は専門家の触診などで行われます。"
       />
 
@@ -92,24 +132,20 @@ export function FasciaNetworkLab() {
       </div>
 
       <div className="bodymap-grid">
-        <div className="bodymap-canvas" aria-label="前屈と筋膜の高密度化の3Dモデル">
+        <div className="bodymap-canvas" aria-label="筋膜の高密度化と動きの3Dモデル">
           <Canvas camera={{ position: [0, 0.3, 10.6], fov: 42 }} dpr={[1, 2]}>
             <ambientLight intensity={0.65} />
             <directionalLight position={[4, 6, 6]} intensity={1.2} />
             <pointLight position={[-6, -2, 5]} color="#5E8BA8" intensity={30} />
             <pointLight position={[6, 3, -4]} color="#C0562F" intensity={20} />
             <Suspense fallback={null}>
-              <FasciaNetworkModel
-                densification={densification}
-                bendProgress={bendProgress}
-                selectedPoint={selectedPoint}
-                onSelectPoint={setSelectedPoint}
-              />
+              <FasciaNetworkModel pattern={pattern} densification={densification} progress={progress} onSelectPattern={choose} />
             </Suspense>
             <OrbitControls
+              ref={controls}
               enablePan={false}
               enableZoom={false}
-              autoRotate={animPhase === 'idle' && bendProgress === 0}
+              autoRotate={animPhase === 'idle' && progress === 0}
               autoRotateSpeed={0.7}
               minPolarAngle={Math.PI / 2.8}
               maxPolarAngle={Math.PI / 1.8}
@@ -120,27 +156,22 @@ export function FasciaNetworkLab() {
         </div>
 
         <div className="iap-controls">
-          <div className="fascia-task-label"><span>STEP 01</span><b>評価する仮想候補点を選ぶ</b></div>
-          <div className="region-chips" role="tablist" aria-label="評価する仮想候補点を選択">
-            {DENSITY_POINTS.map((p) => (
-              <button
-                key={p.id}
-                className={`chip ${selectedPoint === p.id ? 'chip-active' : ''}`}
-                disabled={bending}
-                onClick={() => setSelectedPoint(p.id)}
-              >
-                {p.label}
+          <div className="fascia-task-label"><span>STEP 01</span><b>硬い場所と、動きを選ぶ</b></div>
+          <div className="region-chips" role="tablist" aria-label="硬い場所と動きのパターンを選択">
+            {(Object.keys(PATTERNS) as FasciaPattern[]).map((id) => (
+              <button key={id} className={`chip ${pattern === id ? 'chip-active' : ''}`} disabled={moving} onClick={() => choose(id)}>
+                {PATTERNS[id].chip}
               </button>
             ))}
           </div>
 
-          <button className={`fascia-demo-btn ${bending ? 'playing' : ''}`} onClick={bending ? standUp : bent ? standUp : bend}>
-            {bending ? '■ 前屈中…' : bent ? '↺ 立ち上がる' : '▶ 前屈してみる'}
+          <button className={`fascia-demo-btn ${moving ? 'playing' : ''}`} onClick={moving || done ? reset : move}>
+            {moving ? '■ 動いています…' : done ? '↺ 元に戻す' : `▶ ${P.move}`}
           </button>
 
           <div className="iap-gauges">
             <Gauge value={1 - densification} label="層の滑り（モデル）" display={glideWord} color="#86B98C" />
-            <Gauge value={romPct / 100} label="前屈で主に動く所" display={bendWord} color="#5E8BA8" />
+            <Gauge value={1 - densification * 0.75} label={`${P.romLabel}（モデル）`} display={romWord} color="#5E8BA8" />
           </div>
 
           <label className="slider-row">
@@ -153,17 +184,22 @@ export function FasciaNetworkLab() {
               max="1"
               step="0.01"
               value={densification}
-              disabled={bending}
-              onChange={(e) => setDensification(+e.target.value)}
+              disabled={moving}
+              onChange={(e) => {
+                setDensification(+e.target.value);
+                reset();
+              }}
             />
             <span className="slider-val">{resistWord}</span>
           </label>
 
           <div className="fascia-note">
-            <b>{pointLabel}</b>を仮想的な評価候補として選んでいます。滑走抵抗を上げて「前屈してみる」を押すと、このモデル上で股関節と腰の運動配分が変わります。候補点を切り替え、<b>症状の場所だけを見るのではなく複数の仮説を比較する</b>という考え方を体験してください。
+            硬い場所: <b>{P.where}</b>／負担が集まる所: <b>{P.strainAt}</b>
+            <br />
+            {P.note}
           </div>
 
-          {bent && <div className={`iap-verdict ${densification > 0.55 ? 'bad' : densification < 0.25 ? 'good' : ''}`}>{verdict}</div>}
+          {done && <div className={`iap-verdict ${level === 2 ? 'bad' : level === 0 ? 'good' : ''}`}>{P.verdict[level]}</div>}
         </div>
       </div>
 
@@ -175,15 +211,11 @@ export function FasciaNetworkLab() {
       />
       <LabMore>
         <p className="neuro-caution">
-          参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「高密度化」「全身を多因子的に評価する」方法論を単純化しています。これらは提唱者らによる考え方で、検証はまだ限られています。表示している点は正式なCCマップではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。3D骨格: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（抜き出し・軽量化して使用）。
+          参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「高密度化」「全身を多因子的に評価する」方法論を単純化しています。これらは提唱者らによる考え方で、検証はまだ限られています。筋膜のつながりのうち、太もも裏〜腰（後ろのライン）と、胸〜おなか（前のライン）は解剖の研究で連続が確かめられていますが、腕〜首を含め、硬さが離れた場所の動きや痛みを起こすかどうかの検証は限られています（Wilke J ら 2016, Arch Phys Med Rehabil 97:454-461）。3パターンの動きの変化はモデル上の表現で、表示している点は正式なCCマップではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。3D骨格: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（抜き出し・軽量化して使用）。
         </p>
       </LabMore>
     </section>
   );
-}
-
-function lerpPct(a: number, b: number, t: number) {
-  return a + (b - a) * clamp(t, 0, 1);
 }
 
 function Gauge({ value, label, display, color }: { value: number; label: string; display: string; color: string }) {

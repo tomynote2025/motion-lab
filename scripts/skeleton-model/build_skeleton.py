@@ -2,8 +2,8 @@
 
 blender -b --factory-startup -P build_skeleton.py -- <parts_dir> <parts.json> <out.glb> [目標の三角形数] [segments.json]
 
-segments.json を渡すと、部品を「脚・骨盤・腰椎1〜5・上半身」などの名前つきのまとまりに分けて書き出す
-（筋膜のつながりラボの前屈で、まとまりごとに回すため）。渡さなければ骨・軟骨・歯の3つにまとめる。
+segments.json を渡すと、部品を「脚・骨盤・腰椎1〜5・胸郭・左右の腕・頸椎3〜7・頭」などの名前つきのまとまりに分けて書き出す
+（筋膜のつながりラボで、前屈・腕を上げる・首を倒す動きを、まとまりごとに回して見せるため）。渡さなければ骨・軟骨・歯の3つにまとめる。
 
 座標: BodyParts3D は mm・Z が上・-Y が前・+X が体の左。
 骨格マップの 3D 空間(足裏 y=-3.05 / 頭頂 y≒3.4 / 前 = +Z)に合わせて縮小・移動する。
@@ -88,6 +88,9 @@ for name, objs in groups.items():
     ob = bpy.context.view_layer.objects.active
     ob.name = ob.data.name = name
     out.append(ob)
+    # three.js の座標 (x, z, -y) で、まとまりの範囲を出す（関節の位置を合わせるときに使う）
+    xs, ys, zs = zip(*[(v.co.x, v.co.z, -v.co.y) for v in ob.data.vertices])
+    print("BBOX", name, *(f"{f(a):.3f}" for a in (xs, ys, zs) for f in (min, max)))
 
 print("TOTAL_FACES", sum(len(o.data.polygons) for o in out))
 bpy.ops.object.select_all(action="SELECT")
