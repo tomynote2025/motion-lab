@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { useLayoutEffect, useMemo, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { Html, useGLTF } from '@react-three/drei';
 
@@ -14,6 +14,16 @@ import { Html, useGLTF } from '@react-three/drei';
 
 const MODEL_URL = '/models/iap-torso.glb';
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+
+/** 腰椎（下から L5〜L1）と、それぞれが曲がる支点 */
+const LUMBAR_CHAIN: { name: string; pivot: Vec3 }[] = [
+  { name: 'L5', pivot: [0, -0.36, 0.36] },
+  { name: 'L4', pivot: [0, -0.23, 0.36] },
+  { name: 'L3', pivot: [0, -0.11, 0.36] },
+  { name: 'L2', pivot: [0, -0.01, 0.36] },
+  { name: 'L1', pivot: [0, 0.09, 0.36] },
+];
+const LUMBAR_PIVOTS = LUMBAR_CHAIN.map((s) => s.pivot);
 
 const BONE_COLOR = '#ddd6c4';
 const ACTIVE = '#C0562F';
@@ -67,6 +77,53 @@ function useParts() {
     });
     return map;
   }, [scene]);
+}
+
+/**
+ * 腹壁。下は骨盤に、上は肋骨についているので、背骨が丸まる・反るときは
+ * 高さに合わせて少しずつ一緒に曲げる（腰椎と同じ支点・角度で、上ほど大きく）。こうしないと肋骨から離れて見える。
+ * 前へのふくらみ(bulge)は、背骨側(z=0.45)を支点に前後へ伸ばす。
+ */
+function BentWall({ geometry, flex, bulge, pivots, children }: { geometry: THREE.BufferGeometry; flex: number; bulge: number; pivots: Vec3[]; children: ReactNode }) {
+  const { geo, base } = useMemo(() => {
+    const geo = geometry.clone();
+    return { geo, base: Float32Array.from(geo.attributes.position.array as Float32Array) };
+  }, [geometry]);
+
+  useLayoutEffect(() => {
+    const pos = geo.attributes.position.array as Float32Array;
+    const sx = 1 + (bulge - 1) * 0.3;
+    // 上の支点から順に回す（入れ子のグループと同じ順）。支点の前後 0.06 でなめらかに効き始める
+    const order = [...pivots].reverse();
+    for (let i = 0; i < pos.length; i += 3) {
+      let x = base[i] * sx;
+      let y = base[i + 1];
+      let z = 0.45 + (base[i + 2] - 0.45) * bulge;
+      if (flex !== 0) {
+        for (const p of order) {
+          const w = clamp((y - p[1] + 0.06) / 0.12, 0, 1);
+          if (w === 0) continue;
+          const a = flex * w;
+          const dy = y - p[1];
+          const dz = z - p[2];
+          y = p[1] + dy * Math.cos(a) - dz * Math.sin(a);
+          z = p[2] + dy * Math.sin(a) + dz * Math.cos(a);
+        }
+      }
+      pos[i] = x;
+      pos[i + 1] = y;
+      pos[i + 2] = z;
+    }
+    geo.attributes.position.needsUpdate = true;
+    geo.computeVertexNormals();
+    geo.computeBoundingSphere();
+  }, [geo, base, flex, bulge, pivots]);
+
+  return (
+    <mesh geometry={geo} renderOrder={3}>
+      {children}
+    </mesh>
+  );
 }
 
 export function IapAnatomy3D({
@@ -145,13 +202,6 @@ export function IapAnatomy3D({
   // 小さな負荷でも崩れ始めが見えるよう、stress を少し持ち上げてから角度にする
   const flex = Math.pow(stress, 0.7) * bias * (bias > 0 ? 0.13 : 0.12); // 1節あたり(rad)。屈曲は最大約37°、伸展は最大約34°
   const collapseLabel = bias >= 0 ? '例：支えきれず背骨が丸まる' : '例：支えきれず腰が反る';
-  const LUMBAR_CHAIN: { name: string; pivot: Vec3 }[] = [
-    { name: 'L5', pivot: [0, -0.36, 0.36] },
-    { name: 'L4', pivot: [0, -0.23, 0.36] },
-    { name: 'L3', pivot: [0, -0.11, 0.36] },
-    { name: 'L2', pivot: [0, -0.01, 0.36] },
-    { name: 'L1', pivot: [0, 0.09, 0.36] },
-  ];
 
   /** 腰椎より上(胸郭・横隔膜・負荷の矢印)。背骨と一緒に動く */
   const upper = (
@@ -244,10 +294,9 @@ export function IapAnatomy3D({
         </mesh>
       )}
 
-      {/* 壁: 腹壁(背骨側を支点に前へふくらませる) */}
+      {/* 壁: 腹壁(背骨側を支点に前へふくらませ、背骨の崩れに合わせて肋骨についたまま曲げる) */}
       {g.oblique && (
-        <group position={[0, 0, 0.45]} scale={[1 + (wallBulge - 1) * 0.3, 1, wallBulge]}>
-          <mesh geometry={g.oblique} position={[0, 0, -0.45]} renderOrder={3}>
+        <BentWall geometry={g.oblique} flex={flex} bulge={wallBulge} pivots={LUMBAR_PIVOTS}>
             <meshStandardMaterial
               color={WALL_COLOR}
               emissive={WALL_COLOR}
@@ -259,8 +308,7 @@ export function IapAnatomy3D({
               roughness={0.5}
               depthWrite={false}
             />
-          </mesh>
-        </group>
+        </BentWall>
       )}
 
       {/* まとまった圧が内側から押す矢印 */}
