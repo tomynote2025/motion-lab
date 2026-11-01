@@ -11,7 +11,7 @@ import { WhyQuiz } from '../components/WhyQuiz';
  *
  * 「腰が痛い・肩が痛い・首が痛い。原因はそこ？」から入り、動かすと離れた場所の硬さが見える3パターン:
  *   腰が痛い ← 太もも裏（前屈）／肩が痛い ← おなか（腕を上げる）／首が痛い ← 二の腕（首を横に倒す）
- * 選んだ場所が高密度化(硬さ)しているほど、目的の関節が動かず、別の場所が代わりに動いて負担が集まる。
+ * 選んだ場所の筋膜が硬い（滑りにくい）ほど、目的の関節が動かず、別の場所が代わりに動いて負担が集まる。
  */
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -149,7 +149,7 @@ export function FasciaNetworkLab() {
       </div>
 
       <div className="bodymap-grid">
-        <div className="bodymap-canvas" aria-label="筋膜の高密度化と動きの3Dモデル">
+        <div className="bodymap-canvas" aria-label="筋膜の硬さ（滑りにくさ）と動きの3Dモデル">
           <Canvas camera={{ position: [0, 0.3, 10.6], fov: 42 }} dpr={[1, 2]}>
             <ambientLight intensity={0.65} />
             <directionalLight position={[4, 6, 6]} intensity={1.2} />
@@ -257,7 +257,7 @@ export function FasciaNetworkLab() {
       />
       <LabMore>
         <p className="neuro-caution">
-          参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「高密度化」「全身を多因子的に評価する」方法論を単純化しています。これらは提唱者らによる考え方で、検証はまだ限られています。筋膜のつながりのうち、太もも裏〜腰（後ろのライン）と、胸〜おなか（前のライン）は解剖の研究で連続が確かめられていますが、腕〜首を含め、硬さが離れた場所の動きや痛みを起こすかどうかの検証は限られています（Wilke J ら 2016, Arch Phys Med Rehabil 97:454-461）。3パターンの動きの変化はモデル上の表現で、表示している点は正式なCCマップではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。3D骨格: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（抜き出し・軽量化して使用）。
+          参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「全身を多因子的に評価する」方法論を単純化しています。筋膜の滑りが悪くなる（硬くなる）という考え方も含め、これらは提唱者らによる考え方で、検証はまだ限られています。筋膜のつながりのうち、太もも裏〜腰（後ろのライン）と、胸〜おなか（前のライン）は解剖の研究で連続が確かめられていますが、腕〜首を含め、硬さが離れた場所の動きや痛みを起こすかどうかの検証は限られています（Wilke J ら 2016, Arch Phys Med Rehabil 97:454-461）。3パターンの動きの変化はモデル上の表現で、表示している点は正式なCCマップではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。3D骨格: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（抜き出し・軽量化して使用）。
         </p>
       </LabMore>
     </section>
