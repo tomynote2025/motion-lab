@@ -10,7 +10,7 @@ import { WhyQuiz } from '../components/WhyQuiz';
  * わかりやすさのために3段で見せる:
  *   1. 腕の輪切り … 皮膚・皮下脂肪・浅筋膜・深筋膜・筋肉・骨が、体のどこにあるか
  *   2. 拡大図     … 輪切りの一部を拡大した平面の図。層を指で左右に動かして滑り方を見る
- *                    浅筋膜は「ネットの弾力（しっかり〜ゆるい）」、深筋膜は「層の間の液（サラサラ〜ドロドロ）」で変える
+ *                    浅筋膜は「滑走（良い〜悪い）」、深筋膜は「層の間の液（サラサラ〜ドロドロ）」で変える
  *   3. 自分で試す … 手の甲の皮膚をつまむ／前腕に手を当てて指を動かす
  */
 
@@ -156,7 +156,7 @@ const MID = (X0 + X1) / 2; // 目印を置く横位置
 
 function LayerLab({ mode }: { mode: Mode }) {
   const deep = mode === 'deep';
-  const [param, setParam] = useState(deep ? 0.25 : 0.2); // 浅: ゆるさ（0=しっかり）／深: 液のねばり（0=サラサラ）
+  const [param, setParam] = useState(deep ? 0.25 : 0.2); // 浅: 滑走の悪さ（0=良い）／深: 液のねばり（0=サラサラ）
   const [shift, setShift] = useState(0); // 動かす層のずれ(-1..1)
   const [warmth, setWarmth] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -171,7 +171,7 @@ function LayerLab({ mode }: { mode: Mode }) {
   paramRef.current = param;
   autoRef.current = auto;
 
-  const maxShift = deep ? 1 : 0.55 + param * 0.45; // 浅筋膜がゆるいほど皮膚が大きくずれる
+  const maxShift = deep ? 1 : 1 - param * 0.6; // 浅筋膜の滑走が悪いほど、皮膚が動きにくい
 
   useEffect(() => {
     let raf = 0;
@@ -179,12 +179,12 @@ function LayerLab({ mode }: { mode: Mode }) {
       if (autoRef.current) {
         // 自動で「すっと動かして、離す」
         const t = (performance.now() - autoStart.current) / 1000;
-        const max = deep ? 1 : 0.55 + paramRef.current * 0.45;
+        const max = deep ? 1 : 1 - paramRef.current * 0.6;
         if (t < 0.8) setShift(easeOut(t / 0.8) * max);
         else if (t > 1.2) setAuto(false);
       } else if (!drag.current.on) {
-        // 離すと戻る。浅筋膜は弾力が弱い（ゆるい）ほどゆっくり戻る
-        const rate = deep ? 0.1 : 0.02 + (1 - paramRef.current) * 0.16;
+        // 離すと戻る。浅筋膜の滑走が悪いほど、ゆっくり戻る
+        const rate = deep ? 0.1 : 0.16 - paramRef.current * 0.13;
         setShift((s) => (Math.abs(s) < 0.002 ? 0 : s * (1 - rate)));
       }
       if (deep) {
@@ -208,7 +208,8 @@ function LayerLab({ mode }: { mode: Mode }) {
   };
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!drag.current.on) return;
-    const dx = ((e.clientX - drag.current.x0) / drag.current.w) * 3.2;
+    // 浅筋膜の滑走が悪いほど、同じだけ指を動かしても皮膚は少ししか動かない
+    const dx = ((e.clientX - drag.current.x0) / drag.current.w) * 3.2 * (deep ? 1 : 1 - param * 0.6);
     setShift(clamp(drag.current.s0 + dx, -maxShift, maxShift));
   };
   const onUp = () => {
@@ -230,10 +231,10 @@ function LayerLab({ mode }: { mode: Mode }) {
   // ---- 目安（言葉） ----
   const level = param < 0.34 ? 0 : param < 0.67 ? 1 : 2;
   const effLevel = deep ? (visc < 0.34 ? 0 : visc < 0.67 ? 1 : 2) : level;
-  const paramWord = deep ? ['サラサラ', 'とろっと', 'ドロドロ'][effLevel] : ['しっかり', 'ふつう', 'ゆるい'][level];
+  const paramWord = deep ? ['サラサラ', 'とろっと', 'ドロドロ'][effLevel] : ['良い', 'ふつう', '悪い'][level];
   const g1 = deep
-    ? { value: 1 - visc, label: '層どうしの滑り', word: ['なめらか', 'やや悪い', '悪い'][effLevel] }
-    : { value: 1 - param, label: '戻る力', word: ['よく戻る', 'ふつう', '戻りにくい'][level] };
+    ? { value: 1 - visc, label: '層どうしの滑走', word: ['良い', 'やや悪い', '悪い'][effLevel] }
+    : { value: 1 - param, label: '皮膚の滑走', word: ['良い', 'ふつう', '悪い'][level] };
   const g2 = deep
     ? { value: 0.45 + 0.55 * (1 - visc), label: '動く範囲', word: ['広い', 'やや狭い', '狭い'][effLevel] }
     : { value: Math.abs(shift) / 1, label: '皮膚のずれ', word: Math.abs(shift) > 0.66 ? '大きい' : Math.abs(shift) > 0.33 ? '中くらい' : '小さい' };
@@ -247,10 +248,10 @@ function LayerLab({ mode }: { mode: Mode }) {
           ? '○ 液が少しとろっとして、下の層も少し引きずられます。'
           : '◎ 液がサラサラで、上の層だけがスッと滑ります。'
     : level === 2
-      ? '△ ネットがゆるみ、皮膚が大きくずれて、離したあと戻るのが遅くなっています。'
+      ? '△ 滑走が悪い状態。同じ力で動かしても皮膚があまり動かず、離したあと戻るのも遅くなります。'
       : level === 1
-        ? '○ 弾力は中くらい。離したあと、戻るのが少しゆっくりになります。'
-        : '◎ ネットに弾力があり、皮膚を動かしても、離すとすぐに戻ります。';
+        ? '○ 滑走はふつう。動き方と戻り方が、少しゆっくりになります。'
+        : '◎ 滑走が良い状態。皮膚がなめらかに動き、離すとすぐに戻ります。';
   const tone = deep ? (effLevel === 0 || (warmth > 0.25 && param > 0.45) ? 'good' : effLevel === 2 ? 'bad' : '') : level === 0 ? 'good' : level === 2 ? 'bad' : '';
 
   return (
@@ -266,7 +267,7 @@ function LayerLab({ mode }: { mode: Mode }) {
           onPointerUp={onUp}
           onPointerCancel={onUp}
         >
-          <ZoomView deep={deep} off={off} loose={deep ? 0 : param} visc={visc} />
+          <ZoomView deep={deep} off={off} stiff={deep ? 0 : param} visc={visc} />
         </div>
       </div>
 
@@ -277,9 +278,9 @@ function LayerLab({ mode }: { mode: Mode }) {
 
         <label className="slider-row">
           <span className="slider-name" style={{ color: deep ? '#C0562F' : '#5f9a66' }}>
-            {deep ? '層の間の液' : '浅筋膜の弾力'}
+            {deep ? '層の間の液' : '浅筋膜の滑走'}
           </span>
-          <input type="range" min="0" max="1" step="0.01" value={param} disabled={auto} onChange={(e) => setParam(+e.target.value)} aria-label={deep ? '層の間の液（サラサラ〜ドロドロ）' : '浅筋膜の弾力（しっかり〜ゆるい）'} />
+          <input type="range" min="0" max="1" step="0.01" value={param} disabled={auto} onChange={(e) => setParam(+e.target.value)} aria-label={deep ? '層の間の液（サラサラ〜ドロドロ）' : '浅筋膜の滑走（良い〜悪い）'} />
           <span className="slider-val">{paramWord}</span>
         </label>
 
@@ -309,7 +310,7 @@ function LayerLab({ mode }: { mode: Mode }) {
             </>
           ) : (
             <>
-              <b>浅筋膜</b>は、皮下脂肪の中にある、伸び縮みするネットのような膜です。細い線維（図の縦の線）で皮膚や深い層とつながり、皮膚が動いたあとに元へ戻す役目をしています。
+              <b>浅筋膜</b>は、皮下脂肪の中にある、ネットのような薄い膜です。細い線維（図の縦の線）で皮膚や深い層とつながり、皮膚がなめらかに滑って元に戻るのを助けています。滑走が悪くなると、皮膚が動きにくく、戻るのも遅くなると考えられています。
             </>
           )}
         </div>
@@ -320,7 +321,7 @@ function LayerLab({ mode }: { mode: Mode }) {
           <p>
             {deep
               ? '片手を反対の前腕に軽く当てたまま、指を握ったり開いたりしてみてください。皮膚はほとんど動かないのに、その下で筋肉が滑るように動くのがわかります。層どうしが滑っているからです。'
-              : '手の甲の皮膚を指でつまんで、左右に動かしてみてください。皮膚だけがずれて、離すと元に戻ります。これが浅い層の滑りと、浅筋膜の戻る力です。'}
+              : '手の甲の皮膚を指でつまんで、左右に動かしてみてください。皮膚だけがずれて、離すと元に戻ります。これが浅い層の滑走です。'}
           </p>
         </div>
       </div>
@@ -331,13 +332,14 @@ function LayerLab({ mode }: { mode: Mode }) {
 type Off = Record<'skin' | 'fatUp' | 'sf' | 'fatLow' | 'dfA' | 'dfB' | 'muscle', number>;
 
 /** 拡大図。動かす層に合わせて各層をずらし、層をつなぐ線や液の糸を傾けて「引っぱられ方」を見せる */
-function ZoomView({ deep, off, loose, visc }: { deep: boolean; off: Off; loose: number; visc: number }) {
+function ZoomView({ deep, off, stiff, visc }: { deep: boolean; off: Off; stiff: number; visc: number }) {
   const xs = Array.from({ length: 9 }, (_, i) => X0 + 14 + i * 26);
   const dimUpper = deep ? 0.4 : 1;
   const dimLower = deep ? 1 : 0.45;
   const liqColor = mix('#9fd6ee', '#e3a23c', visc);
   const liqWord = visc < 0.34 ? 'サラサラ' : visc < 0.67 ? 'とろっと' : 'ドロドロ';
-  const sag = 1 + loose * 5; // ゆるいほど、ネットがたるんで波打つ
+  const sag = 2; // ネットのゆるやかな波
+  const sfColor = mix('#86b98c', '#c0562f', stiff); // 滑走が悪いほど、ネットがオレンジに太くなる
 
   // 浅筋膜（ネット）の波線
   const sfPath = (() => {
@@ -386,7 +388,7 @@ function ZoomView({ deep, off, loose, visc }: { deep: boolean; off: Off; loose: 
               <line x1={x + off.sf} y1={L.sf.y + L.sf.h} x2={x + off.dfA} y2={L.dfA.y} />
             </g>
           ))}
-          <path d={sfPath} fill="none" stroke={deep ? C.sf : C.sf} strokeWidth={deep ? 3 : 4.5} strokeLinecap="round" />
+          <path d={sfPath} fill="none" stroke={deep ? C.sf : sfColor} strokeWidth={deep ? 3 : 4.5 + stiff * 3} strokeLinecap="round" />
         </g>
 
         {/* 深筋膜（2枚の層と、その間の液）・筋肉 */}
