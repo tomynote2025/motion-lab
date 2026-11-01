@@ -1,10 +1,11 @@
 /**
  * 本体ブログ(seitai-site / health-football.com)の記事一覧。
+ * 本体ブログで非公開にした記事（desk-work-shoulder・low-back-pain-myth・posture-and-mood、2026-11-02）は載せない。
  * 3D骨格モデルの部位をタップしたとき、ここで紐づけた記事が表示されます。
  *
  * ▼ 記事を追加したとき
  *   1. 下の BLOG_LINKS に1件足す
- *   2. slug は本体ブログのURL末尾（例: /blog/desk-work-shoulder → 'desk-work-shoulder'）
+ *   2. slug は本体ブログのURL末尾（例: /blog/eye-strain-neck → 'eye-strain-neck'）
  *   3. parts に関連する部位IDを、labs に関連する体験ラボのIDを入れる
  *   4. 本体ブログで公開したら draft を消す（draft: true の記事はここに表示されません）
  *
@@ -105,31 +106,27 @@ export const BLOG_LINKS: BlogLink[] = [
     parts: ['shoulder', 'neck', 'thoracic'],
     labs: ['fascia-network'],
   },
-  {
-    slug: 'desk-work-shoulder',
-    title: 'デスクワークの肩こりを、1日5分で軽くする習慣',
-    category: 'セルフケア',
-    date: '2026-06-10',
-    parts: ['shoulder', 'neck', 'thoracic'],
-  },
-  {
-    slug: 'low-back-pain-myth',
-    title: '「安静にすれば治る」は本当？腰痛との正しい付き合い方',
-    category: '身体の知識',
-    date: '2026-06-03',
-    parts: ['lumbar', 'core', 'hip'],
-    labs: ['pain'],
-  },
-  {
-    slug: 'posture-and-mood',
-    title: '姿勢を整えると、気持ちまで軽くなる理由',
-    category: 'セルフケア',
-    date: '2026-05-27',
-    parts: ['thoracic', 'neck'],
-    labs: ['breath'],
-  },
 
   // --- 以下は本体ブログで下書き中。公開したら draft の行を消してください ---
+  // （公開順は ブログ原稿/サイト用/公開スケジュール.md）
+  {
+    slug: 'old-ankle-sprain',
+    title: '古い捻挫が、今の膝やお尻の使い方に響いていることがある',
+    category: '身体の知識',
+    date: '2026-10-26',
+    parts: ['ankle', 'knee'],
+    labs: ['proprioception', 'balance'],
+    draft: true,
+  },
+  {
+    slug: 'balance-not-just-strength',
+    title: 'バランスが悪いのは筋力不足とは限らない',
+    category: '身体の知識',
+    date: '2026-10-28',
+    parts: ['ankle'],
+    labs: ['balance'],
+    draft: true,
+  },
   {
     slug: 'deep-2026-08-02',
     title: '「食物繊維は摂るほど効く」は本当？腸内細菌の「菌株」がカギを握る理由',
