@@ -1740,6 +1740,17 @@ input[type='range']::-webkit-slider-thumb:hover {
   font-weight: 700;
 }
 
+.fascia-cause {
+  display: block;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(27, 27, 23, 0.15);
+}
+
+.fascia-cause b {
+  display: block;
+}
+
 .fascia-chain i {
   margin-right: 6px;
   color: #c0562f;
