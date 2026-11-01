@@ -9,8 +9,8 @@ import { WhyQuiz } from '../components/WhyQuiz';
 /**
  * FASCIA NETWORK — 筋膜は全身をつなぐ一枚のシート、を実際の動きを通じて体感するセクション。
  *
- * 「硬い場所」と「動きが制限されて負担が集まる場所」が離れている3パターンを選べる:
- *   太もも裏 → 前屈（腰に負担）／おなか → 腕を上げる（肩に負担）／二の腕 → 首を横に倒す（首に負担）
+ * 「腰が痛い・肩が痛い・首が痛い。原因はそこ？」から入り、動かすと離れた場所の硬さが見える3パターン:
+ *   腰が痛い ← 太もも裏（前屈）／肩が痛い ← おなか（腕を上げる）／首が痛い ← 二の腕（首を横に倒す）
  * 選んだ場所が高密度化(硬さ)しているほど、目的の関節が動かず、別の場所が代わりに動いて負担が集まる。
  */
 
@@ -19,10 +19,11 @@ const MOVE_DURATION = 1.6; // 秒
 
 const PATTERNS: Record<
   FasciaPattern,
-  { chip: string; where: string; move: string; romLabel: string; strainAt: string; note: string; verdict: [string, string, string] }
+  { chip: string; pain: string; where: string; move: string; romLabel: string; strainAt: string; note: string; verdict: [string, string, string] }
 > = {
   leg: {
-    chip: '太もも裏 → 前屈',
+    chip: '腰が痛い',
+    pain: '腰',
     where: '太もも裏（ハムストリングス）',
     move: '前屈してみる',
     romLabel: '前屈の深さ',
@@ -35,7 +36,8 @@ const PATTERNS: Record<
     ],
   },
   abdomen: {
-    chip: 'おなか → 腕を上げる',
+    chip: '肩が痛い',
+    pain: '肩',
     where: 'おなか（腹部の前面）',
     move: '腕を上げてみる',
     romLabel: '腕の上がり方',
@@ -48,7 +50,8 @@ const PATTERNS: Record<
     ],
   },
   arm: {
-    chip: '二の腕 → 首を倒す',
+    chip: '首が痛い',
+    pain: '首',
     where: '二の腕（上腕の外側）',
     move: '首を横に倒してみる',
     romLabel: '首の倒れ方',
@@ -117,7 +120,7 @@ export function FasciaNetworkLab() {
       <LabHead
         id="fascia-network"
         lead="筋膜の治療法のひとつ（Fascial Manipulation®）では、筋膜を体の各部の張力と動きをつなぐシステムとして考えます。張力が集まるとされる場所を「協調中心」と呼び、痛む場所から離れた所にも原因の候補があると考えます。光る点は、その考え方を理解するための仮の候補点です。"
-        steps="硬い場所（3パターン）を選んで「滑走抵抗」のスライダーを動かし、「▶ 動かしてみる」ボタンで、動きと負担の集まる場所がどう変わるかを3Dで観察します。"
+        steps="痛む場所（腰・肩・首）を選んで「▶ 動かしてみる」ボタンを押すと、離れた所にある硬い場所と、そこからのつながりが現れます。「滑走抵抗」のスライダーで、硬さを変えて比べられます。"
         read="離れた場所の硬さが、別の関節の動きにも影響しうる、という考え方を表したモデルです。仮説の段階で、実際の評価は専門家の触診などで行われます。"
       />
 
@@ -152,12 +155,12 @@ export function FasciaNetworkLab() {
               target={[0, -0.1, 0]}
             />
           </Canvas>
-          <div className="bodymap-hint">光る点をタップ / DRAG TO ROTATE</div>
+          <div className="bodymap-hint">DRAG TO ROTATE</div>
         </div>
 
         <div className="iap-controls">
-          <div className="fascia-task-label"><span>STEP 01</span><b>硬い場所と、動きを選ぶ</b></div>
-          <div className="region-chips" role="tablist" aria-label="硬い場所と動きのパターンを選択">
+          <div className="fascia-task-label"><span>STEP 01</span><b>痛む場所を選ぶ</b></div>
+          <div className="region-chips" role="tablist" aria-label="痛む場所を選択">
             {(Object.keys(PATTERNS) as FasciaPattern[]).map((id) => (
               <button key={id} className={`chip ${pattern === id ? 'chip-active' : ''}`} disabled={moving} onClick={() => choose(id)}>
                 {PATTERNS[id].chip}
@@ -194,9 +197,19 @@ export function FasciaNetworkLab() {
           </label>
 
           <div className="fascia-note">
-            硬い場所: <b>{P.where}</b>／負担が集まる所: <b>{P.strainAt}</b>
-            <br />
-            {P.note}
+            {progress === 0 ? (
+              <>
+                <b>{P.chip}。原因は{P.pain}？</b>
+                <br />
+                「▶ {P.move}」を押して、どこが突っ張るかを見てみましょう。
+              </>
+            ) : (
+              <>
+                痛む所: <b>{P.pain}</b>／硬い場所: <b>{P.where}</b>
+                <br />
+                {P.note}
+              </>
+            )}
           </div>
 
           {done && <div className={`iap-verdict ${level === 2 ? 'bad' : level === 0 ? 'good' : ''}`}>{P.verdict[level]}</div>}

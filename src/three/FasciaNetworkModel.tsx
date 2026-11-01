@@ -13,7 +13,8 @@ import { useGLTF } from '@react-three/drei';
  *   leg     太もも裏 → 前屈が浅くなり、股関節の代わりに腰が丸まる（腰に負担）
  *   abdomen おなか   → 腕が上まで上がらず、肩に負担が集まる（腰を反らせて補う）
  *   arm     二の腕   → 首を反対側へ倒しにくく、首に負担が集まる
- * 硬い場所から負担の集まる場所まで、筋膜のライン（線維）を引いて、張力のかかり方を見せる。
+ * 動かす前は「痛む場所」だけを光らせ（例: 肩が痛い。原因は肩？）、動かし始めると
+ * 硬い場所の光る点と、そこから痛む場所までの筋膜のライン（線維）が現れて、張力のかかり方を見せる。
  */
 
 const MODEL_URL = '/models/skeleton.glb';
@@ -280,7 +281,7 @@ function JointLimitRing({ at, intensity, rotation = [Math.PI / 2, 0.3, 0] }: { a
   );
 }
 
-/** 負担が集まる関節（肩）を、脈打つオレンジの光で示す */
+/** 痛む場所・負担が集まる場所（腰・肩・首）を、脈打つオレンジの光で示す */
 function StrainGlow({ at, intensity }: { at: Vec3; intensity: number }) {
   const mat = useMemo(() => new THREE.MeshBasicMaterial({ color: '#ff7a45', transparent: true, opacity: 0, depthWrite: false, depthTest: false }), []);
   const ref = useRef<THREE.Mesh>(null);
@@ -356,6 +357,10 @@ export function FasciaNetworkModel({
     neckStrain = clamp(p * (d - 0.15) * 1.4, 0, 1);
   }
 
+  // 動かす前は痛む場所を光らせておき、動かし始めたら負担の大きさに合わせる（柔らかければ消えていく）
+  const painIdle = 0.9 * clamp(1 - p * 3, 0, 1);
+  const painGlow = (id: FasciaPattern, strain: number) => (id === pattern ? Math.max(painIdle, strain) : 0);
+
   const pose: Pose = { hip: rad(hipDeg), lumbarSeg: rad(lumbarDeg) / 5, shoulder: rad(shoulderDeg), neckSeg: rad(neckDeg) / NECK_PIVOTS.length };
   const tension = clamp(p * (0.3 + d * 0.7), 0, 1);
   const lumbarMat = useStrainMaterial(lumbarStrain);
@@ -385,14 +390,15 @@ export function FasciaNetworkModel({
             <Part mesh={nodes.L4} material={lumbarMat} />
             <Pivot at={L[2]} angle={pose.lumbarSeg}>
               <Part mesh={nodes.L3} material={lumbarMat} />
+              <StrainGlow at={[0, 0.95, -0.12]} intensity={painGlow('leg', lumbarStrain)} />
               <Pivot at={L[3]} angle={pose.lumbarSeg}>
                 <Part mesh={nodes.L2} material={lumbarMat} />
                 <Pivot at={L[4]} angle={pose.lumbarSeg}>
                   <Part mesh={nodes.L1} material={lumbarMat} />
                   <Pivot at={L[5]} angle={pose.lumbarSeg}>
                     <Part mesh={nodes.thorax} />
-                    <StrainGlow at={shoulderAt(SHOULDER_L)} intensity={shoulderStrain} />
-                    <StrainGlow at={shoulderAt(SHOULDER_R)} intensity={shoulderStrain} />
+                    <StrainGlow at={shoulderAt(SHOULDER_L)} intensity={painGlow('abdomen', shoulderStrain)} />
+                    <StrainGlow at={shoulderAt(SHOULDER_R)} intensity={painGlow('abdomen', shoulderStrain)} />
                     <Pivot at={SHOULDER_L} angle={pose.shoulder}>
                       <Part mesh={nodes.armL} />
                     </Pivot>
@@ -405,6 +411,7 @@ export function FasciaNetworkModel({
                         <Part mesh={nodes.C6} material={neckMat} />
                         <Pivot at={N[2]} angle={pose.neckSeg} axis="z">
                           <Part mesh={nodes.C5} material={neckMat} />
+                          <StrainGlow at={[0, 2.52, -0.12]} intensity={painGlow('arm', neckStrain)} />
                           <Pivot at={N[3]} angle={pose.neckSeg} axis="z">
                             <Part mesh={nodes.C4} material={neckMat} />
                             <Pivot at={N[4]} angle={pose.neckSeg} axis="z">
@@ -425,11 +432,13 @@ export function FasciaNetworkModel({
         </Pivot>
       </Pivot>
 
-      {/* ラインは選んだパターンの1本だけ。ほかのパターンは、止まっているときだけ光る点で選べるようにする */}
-      <FasciaLine points={lines[pattern]} tension={tension} />
-      {PATTERN_IDS.filter((id) => id === pattern || p === 0).map((id) => (
-        <DensityHotspot key={id} at={lines[id][LINES[id].hot]} active={id === pattern} onSelect={() => onSelectPattern(id)} />
-      ))}
+      {/* 硬い場所の光る点とラインは、動かし始めてから現れる（痛む場所とは別の所にあることを見せる） */}
+      {p > 0 && (
+        <>
+          <FasciaLine points={lines[pattern]} tension={tension} />
+          <DensityHotspot at={lines[pattern][LINES[pattern].hot]} active onSelect={() => onSelectPattern(pattern)} />
+        </>
+      )}
     </ViewTurn>
   );
 }
