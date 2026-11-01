@@ -425,11 +425,10 @@ export function FasciaNetworkModel({
         </Pivot>
       </Pivot>
 
-      {PATTERN_IDS.map((id) => (
-        <group key={id}>
-          <FasciaLine points={lines[id]} tension={id === pattern ? tension : 0} />
-          <DensityHotspot at={lines[id][LINES[id].hot]} active={id === pattern} onSelect={() => onSelectPattern(id)} />
-        </group>
+      {/* ラインは選んだパターンの1本だけ。ほかのパターンは、止まっているときだけ光る点で選べるようにする */}
+      <FasciaLine points={lines[pattern]} tension={tension} />
+      {PATTERN_IDS.filter((id) => id === pattern || p === 0).map((id) => (
+        <DensityHotspot key={id} at={lines[id][LINES[id].hot]} active={id === pattern} onSelect={() => onSelectPattern(id)} />
       ))}
     </ViewTurn>
   );
