@@ -49,6 +49,17 @@ writeFileSync(new URL('index.html', dist), page(home));
 mkdirSync(new URL('lab/', dist), { recursive: true });
 writeFileSync(new URL('lab/index.html', dist), page({ ...home, title: '体験ラボ一覧｜Be:come からだの実験室', path: '/lab' }));
 
+mkdirSync(new URL('profile/', dist), { recursive: true });
+writeFileSync(
+  new URL('profile/index.html', dist),
+  page({
+    ...home,
+    title: 'プロフィール｜Be:come からだの実験室',
+    description: '理学療法士・パーソナルトレーナー 富田 樹（とみた えつき）の経歴、資格、研修歴、情報発信の方針。',
+    path: '/profile',
+  }),
+);
+
 for (const lab of labs) {
   const dir = new URL(`lab/${lab.id}/`, dist);
   mkdirSync(dir, { recursive: true });

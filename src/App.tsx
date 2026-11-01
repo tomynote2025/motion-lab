@@ -4,15 +4,6 @@ import { HomePage } from './pages/HomePage';
 import { LabPage } from './pages/LabPage';
 import { LabDetailPage } from './pages/LabDetailPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { PersonalTrainingPage } from './pages/PersonalTrainingPage';
-import { PersonalTrainingApplyPage } from './pages/PersonalTrainingApplyPage';
-import {
-  PersonalTrainingAreasPage,
-  PersonalTrainingBodyCarePage,
-  PersonalTrainingFaqPage,
-  PersonalTrainingFirstPage,
-  PersonalTrainingVoicesPage,
-} from './pages/PersonalTrainingInfoPages';
 import { CustomCursor } from './components/CustomCursor';
 import { BLOG_BASE } from './data/blogLinks';
 
@@ -20,7 +11,8 @@ import { BLOG_BASE } from './data/blogLinks';
 function DefaultTitle() {
   const { pathname } = useLocation();
   useEffect(() => {
-    if (!pathname.startsWith('/lab')) document.title = 'Be:come｜からだの実験室';
+    if (pathname.startsWith('/lab')) return;
+    document.title = pathname === '/profile' ? 'プロフィール｜Be:come からだの実験室' : 'Be:come｜からだの実験室';
   }, [pathname]);
   return null;
 }
@@ -50,13 +42,6 @@ export default function App() {
           <Route path="/lab" element={<LabPage />} />
           <Route path="/lab/:id" element={<LabDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/personal-training" element={<PersonalTrainingPage />} />
-          <Route path="/personal-training/apply" element={<PersonalTrainingApplyPage />} />
-          <Route path="/personal-training/first" element={<PersonalTrainingFirstPage />} />
-          <Route path="/personal-training/faq" element={<PersonalTrainingFaqPage />} />
-          <Route path="/personal-training/voices" element={<PersonalTrainingVoicesPage />} />
-          <Route path="/personal-training/areas" element={<PersonalTrainingAreasPage />} />
-          <Route path="/personal-training/body-care" element={<PersonalTrainingBodyCarePage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </main>

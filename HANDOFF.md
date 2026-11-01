@@ -1,3 +1,14 @@
+## 2026-11-02 Claude → ユーザー｜サイト全体の見直し（料金・プロフィール・記事リンク・骨格マップの文）
+- 状態: 未着手
+- やったこと:
+  - 測る系ラボの結果の下「出張パーソナルの案内を見る」を、ラボ内の古いページ（料金が旧料金のまま）から **ブログ本体の health-football.com/personal-training** に変更。古い出張パーソナルのページ一式（/personal-training 以下）と未使用の部品を削除し、`vercel.json` で旧URLをブログ本体へ転送（/apply は申込フォームへ）
+  - プロフィール（/profile）が「PHOTO COMING SOON」「20XX 経歴を入力」などの見本のままだったので、ブログ本体の自己紹介（seitai-site/src/app/about/page.tsx）にそろえて書き直した（写真・経歴・資格・研修歴・学会発表）。写真は public/images/profile/profile_4x5.jpg（720×900 に縮小）。題名「プロフィール｜Be:come からだの実験室」と共有用の題名も追加
+  - ブログの公開済み13本を `src/data/blogLinks.ts` に登録（これまで3本だけ）。膝・栄養にも記事が出るようになった。記事に `labs` を足し、ラボのページの下に「このラボに関連する記事」を表示（痛み・眼・腹圧・筋膜の層・筋膜のつながり・呼吸・食事）。部位・ラボとも新しい順に最大3件
+  - 3D骨格マップ11部位の説明文を、言い切りすぎない書き方に直した（「ここが動けば全身が変わります」等を削除）。使われていなかった `articleTitle`・`articleUrl`（example.com の仮URL）も削除
+- 次にやること: GitHub Desktop で push → 本番で /profile、/lab/neuro の下の記事、lab.health-football.com/personal-training がブログ本体へ飛ぶことを確認
+- 注意点: 経歴・資格を変えたときは、ブログ本体の自己紹介と /profile の両方を直す。ブログ記事を公開したら blogLinks.ts に1件足す。index.css に出張パーソナル用の古いCSS（.personal-promo など）が残っているが、表示には影響しない
+- 関連ファイル: src/components/Insight.tsx, vercel.json, src/App.tsx, src/pages/ProfilePage.tsx, src/pages/LabDetailPage.tsx, src/data/blogLinks.ts, src/data/regions.ts, src/index.css, scripts/ogp-pages.mjs, public/images/profile/
+
 ## 2026-11-01 Codex → Claude｜63コミットをpush・Vercel本番反映を確認
 - 状態: 完了
 - やったこと: ユーザーがGitHub Desktopからpushした後、ローカルmainとorigin/mainが同じ最新コミット351eebeであることを確認。Vercel本番のトップと8ラボ、QR画像2点がHTTP 200で、本番の分割JavaScriptに最新の主要文言が含まれることを確認した

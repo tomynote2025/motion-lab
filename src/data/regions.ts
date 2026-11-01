@@ -11,9 +11,6 @@ export type Region = {
   kind?: 'skeletal' | 'system';
   summary: string;
   signs: string[];
-  articleTitle: string;
-  /** ブログ記事URL — 公開先が決まったらここを差し替えるだけでOK */
-  articleUrl: string;
 };
 
 export const REGIONS: Region[] = [
@@ -23,10 +20,8 @@ export const REGIONS: Region[] = [
     en: 'NECK',
     position: [0, 2.58, 0.2],
     summary:
-      '頭の重さ約5kgを支える司令塔。スマホ姿勢による頸椎の前方化は、頭痛・眼精疲労・自律神経の乱れまで波及します。',
+      '重い頭を支えている首。うつむいた姿勢が長く続くと、首の後ろの筋肉に負担がかかりやすくなります。首こりや頭痛には、目の疲れや肩・背中の動きが関わっていることもあります。',
     signs: ['朝起きると首が重い', 'デスクワーク後の頭痛', '振り向くと詰まり感がある'],
-    articleTitle: 'ストレートネックは「首」だけの問題ではない',
-    articleUrl: 'https://example.com/insights/neck',
   },
   {
     id: 'shoulder',
@@ -34,10 +29,8 @@ export const REGIONS: Region[] = [
     en: 'SHOULDER',
     position: [0.68, 2.17, 0.12],
     summary:
-      '人体で最も可動域が広い関節。その自由度は肩甲骨と胸郭の連動が前提で、土台が崩れると腱板へのストレスが集中します。',
+      '体の中でもっとも動く範囲が広い関節。腕を上げる動きは、肩甲骨や背骨の動きと一緒に行われます。肩の痛みでも、肩甲骨や胸まわりの動きを合わせて確かめます。',
     signs: ['腕を上げると引っかかる', '夜間にズキズキ痛む', '背中に手が回らない'],
-    articleTitle: '四十肩・五十肩の前に起きている「肩甲骨のサボり」',
-    articleUrl: 'https://example.com/insights/shoulder',
   },
   {
     id: 'elbow',
@@ -45,10 +38,8 @@ export const REGIONS: Region[] = [
     en: 'ELBOW',
     position: [0.9, 1.13, 0.1],
     summary:
-      '肘の痛みの多くは肘自体ではなく、手首の使いすぎと肩の機能低下の「しわ寄せ」。ラケットスポーツや長時間のPC作業で顕在化します。',
+      '肘の外側の痛み（いわゆるテニス肘）は、手首を反らす筋肉の使いすぎで起こることが多いとされます。握り方や作業のしかたに加えて、手首や肩の使い方も見直します。',
     signs: ['物を掴むと外側が痛い', 'タオルを絞ると痛む', 'PC作業後に前腕が張る'],
-    articleTitle: 'テニス肘が「安静」で治らない理由',
-    articleUrl: 'https://example.com/insights/elbow',
   },
   {
     id: 'wrist',
@@ -56,10 +47,8 @@ export const REGIONS: Region[] = [
     en: 'WRIST / HAND',
     position: [0.97, 0.3, 0.12],
     summary:
-      '8個の手根骨が織りなす精密機構。腱鞘炎やTFCC損傷は、前腕の回旋機能と握り方のクセを見直すことが回復の鍵になります。',
+      '8個の小さな骨（手根骨）が集まり、細かく動く部位。腱鞘炎などでは、使う量を調整するのに加えて、握り方や前腕のひねり方を見直すことが助けになります。',
     signs: ['ドアノブを回すと痛い', '小指側に体重をかけられない', '朝、指がこわばる'],
-    articleTitle: '腱鞘炎を繰り返す人の「握り方」の共通点',
-    articleUrl: 'https://example.com/insights/wrist',
   },
   {
     id: 'thoracic',
@@ -67,10 +56,8 @@ export const REGIONS: Region[] = [
     en: 'THORACIC',
     position: [0, 1.89, 0.47],
     summary:
-      '呼吸と回旋の中心。胸椎の硬さは肩・首・腰の代償運動を生む「隠れた黒幕」。ここが動けば全身が変わります。',
+      '呼吸と、体をひねる動きに関わる部位。胸の背骨（胸椎）や肋骨まわりが動きにくいと、その分を首・肩・腰が補って動くことがあります。',
     signs: ['深呼吸で胸が広がらない', 'ゴルフで回旋が浅い', '猫背を指摘される'],
-    articleTitle: '不調の黒幕「胸椎の硬さ」セルフチェック',
-    articleUrl: 'https://example.com/insights/thoracic',
   },
   {
     id: 'core',
@@ -78,10 +65,8 @@ export const REGIONS: Region[] = [
     en: 'CORE / IAP',
     position: [0, 1.0, 0.42],
     summary:
-      '横隔膜・腹横筋・骨盤底筋・多裂筋が作る「天然のコルセット」。腹腔内圧(IAP)のコントロールがすべての動作の土台です。',
+      '横隔膜・お腹の深い筋肉・骨盤底・背骨の筋肉が、お腹の中の圧（腹圧）をつくります。腹圧は、体幹を支えるしくみのひとつと考えられています。',
     signs: ['腰を反らないと立てない', '重い物を持つのが怖い', 'くしゃみで尿もれがある'],
-    articleTitle: '腹圧(IAP)とは何か — 体幹トレの前に知るべきこと',
-    articleUrl: 'https://example.com/insights/core',
   },
   {
     id: 'lumbar',
@@ -89,10 +74,8 @@ export const REGIONS: Region[] = [
     en: 'LUMBAR',
     position: [0, 0.85, -0.36],
     summary:
-      '腰痛の85%は画像で説明できない「非特異的腰痛」。腰そのものより、股関節と胸椎の動きと腹圧の使い方が問われます。',
+      '腰痛の多くは、画像検査で原因がはっきりしない「非特異的腰痛」とされます。腰だけでなく、股関節や背中の動き、腹圧の使い方も合わせて確かめます。',
     signs: ['長く座ると腰が抜けそう', '前屈みで痛みが走る', 'ぎっくり腰を繰り返す'],
-    articleTitle: '腰痛の85%が「原因不明」と言われる本当の意味',
-    articleUrl: 'https://example.com/insights/lumbar',
   },
   {
     id: 'hip',
@@ -100,10 +83,8 @@ export const REGIONS: Region[] = [
     en: 'HIP',
     position: [-0.34, 0.28, 0.16],
     summary:
-      '体重を受け止め、パワーを生む要。股関節がしゃがむ・ひねるを担えないと、腰と膝が肩代わりして痛めます。',
+      '体重を受け止め、歩く・しゃがむ・ひねる動きを担う関節。股関節の動きが小さいと、その分を腰や膝が補って動くことがあります。',
     signs: ['あぐらがかけない', '歩き始めに脚の付け根が痛い', 'しゃがむと詰まる'],
-    articleTitle: '「股関節から動く」を体で理解する',
-    articleUrl: 'https://example.com/insights/hip',
   },
   {
     id: 'knee',
@@ -111,10 +92,8 @@ export const REGIONS: Region[] = [
     en: 'KNEE',
     position: [-0.31, -1.35, 0.16],
     summary:
-      '膝は股関節と足首に挟まれた「中間管理職」。膝痛の多くは上下の関節の機能不全のツケを払っている状態です。',
+      '股関節と足首にはさまれた関節。膝の痛みでは、膝そのものに加えて、股関節や足首の動き、しゃがみ方や着地のしかたも合わせて確かめます。',
     signs: ['階段の下りで痛む', '正座ができない', '膝が内側に入ると言われる'],
-    articleTitle: '膝の痛みは膝のせいじゃない — 上下から考える',
-    articleUrl: 'https://example.com/insights/knee',
   },
   {
     id: 'nutrition',
@@ -123,10 +102,8 @@ export const REGIONS: Region[] = [
     position: [0, 0.64, 0.44],
     kind: 'system',
     summary:
-      '食べたものは分子になり、骨・筋・ホルモン・神経の材料になります。どんなに動きを整えても、材料が足りなければ体は作り替わりません。',
+      '食べたものは、骨・筋肉・血液などの材料になります。体を動かすことと合わせて、たんぱく質や鉄など、材料が足りているかを見直すことも大切です。',
     signs: ['午後に強い眠気がくる', '疲れが抜けにくい', '甘いものがやめられない'],
-    articleTitle: 'PFCバランスの基本',
-    articleUrl: '',
   },
   {
     id: 'ankle',
@@ -134,9 +111,7 @@ export const REGIONS: Region[] = [
     en: 'ANKLE / FOOT',
     position: [-0.27, -2.84, 0.14],
     summary:
-      '全身で唯一、地面と接する土台。捻挫の放置や扁平足は、上に積み上がる全関節のアライメントを狂わせます。',
+      '体の中で、地面にふれている部位。捻挫のあとは、足首の位置の感覚やバランスが落ちたままになることがあり、捻挫をくり返す一因と考えられています。',
     signs: ['捻挫グセがある', '足裏のアーチが落ちている', 'ふくらはぎが常に張る'],
-    articleTitle: '捻挫を「治った事にする」と何が起きるか',
-    articleUrl: 'https://example.com/insights/ankle',
   },
 ];

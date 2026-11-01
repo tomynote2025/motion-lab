@@ -5,7 +5,7 @@
  * ▼ 記事を追加したとき
  *   1. 下の BLOG_LINKS に1件足す
  *   2. slug は本体ブログのURL末尾（例: /blog/desk-work-shoulder → 'desk-work-shoulder'）
- *   3. parts に関連する部位IDを入れる
+ *   3. parts に関連する部位IDを、labs に関連する体験ラボのIDを入れる
  *   4. 本体ブログで公開したら draft を消す（draft: true の記事はここに表示されません）
  *
  * ▼ 使える部位ID
@@ -19,12 +19,92 @@ export type BlogLink = {
   title: string;
   category: string;
   date: string;
+  /** 3D骨格マップの部位ID（どの部位にも当てはまらなければ空） */
   parts: string[];
+  /** 記事を出す体験ラボのID（src/data/labs.ts の id） */
+  labs?: string[];
   /** 本体ブログで下書き(draft: true)の記事。公開したらこの行を消す */
   draft?: boolean;
 };
 
 export const BLOG_LINKS: BlogLink[] = [
+  {
+    slug: 'knee-pain-squat',
+    title: '膝が痛い人がやりがちなNGスクワット',
+    category: 'トレーニング',
+    date: '2026-10-23',
+    parts: ['knee'],
+  },
+  {
+    slug: 'core-training-bracing',
+    title: 'お腹をへこませる体幹トレ、それだけだともったいない',
+    category: 'トレーニング',
+    date: '2026-10-21',
+    parts: ['core', 'lumbar'],
+    labs: ['iap'],
+  },
+  {
+    slug: 'stretching-still-stiff',
+    title: 'ストレッチしても硬いままなのはなぜ？',
+    category: '身体の知識',
+    date: '2026-10-19',
+    parts: [],
+    labs: ['fascia', 'fascia-network'],
+  },
+  {
+    slug: 'sit-up-straight',
+    title: '「背筋を伸ばして」で姿勢がよくならない理由',
+    category: '身体の知識',
+    date: '2026-10-16',
+    parts: ['thoracic', 'lumbar'],
+  },
+  {
+    slug: 'pain-science',
+    title: '「痛みの科学」は今こう考えられている',
+    category: '海外トレンド',
+    date: '2026-10-14',
+    parts: ['lumbar'],
+    labs: ['pain'],
+  },
+  {
+    slug: 'eye-exercises',
+    title: '30秒でできる、眼のエクササイズ3つ',
+    category: 'セルフケア',
+    date: '2026-10-12',
+    parts: ['neck'],
+    labs: ['neuro'],
+  },
+  {
+    slug: 'iron-fatigue-women',
+    title: '疲れやすい女性は、まず鉄を疑ってみる',
+    category: '栄養',
+    date: '2026-10-09',
+    parts: ['nutrition'],
+    labs: ['nutri'],
+  },
+  {
+    slug: 'groin-pain-football',
+    title: 'サッカー選手に多い「足の付け根の痛み」。キックと切り返しから考える予防法',
+    category: 'トレーニング',
+    date: '2026-10-07',
+    parts: ['hip'],
+  },
+  {
+    slug: 'eye-strain-neck',
+    title: '目の疲れと首こりはつながっている',
+    category: '身体の知識',
+    date: '2026-10-05',
+    parts: ['neck'],
+    labs: ['neuro'],
+  },
+  {
+    slug: 'shoulder-stiffness-not-shoulder',
+    title: '肩こりの原因、実は「肩じゃない」かもしれない',
+    category: '身体の知識',
+    date: '2026-10-02',
+    parts: ['shoulder', 'neck', 'thoracic'],
+    labs: ['fascia-network'],
+  },
   {
     slug: 'desk-work-shoulder',
     title: 'デスクワークの肩こりを、1日5分で軽くする習慣',
@@ -38,6 +118,7 @@ export const BLOG_LINKS: BlogLink[] = [
     category: '身体の知識',
     date: '2026-06-03',
     parts: ['lumbar', 'core', 'hip'],
+    labs: ['pain'],
   },
   {
     slug: 'posture-and-mood',
@@ -45,6 +126,7 @@ export const BLOG_LINKS: BlogLink[] = [
     category: 'セルフケア',
     date: '2026-05-27',
     parts: ['thoracic', 'neck'],
+    labs: ['breath'],
   },
 
   // --- 以下は本体ブログで下書き中。公開したら draft の行を消してください ---
@@ -54,6 +136,7 @@ export const BLOG_LINKS: BlogLink[] = [
     category: '栄養',
     date: '2026-08-02',
     parts: ['nutrition'],
+    labs: ['nutri'],
     draft: true,
   },
   {
@@ -62,6 +145,7 @@ export const BLOG_LINKS: BlogLink[] = [
     category: '栄養',
     date: '2026-08-08',
     parts: ['nutrition'],
+    labs: ['nutri'],
     draft: true,
   },
 ];
@@ -71,8 +155,13 @@ export const publishedLinks = BLOG_LINKS.filter((a) => !a.draft).sort((a, b) =>
   a.date < b.date ? 1 : -1,
 );
 
+/** 部位ごとの記事（新しい順に最大3件） */
 export const linksByPart = (partId: string) =>
-  publishedLinks.filter((a) => a.parts.includes(partId));
+  publishedLinks.filter((a) => a.parts.includes(partId)).slice(0, 3);
+
+/** ラボごとの記事（新しい順に最大3件） */
+export const linksByLab = (labId: string) =>
+  publishedLinks.filter((a) => a.labs?.includes(labId)).slice(0, 3);
 
 export const blogUrl = (slug: string) => `${BLOG_BASE}/blog/${slug}`;
 

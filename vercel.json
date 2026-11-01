@@ -1,3 +1,8 @@
 {
+  "redirects": [
+    { "source": "/personal-training/apply", "destination": "https://health-football.com/personal-training/apply", "permanent": false },
+    { "source": "/personal-training/:path*", "destination": "https://health-football.com/personal-training", "permanent": false },
+    { "source": "/personal-training", "destination": "https://health-football.com/personal-training", "permanent": false }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

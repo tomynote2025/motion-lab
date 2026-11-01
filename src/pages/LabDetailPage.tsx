@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, type ComponentType, type LazyExoticComponent } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { LAB_GROUPS, LABS, getLab, labNo } from '../data/labs';
+import { linksByLab, blogUrl, formatDate } from '../data/blogLinks';
 
 /** ラボごとのページ（/lab/ラボ名）。部品は開いたときに読み込む */
 const load = (fn: () => Promise<Record<string, ComponentType>>, name: string) =>
@@ -38,6 +39,7 @@ export function LabDetailPage() {
   const prev = LABS[index - 1];
   const next = LABS[index + 1];
   const Lab = LAB_COMPONENTS[id];
+  const articles = linksByLab(id);
 
   return (
     <div className="page-top-pad lab-page lab-detail">
@@ -51,6 +53,22 @@ export function LabDetailPage() {
       <Suspense fallback={<div className="lab-loading">読み込み中…</div>}>
         <Lab />
       </Suspense>
+
+      {articles.length > 0 && (
+        <section className="lab-related" aria-label="関連する記事">
+          <p className="lab-related-title">このラボに関連する記事</p>
+          <div className="lab-related-list">
+            {articles.map((a) => (
+              <a key={a.slug} className="article-link" href={blogUrl(a.slug)} target="_blank" rel="noreferrer">
+                <span className="article-label">
+                  {a.category} ・ {formatDate(a.date)}
+                </span>
+                <span className="article-title">{a.title} ↗</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       <nav className="lab-pager" aria-label="ほかのラボ">
         {prev ? (

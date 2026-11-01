@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { BLOG_BASE } from '../data/blogLinks';
 import { getLab } from '../data/labs';
 
 /**
@@ -467,7 +467,7 @@ export function SalonCta() {
     <div className="salon-cta">
       <b>この結果を、体の使い方に活かしたいときは</b>
       <p>測った結果を見ながら、日常の動きやトレーニングの組み立てを一緒に確認できます。出張パーソナルトレーニングで対応しています。</p>
-      <Link to="/personal-training">出張パーソナルの案内を見る →</Link>
+      <a href={`${BLOG_BASE}/personal-training`} target="_blank" rel="noreferrer">出張パーソナルの案内を見る ↗</a>
     </div>
   );
 }
