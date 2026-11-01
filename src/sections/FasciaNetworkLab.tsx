@@ -133,7 +133,7 @@ export function FasciaNetworkLab() {
     <section id="fascia-network" className="section">
       <LabHead
         id="fascia-network"
-        lead="筋膜の治療法のひとつ（Fascial Manipulation®）では、筋膜を体の各部の張力と動きをつなぐシステムとして考えます。張力が集まるとされる場所を「協調中心」と呼び、痛む場所から離れた所にも原因の候補があると考えます。光る点は、その考え方を理解するための仮の候補点です。"
+        lead="筋膜の治療法のひとつ（Fascial Manipulation®）では、筋膜を体の各部の張力と動きをつなぐシステムとして考えます。筋膜には張力が集まりやすい場所があるとされ、痛む場所から離れた所にも原因の候補があると考えます。光る点は、その考え方を理解するための仮の候補点です。"
         steps="痛む場所（腰・肩・首）を選んで動かすと、離れた所にある硬い場所と、そこからのつながりが現れます。そのあと、硬い場所のスライダーをやわらかくして、もう一度動かすと比べられます。"
         read="離れた場所の硬さが、別の関節の動きにも影響しうる、という考え方を表したモデルです。仮説の段階で、実際の評価は専門家の触診などで行われます。"
       />
@@ -143,7 +143,7 @@ export function FasciaNetworkLab() {
         <i>→</i>
         <div><span>02</span><b>運動を比較する</b><p>どの方向・関節で運動協調が変化するかを観察</p></div>
         <i>→</i>
-        <div><span>03</span><b>候補点を絞る</b><p>離れた部位も含め、張力が集まるCCの仮説を立てる</p></div>
+        <div><span>03</span><b>候補点を絞る</b><p>離れた部位も含め、張力が集まりやすい場所の仮説を立てる</p></div>
         <i>→</i>
         <div><span>04</span><b>触診で確認する</b><p>専門家が組織の反応を確認して初めて判断する</p></div>
       </div>
@@ -257,7 +257,7 @@ export function FasciaNetworkLab() {
       />
       <LabMore>
         <p className="neuro-caution">
-          参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「全身を多因子的に評価する」方法論を単純化しています。筋膜の滑りが悪くなる（硬くなる）という考え方も含め、これらは提唱者らによる考え方で、検証はまだ限られています。筋膜のつながりのうち、太もも裏〜腰（後ろのライン）と、胸〜おなか（前のライン）は解剖の研究で連続が確かめられていますが、腕〜首を含め、硬さが離れた場所の動きや痛みを起こすかどうかの検証は限られています（Wilke J ら 2016, Arch Phys Med Rehabil 97:454-461）。3パターンの動きの変化はモデル上の表現で、表示している点は正式なCCマップではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。3D骨格: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（抜き出し・軽量化して使用）。
+          参考: Fascial Manipulation® Institute by Stecco が示す「協調中心」「全身を多因子的に評価する」方法論を単純化しています。筋膜の滑りが悪くなる（硬くなる）という考え方も含め、これらは提唱者らによる考え方で、検証はまだ限られています。筋膜のつながりのうち、太もも裏〜腰（後ろのライン）と、胸〜おなか（前のライン）は解剖の研究で連続が確かめられていますが、腕〜首を含め、硬さが離れた場所の動きや痛みを起こすかどうかの検証は限られています（Wilke J ら 2016, Arch Phys Med Rehabil 97:454-461）。3パターンの動きの変化はモデル上の表現で、表示している点は正式な評価点の地図ではなく、選択点と痛みの因果関係を示すものでもありません。実際の判断には問診・運動検査・専門的な触診が必要です。3D骨格: BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan（抜き出し・軽量化して使用）。
         </p>
       </LabMore>
     </section>
