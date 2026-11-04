@@ -30,6 +30,44 @@ export type BlogLink = {
 
 export const BLOG_LINKS: BlogLink[] = [
   {
+    slug: 'protein-intake',
+    title: 'プロテインより先に見直したい、たんぱく質のとり方',
+    category: '栄養',
+    date: '2026-11-04',
+    parts: ['nutrition'],
+    labs: ['nutri'],
+  },
+  {
+    slug: 'wrist-thumb-pain',
+    title: 'スマホを持つと、親指の付け根が痛い。手首の「腱鞘炎」との付き合い方',
+    category: '身体の知識',
+    date: '2026-11-02',
+    parts: ['wrist'],
+  },
+  {
+    slug: 'tennis-elbow',
+    title: '肘の外側が痛い「テニス肘」は、テニスをしない人にも多い',
+    category: '身体の知識',
+    date: '2026-10-30',
+    parts: ['elbow'],
+  },
+  {
+    slug: 'balance-not-just-strength',
+    title: 'バランスが悪いのは筋力不足とは限らない',
+    category: '身体の知識',
+    date: '2026-10-28',
+    parts: ['ankle'],
+    labs: ['balance'],
+  },
+  {
+    slug: 'old-ankle-sprain',
+    title: '古い捻挫が、今の膝やお尻の使い方に響いていることがある',
+    category: '身体の知識',
+    date: '2026-10-26',
+    parts: ['ankle', 'knee'],
+    labs: ['proprioception', 'balance'],
+  },
+  {
     slug: 'knee-pain-squat',
     title: '膝が痛い人がやりがちなNGスクワット',
     category: 'トレーニング',
@@ -109,24 +147,6 @@ export const BLOG_LINKS: BlogLink[] = [
 
   // --- 以下は本体ブログで下書き中。公開したら draft の行を消してください ---
   // （公開順は ブログ原稿/サイト用/公開スケジュール.md）
-  {
-    slug: 'old-ankle-sprain',
-    title: '古い捻挫が、今の膝やお尻の使い方に響いていることがある',
-    category: '身体の知識',
-    date: '2026-10-26',
-    parts: ['ankle', 'knee'],
-    labs: ['proprioception', 'balance'],
-    draft: true,
-  },
-  {
-    slug: 'balance-not-just-strength',
-    title: 'バランスが悪いのは筋力不足とは限らない',
-    category: '身体の知識',
-    date: '2026-10-28',
-    parts: ['ankle'],
-    labs: ['balance'],
-    draft: true,
-  },
   {
     slug: 'deep-2026-08-02',
     title: '「食物繊維は摂るほど効く」は本当？腸内細菌の「菌株」がカギを握る理由',
