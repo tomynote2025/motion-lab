@@ -2019,6 +2019,105 @@ input[type='range']::-webkit-slider-thumb:hover {
   cursor: default;
 }
 
+/* 食事のラボ：30分の運動で使うエネルギーの目安 */
+.exercise-kcal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 20px 28px;
+  margin-bottom: 24px;
+}
+
+.exercise-kcal summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.exercise-kcal summary::-webkit-details-marker {
+  display: none;
+}
+
+.exercise-kcal summary b {
+  font-size: 16px;
+}
+
+.exercise-kcal summary b::before {
+  content: '＋ ';
+  color: var(--green);
+}
+
+.exercise-kcal[open] summary b::before {
+  content: '− ';
+}
+
+.exercise-kcal summary span {
+  font-family: var(--font-en);
+  font-size: 12px;
+  color: var(--green);
+}
+
+.exercise-kcal-lead,
+.exercise-kcal-note {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.exercise-kcal-lead b {
+  color: var(--green);
+}
+
+.exercise-kcal-group {
+  margin-top: 18px;
+}
+
+.exercise-kcal-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.exercise-kcal ul {
+  margin-top: 6px;
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.exercise-kcal li {
+  display: grid;
+  grid-template-columns: 1fr auto 76px;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.exercise-kcal li em {
+  font-style: normal;
+  font-family: var(--font-en);
+  font-size: 11px;
+  color: var(--faint);
+}
+
+.exercise-kcal li b {
+  text-align: right;
+  font-family: var(--font-en);
+  font-size: 15px;
+}
+
+.exercise-kcal li b small {
+  margin-left: 2px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
 .profile-hint {
   margin-top: 16px;
   font-size: 13px;
@@ -7175,6 +7274,26 @@ a.lab-promo-item:hover {
 
   .lab-related {
     padding: 0 16px 44px;
+  }
+
+  .exercise-kcal {
+    padding: 18px 18px;
+  }
+
+  .exercise-kcal li {
+    grid-template-columns: 1fr 70px;
+    gap: 2px 10px;
+  }
+
+  .exercise-kcal li em {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .exercise-kcal li b {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
   }
 
   .lab-related-list {

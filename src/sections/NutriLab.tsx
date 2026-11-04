@@ -19,7 +19,7 @@ export function NutriLab() {
       <LabHead
         id="nutri"
         lead="同じカロリーでも、たんぱく質（P）・脂質（F）・炭水化物（C）の割合で、体の中での使われ方は変わります。日本人の食事摂取基準（2025年版）の目安と比べながら、自分の食事のバランスを確かめます。"
-        steps="「PFCバランス」で身長・体重・年齢・活動量を入れて目標を決め、割合のスライダーを動かします。「加工食品の影響」では、加工の多い食事で何が起きるかを見ます。"
+        steps="「PFCバランス」で身長・体重・年齢・活動量を入れて目標を決め、割合のスライダーを動かします。30分の運動で使うエネルギーの目安も見られます。「加工食品の影響」では、加工の多い食事で何が起きるかを見ます。"
         read="割合が目安の範囲（たんぱく質13〜20%・脂質20〜30%・炭水化物50〜65%）に入っているかを見ます。必要量は年齢・活動量・目的で変わるので、目安として使ってください。"
       />
 
@@ -43,6 +43,9 @@ export function NutriLab() {
       <LabMore>
         <p className="neuro-caution">
           目安値は日本人の食事摂取基準（2025年版）等を参考にした一般的な範囲で、必要量は年齢・活動量・目的で変わります。本コンテンツは概念を体感するための教育用モデルです。
+        </p>
+        <p className="neuro-caution">
+          参考: Ganpule AA ら (2007) Interindividual variability in sleeping metabolic rate in Japanese subjects. Eur J Clin Nutr 61:1256-1261／Miyake R ら (2011) Validity of predictive equations for basal metabolic rate in Japanese adults. J Nutr Sci Vitaminol 57:224-232／国立健康・栄養研究所 (2012) 改訂版「身体活動のメッツ（METs）表」（Ainsworth BE ら (2011) 2011 Compendium of Physical Activities. Med Sci Sports Exerc 43:1575-1581 の日本語版）／厚生労働省 (2013) 健康づくりのための身体活動基準2013／Hall KD ら (2019) Ultra-processed diets cause excess calorie intake and weight gain. Cell Metab 30:67-77。
         </p>
       </LabMore>
     </section>
@@ -82,8 +85,9 @@ function PfcLab() {
   const [activity, setActivity] = useState(1.55);
   const [goal, setGoal] = useState<Goal>('maintain');
 
-  // Mifflin-St Jeor 式による基礎代謝(BMR)→ 活動量 → 総消費カロリー(TDEE)
-  const bmr = Math.round(sex === 'male' ? 10 * weight + 6.25 * height - 5 * age + 5 : 10 * weight + 6.25 * height - 5 * age - 161);
+  // 国立健康・栄養研究所の式（Ganpule ら 2007）による基礎代謝(BMR)→ 活動量 → 総消費カロリー(TDEE)
+  // 日本人365人の実測と比べた研究で、6つの式のうち最も誤差が小さかった（Miyake ら 2011）
+  const bmr = Math.round(((0.0481 * weight + 0.0234 * height - 0.0138 * age - (sex === 'male' ? 0.4235 : 0.9708)) * 1000) / 4.186);
   const tdee = Math.round(bmr * activity);
   const targetKcal = clamp(Math.round((tdee * GOALS[goal].adj) / 50) * 50, 1200, 3200);
   const proteinTarget = Math.round(weight * 1.6); // 目安 1.6 g/kg
@@ -201,9 +205,14 @@ function PfcLab() {
           </button>
         </div>
         <p className="profile-hint">
+          基礎代謝は、日本人の実測に近いとされる国立健康・栄養研究所の式で計算しています。それでも一人ひとりでは±100kcal前後ずれることがあり、活動量の選び方でも1日の量は大きく変わります。
+        </p>
+        <p className="profile-hint">
           筋トレで筋肉を増やしたい人のたんぱく質の目安は <b>{proteinTarget}g/日</b>（体重×1.6g。筋トレ中の研究で、これ以上とっても筋肉の増え方が頭打ちになった量）。食事摂取基準の推奨量は、成人男性65g・女性50gです。
         </p>
       </div>
+
+      <ExerciseKcal weight={weight} />
 
       <div className="nutri-grid">
         <div className="iap-stage nutri-stage">
@@ -275,6 +284,101 @@ function PfcLab() {
       </div>
       </div>
     </>
+  );
+}
+
+/* =============== 30分の運動で使うエネルギーの目安 =============== */
+
+/**
+ * メッツは国立健康・栄養研究所「改訂版 身体活動のメッツ（METs）表」（2012、2011 Compendium の日本語版）の値。
+ * 計算は厚生労働省「健康づくりのための身体活動基準2013」と同じく、安静の分（1メッツ）を引いた
+ * 「運動で増えた分」＝（メッツ − 1）× 時間 × 体重 を、5kcal 単位で出す。
+ */
+const EXERCISE_GROUPS: { title: string; items: { name: string; mets: number }[] }[] = [
+  {
+    title: '歩く・走る',
+    items: [
+      { name: 'ふつうの速さで歩く（時速4km）', mets: 3.0 },
+      { name: '階段をゆっくり上る', mets: 4.0 },
+      { name: '速歩き（時速5.6km）', mets: 4.3 },
+      { name: 'ジョギング', mets: 7.0 },
+      { name: 'ランニング（時速8km）', mets: 8.3 },
+      { name: 'ランニング（時速9.7km）', mets: 9.8 },
+    ],
+  },
+  {
+    title: '自転車・水中',
+    items: [
+      { name: '自転車（時速16km未満・通勤やレジャー）', mets: 4.0 },
+      { name: '水中歩行（ほどほどの速さ）', mets: 4.5 },
+      { name: 'エアロバイク（51〜89ワット）', mets: 4.8 },
+      { name: '水泳・クロール（ゆっくり）', mets: 5.8 },
+    ],
+  },
+  {
+    title: '筋トレ・体操',
+    items: [
+      { name: 'ストレッチ（ゆったり）', mets: 2.3 },
+      { name: 'ヨガ（ハタヨガ）', mets: 2.5 },
+      { name: 'ピラティス', mets: 3.0 },
+      { name: '筋トレ（いろいろな種目を8〜15回ずつ）', mets: 3.5 },
+      { name: '筋トレ（重い負荷・きつい）', mets: 6.0 },
+      { name: 'エアロビクス', mets: 7.3 },
+      { name: 'サーキットトレーニング（休憩少なめ）', mets: 8.0 },
+    ],
+  },
+  {
+    title: 'スポーツ',
+    items: [
+      { name: 'ゴルフ', mets: 4.8 },
+      { name: 'バドミントン（試合以外）', mets: 5.5 },
+      { name: 'サッカー（遊び程度）', mets: 7.0 },
+      { name: 'テニス', mets: 7.3 },
+    ],
+  },
+  {
+    title: '家事',
+    items: [
+      { name: '床の掃き掃除', mets: 3.3 },
+      { name: 'モップがけ', mets: 3.5 },
+    ],
+  },
+];
+
+const kcal30 = (mets: number, weight: number) => Math.round(((mets - 1) * 0.5 * weight) / 5) * 5;
+
+function ExerciseKcal({ weight }: { weight: number }) {
+  const w = clamp(weight, 30, 150);
+  return (
+    <details className="exercise-kcal">
+      <summary>
+        <b>30分の運動で使うエネルギーの目安</b>
+        <span>体重 {w}kg で計算</span>
+      </summary>
+      <p className="exercise-kcal-lead">
+        安静にしていても使う分を引いた、<b>運動で増えた分</b>です。上の体重を変えると、数字も変わります。
+      </p>
+      {EXERCISE_GROUPS.map((g) => (
+        <div key={g.title} className="exercise-kcal-group">
+          <p className="exercise-kcal-title">{g.title}</p>
+          <ul>
+            {g.items.map((it) => (
+              <li key={it.name}>
+                <span>{it.name}</span>
+                <em>{it.mets.toFixed(1)}メッツ</em>
+                <b>
+                  約{kcal30(it.mets, w)}
+                  <small>kcal</small>
+                </b>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+      <p className="exercise-kcal-note">
+        計算：（メッツ − 1）× 0.5時間 × 体重。メッツは「安静にしているときの何倍のエネルギーを使うか」を表す平均的な値で、体格・体力・動きのこなし方で実際の量は変わります。安静の分も含めた量は、ここに約{Math.round((0.5 * w) / 5) * 5}kcal を足した値です。
+      </p>
+    </details>
   );
 }
 
